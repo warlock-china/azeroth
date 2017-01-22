@@ -203,9 +203,6 @@ public class OldApiTopicConsumer implements TopicConsumer,Closeable {
 	
 	/**
 	 * 处理线程满后策略
-	 * @description <br>
-	 * @author <a href="mailto:vakinge@gmail.com">vakin</a>
-	 * @date 2016年7月25日
 	 */
 	private class PoolFullRunsPolicy implements RejectedExecutionHandler {
 		
