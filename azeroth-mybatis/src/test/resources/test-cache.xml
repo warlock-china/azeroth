@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+                            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+                            http://www.springframework.org/schema/tx  http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+
+
+	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<property name="maxTotal" value="${redis.pool.maxTotal}" />
+		<property name="maxIdle" value="${redis.pool.maxIdle}" />
+		<property name="minIdle" value="${redis.pool.minIdle}" />
+	</bean>
+
+	<bean class="cn.com.warlock.cache.redis.JedisProviderFactoryBean">
+		<property name="jedisPoolConfig" ref="jedisPoolConfig" />
+		<!-- mode(standalone:单机模式，sentinel：哨兵模式(主从),cluster：集群模式，shard：分片模式) -->
+		<property name="mode" value="${redis.mode}" />
+		<!-- 多个用“,”隔开 -->
+		<property name="servers" value="${redis.servers}" />
+		<property name="password" value="${redis.password}" />
+		<property name="timeout" value="${redis.conn.timeout}" />
+		<!-- sentinel模式才需要该属性 -->
+		<property name="masterName" value="${redis.masterName}" />
+	</bean>
+
+
+	<bean id="jedisConnectionFactory"
+		class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+		destroy-method="destroy">
+		<property name="hostName" value="127.0.0.1" />
+		<property name="port" value="6379" />
+		<property name="timeout" value="15000" />
+		<property name="database" value="0" />
+		<property name="password" value="${redis.password}" />
+		<property name="usePool" value="true" />
+		<property name="poolConfig" ref="jedisPoolConfig" />
+	</bean>
+
+	<bean id="redisTemplate" class="org.springframework.data.redis.core.RedisTemplate">
+		<property name="connectionFactory" ref="jedisConnectionFactory" />
+		<property name="keySerializer">
+			<bean class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+		</property>
+		<property name="hashKeySerializer">
+			<bean class="org.springframework.data.redis.serializer.StringRedisSerializer" />
+		</property>
+	</bean>
+
+	<bean id="stringRedisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+		<property name="connectionFactory" ref="jedisConnectionFactory" />
+	</bean>
+</beans>

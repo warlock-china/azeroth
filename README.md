@@ -38,4 +38,3 @@ License
 
 Copyright (c) 2017-forever, warlock.com.cn. All rights reserved.
 
-For licensing, see LICENSE.md or [http://ckeditor.com/license](http://ckeditor.com/license)

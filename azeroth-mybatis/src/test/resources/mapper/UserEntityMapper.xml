@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.com.warlock.mybatis.test.mapper.UserEntityMapper">
+  <resultMap id="BaseResultMap" type="cn.com.warlock.mybatis.test.entity.UserEntity">
+    <!--
+      WARNING - @mbggenerated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="password" jdbcType="CHAR" property="password" />
+    <result column="mobile" jdbcType="CHAR" property="mobile" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="type" jdbcType="SMALLINT" property="type" />
+    <result column="status" jdbcType="SMALLINT" property="status" />
+    <result column="created_at" jdbcType="TIMESTAMP" property="createdAt" />
+    <result column="updated_at" jdbcType="TIMESTAMP" property="updatedAt" />
+  </resultMap>
+  
+  <select id="findByType" resultMap="BaseResultMap">
+      SELECT * FROM users where type = #{type} 
+  </select>
+  
+  <select id="findByStatus" resultMap="BaseResultMap">
+      SELECT * FROM users where status = #{status} 
+  </select>
+  
+  <select id="findByMobile" resultMap="BaseResultMap">
+      SELECT * FROM users where mobile = #{mobile} 
+  </select>
+  
+  <select id="countByExample" resultType="int" parameterType="cn.com.warlock.mybatis.test.entity.UserEntity">
+      SELECT count(0) FROM users where 1=1
+      <if test="name != null">  
+        AND name = #{name}  
+    </if> 
+    <if test="mobile != null">  
+        AND mobile = #{mobile}  
+    </if> 
+  </select>
+  
+  <update id="updateType" parameterType="map">
+     update users set type = #{type} where id in
+     <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+			#{id}
+	 </foreach>
+  </update>
+  
+  <update id="updateType2" parameterType="cn.com.warlock.mybatis.test.entity.UserEntity">
+     update users set type = #{type} where 1=1
+     <if test="name != null">  
+        AND name = #{name}  
+    </if> 
+    <if test="mobile != null">  
+        AND mobile = #{mobile}  
+    </if> 
+  </update>
+  
+</mapper>
