@@ -20,18 +20,14 @@
 		<developer>
 			<name>warlock</name>
 			<email>bobo.oneself@gmail.com</email>
-			<organization>github</organization>
+			<organization>warlock-china</organization>
 			<organizationUrl>https://github.com/warlock-china</organizationUrl>
 		</developer>
 	</developers>
 
 	<scm>
-		<connection>
-         scm:git:https://github.com/warlock-china/azeroth.git
-      </connection>
-		<developerConnection>
-         scm:git:https://github.com/warlock-china/azeroth.git
-      </developerConnection>
+		<connection>scm:git:https://github.com/warlock-china/azeroth.git</connection>
+		<developerConnection>scm:git:https://github.com/warlock-china/azeroth.git</developerConnection>
 		<url>https://github.com/warlock-china/azeroth</url>
 		<tag>v1.0</tag>
 	</scm>
@@ -219,7 +215,6 @@
 	</build>
 
 	<distributionManagement>
-	    <!-- mvn clean deploy -P release -DskipTests=true -Dgpg.passphrase=密码 -->
 		<snapshotRepository>
 			<id>ossrh</id>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
