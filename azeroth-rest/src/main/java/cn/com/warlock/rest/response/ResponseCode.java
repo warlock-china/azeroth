@@ -8,7 +8,7 @@ public enum ResponseCode implements HttpCodeType {
 
 	UNAUTHORIZED(401, "未授权"),
 
-	PAYMENT_REQUIRED(402, "要求付款"),
+	PAYMENT_REQUIRED(402, "要求回应"),
 
 	FORBIDDEN(403, "禁止访问"),
 

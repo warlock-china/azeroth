@@ -4,11 +4,9 @@
 	<parent>
 		<groupId>cn.com.warlock</groupId>
 		<artifactId>azeroth</artifactId>
-		<version>2</version>
+		<version>1.0.0-RELEASE</version>
 	</parent>
 	<artifactId>azeroth-common</artifactId>
-	<version>1.0.2</version>
-	<description>基础工具类支持</description>
 
 	<dependencies>
 		<dependency>

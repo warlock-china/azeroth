@@ -3,10 +3,9 @@
   <parent>
     <groupId>cn.com.warlock</groupId>
     <artifactId>azeroth</artifactId>
-    <version>2</version>
+    <version>1.0.0-RELEASE</version>
   </parent>
   <artifactId>azeroth-spring</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
   
   <dependencies>
 		<dependency>

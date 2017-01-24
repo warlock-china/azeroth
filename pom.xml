@@ -3,12 +3,16 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>cn.com.warlock</groupId>
 	<artifactId>azeroth</artifactId>
-	<version>2</version>
+	<version>1.0.0-RELEASE</version>
 	<packaging>pom</packaging>
 	<description>艾泽拉斯（Azeroth），它是泰坦赐予无边黑暗中一个渺小位面的名字，这个世界上曾经唯一的大陆被泰坦命名为卡利姆多——“永烁星光之地”。战斗吧，英雄！</description>
 	<name>azeroth</name>
 	<url>http://warlock.com.cn</url>
-
+	<!-- <parent> -->
+	<!-- <groupId>org.sonatype.oss</groupId> -->
+	<!-- <artifactId>oss-parent</artifactId> -->
+	<!-- <version>7</version> -->
+	<!-- </parent> -->
 	<licenses>
 		<license>
 			<name>The Apache License, Version 2.0</name>
@@ -26,8 +30,12 @@
 	</developers>
 
 	<scm>
-		<connection>scm:git:https://github.com/warlock-china/azeroth.git</connection>
-		<developerConnection>scm:git:https://github.com/warlock-china/azeroth.git</developerConnection>
+		<connection>
+         scm:git:https://github.com/warlock-china/azeroth.git
+      </connection>
+		<developerConnection>
+         scm:git:https://github.com/warlock-china/azeroth.git
+      </developerConnection>
 		<url>https://github.com/warlock-china/azeroth</url>
 		<tag>v1.0</tag>
 	</scm>
@@ -59,6 +67,7 @@
 		<module>azeroth-common2</module>
 		<module>azeroth-log</module>
 		<module>azeroth-filesystem</module>
+		<module>azeroth-emitter</module>
 	</modules>
 
 	<dependencies>
@@ -98,64 +107,46 @@
 	</dependencies>
 
 	<profiles>
+
 		<profile>
 			<id>release</id>
 			<build>
 				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<configuration>
-							<source>${compiler.jdk.version}</source>
-							<target>${compiler.jdk.version}</target>
-							<encoding>${output.encoding}</encoding>
-						</configuration>
-					</plugin>
-
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-deploy-plugin</artifactId>
-						<configuration>
-							<skip>false</skip>
-						</configuration>
-					</plugin>
-
+					<!-- Source -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
+						<version>2.2.1</version>
 						<executions>
 							<execution>
-								<id>attach-sources</id>
+								<phase>package</phase>
 								<goals>
 									<goal>jar-no-fork</goal>
 								</goals>
 							</execution>
 						</executions>
 					</plugin>
-
+					<!-- Javadoc -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-javadoc-plugin</artifactId>
 						<version>2.9.1</version>
 						<executions>
 							<execution>
-								<id>attach-javadocs</id>
+								<phase>package</phase>
 								<goals>
 									<goal>jar</goal>
 								</goals>
-								<configuration>
-									<additionalparam>-Xdoclint:none</additionalparam>
-								</configuration>
 							</execution>
 						</executions>
 					</plugin>
-
+					<!-- GPG -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.5</version>
 						<executions>
 							<execution>
-								<id>sign-artifacts</id>
 								<phase>verify</phase>
 								<goals>
 									<goal>sign</goal>
@@ -165,7 +156,16 @@
 					</plugin>
 				</plugins>
 			</build>
-
+			<distributionManagement>
+				<snapshotRepository>
+					<id>ossrh</id>
+					<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+				</snapshotRepository>
+				<repository>
+					<id>ossrh</id>
+					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+				</repository>
+			</distributionManagement>
 		</profile>
 	</profiles>
 
@@ -215,6 +215,7 @@
 	</build>
 
 	<distributionManagement>
+		<!-- mvn clean deploy -P sonatype-oss-release -DskipTests=true -Dgpg.passphrase=密码 -->
 		<snapshotRepository>
 			<id>ossrh</id>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
