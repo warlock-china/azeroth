@@ -3,6 +3,7 @@
 ====================
 
 艾泽拉斯（Azeroth），它是泰坦赐予无边黑暗中一个渺小位面的名字，这个世界上曾经唯一的大陆被泰坦命名为卡利姆多——“永烁星光之地”。
+![Image text](https://github.com/warlock-china/img/blob/master/azeroth.png?raw=true)
 
 
 Features
