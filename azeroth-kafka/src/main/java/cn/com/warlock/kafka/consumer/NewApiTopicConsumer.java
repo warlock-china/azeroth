@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,6 +25,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,14 +41,13 @@ public class NewApiTopicConsumer implements TopicConsumer,Closeable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConsumerWorker.class);
 
-	private Properties configs;
 	private Map<String, MessageHandler> topicHandlers;
 	
 	private ExecutorService fetcheExecutor;
 	private StandardThreadExecutor processExecutor;
 	private List<ConsumerWorker> consumerWorks = new ArrayList<>();
 
-	private KafkaConsumer<String, DefaultMessage> consumer;
+	private KafkaConsumer<String, Serializable> consumer;
 	
 	private ErrorMessageDefaultProcessor errorMessageProcessor = new ErrorMessageDefaultProcessor(1);
 	
@@ -55,17 +55,18 @@ public class NewApiTopicConsumer implements TopicConsumer,Closeable {
 	private final List<Future<Boolean>> committedOffsetFutures = new ArrayList<>();
 	
 	private boolean offsetAutoCommit;
+	private ConsumerContext consumerContext;
 	
-	public NewApiTopicConsumer(Properties configs, Map<String, MessageHandler> topicHandlers,int maxProcessThreads) {
+	public NewApiTopicConsumer(ConsumerContext context) {
 		super();
-		this.configs = configs;
-		this.topicHandlers = topicHandlers;
+		this.consumerContext = context;
+		this.topicHandlers = context.getMessageHandlers();
 		//
 	    fetcheExecutor = Executors.newFixedThreadPool(topicHandlers.size());
 	    //
-	    processExecutor = new StandardThreadExecutor(1, maxProcessThreads, 1000);
+	    processExecutor = new StandardThreadExecutor(1, context.getMaxProcessThreads(), 1000);
 	    //enable.auto.commit 默认为true
-	    offsetAutoCommit = configs.containsKey("enable.auto.commit") == false || Boolean.parseBoolean(configs.getProperty("enable.auto.commit"));
+	    offsetAutoCommit = context.getProperties().containsKey("enable.auto.commit") == false || Boolean.parseBoolean(context.getProperties().getProperty("enable.auto.commit"));
 	}
 
 	@Override
@@ -77,6 +78,46 @@ public class NewApiTopicConsumer implements TopicConsumer,Closeable {
 			consumerWorks.add(consumer);
 			fetcheExecutor.submit(consumer);
 		}
+		//重置offset
+		if(offsetAutoCommit && consumerContext.getOffsetLogHanlder() != null){	
+			resetCorrectOffsets();
+		}
+	}
+
+	/**
+	 * 按上次记录重置offsets
+	 */
+	private void resetCorrectOffsets() {
+		consumer.pause(consumer.assignment());
+		Map<String, List<PartitionInfo>> topicInfos = consumer.listTopics();
+		Set<String> topics = topicInfos.keySet();
+		
+		List<String> expectTopics = new ArrayList<>(topicHandlers.keySet());
+		
+		List<PartitionInfo> patitions = null;
+		for (String topic : topics) {
+			if(!expectTopics.contains(topic))continue;
+			
+			patitions = topicInfos.get(topic);
+			for (PartitionInfo partition : patitions) {
+				try {						
+					//期望的偏移
+					long expectOffsets = consumerContext.getLatestProcessedOffsets(topic, partition.partition());
+					//
+					TopicPartition topicPartition = new TopicPartition(topic, partition.partition());
+					OffsetAndMetadata metadata = consumer.committed(new TopicPartition(partition.topic(), partition.partition()));
+					if(expectOffsets >= 0){						
+						if(expectOffsets < metadata.offset()){	
+							consumer.seek(topicPartition, expectOffsets);
+							logger.info("seek Topic[{}] partition[{}] from {} to {}",topic, partition.partition(),metadata.offset(),expectOffsets);
+						}
+					}
+				} catch (Exception e) {
+					logger.warn("try seek topic["+topic+"] partition["+partition.partition()+"] offsets error");
+				}
+			}
+		}
+		consumer.resume(consumer.assignment());
 	}
 
 	@Override
@@ -92,8 +133,8 @@ public class NewApiTopicConsumer implements TopicConsumer,Closeable {
 		consumer.close();
 	}
 	
-	private <K extends Serializable, V extends DefaultMessage> void createKafkaConsumer(){
-		consumer = new KafkaConsumer<>(configs);
+	private <K extends Serializable, V extends Serializable> void createKafkaConsumer(){
+		consumer = new KafkaConsumer<>(consumerContext.getProperties());
 		ConsumerRebalanceListener listener = new ConsumerRebalanceListener() {
 
 			@Override
@@ -107,8 +148,20 @@ public class NewApiTopicConsumer implements TopicConsumer,Closeable {
 			@Override
 			public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
 				for (TopicPartition tp : partitions) {
-					OffsetAndMetadata offsetAndMetaData = consumer.committed(tp);
-					long startOffset = offsetAndMetaData != null ? offsetAndMetaData.offset() : -1L;
+					//期望的偏移
+					long startOffset = 0L;
+                if(consumerContext.getOffsetLogHanlder() != null){	
+						try {
+							startOffset = consumerContext.getLatestProcessedOffsets(tp.topic(), tp.partition());
+							logger.info("offsetLogHanlder.getLatestProcessedOffsets({},{}) result is {}",tp.topic(), tp.partition(),startOffset);
+						} catch (Exception e) {
+							logger.warn("offsetLogHanlder.getLatestProcessedOffsets error:{}",e.getMessage());
+						}
+					}
+                if(startOffset == 0){
+                	OffsetAndMetadata offsetAndMetaData = consumer.committed(tp);
+                	startOffset = offsetAndMetaData != null ? offsetAndMetaData.offset() : -1L;
+                }
 					logger.debug("Assigned topicPartion : {} offset : {}", tp, startOffset);
 
 					if (startOffset >= 0)
@@ -151,14 +204,15 @@ public class NewApiTopicConsumer implements TopicConsumer,Closeable {
 			ExecutorService executor = Executors.newFixedThreadPool(1);
 
 			while (!closed.get()) {
-				ConsumerRecords<String,DefaultMessage> records = consumer.poll(1500);
+				ConsumerRecords<String,Serializable> records = consumer.poll(1500);
 				// no record found
 				if (records.isEmpty()) {
 					continue;
 				}
 				
 				if(offsetAutoCommit){
-					for (final ConsumerRecord<String,DefaultMessage> record : records) {						
+					for (final ConsumerRecord<String,Serializable> record : records) {	
+						
 						processConsumerRecords(record);
 					}
 					continue;
@@ -206,20 +260,26 @@ public class NewApiTopicConsumer implements TopicConsumer,Closeable {
 		/**
 		 * @param record
 		 */
-		private void processConsumerRecords(final ConsumerRecord<String, DefaultMessage> record) {
+		private void processConsumerRecords(final ConsumerRecord<String, Serializable> record) {
 			final MessageHandler messageHandler = topicHandlers.get(record.topic());
+			
+			consumerContext.saveOffsetsBeforeProcessed(record.topic(), record.partition(), record.offset());
+			//兼容没有包装的情况
+			final DefaultMessage message = record.value() instanceof DefaultMessage ? (DefaultMessage) record.value() : new DefaultMessage((Serializable) record.value());
 			//第一阶段处理
-			messageHandler.p1Process(record.value());
+			messageHandler.p1Process(message);
 			//第二阶段处理
 			processExecutor.submit(new Runnable() {
 				@Override
 				public void run() {
 					try {									
-						messageHandler.p2Process(record.value());
+						messageHandler.p2Process(message);
+						//
+						consumerContext.saveOffsetsAfterProcessed(record.topic(), record.partition(), record.offset());
 					} catch (Exception e) {
-						boolean processed = messageHandler.onProcessError(record.value());
+						boolean processed = messageHandler.onProcessError(message);
 						if(processed == false){
-							errorMessageProcessor.submit(record.value(), messageHandler);
+							errorMessageProcessor.submit(message, messageHandler);
 						}
 						logger.error("["+messageHandler.getClass().getSimpleName()+"] process Topic["+record.topic()+"] error",e);
 					}
@@ -233,10 +293,10 @@ public class NewApiTopicConsumer implements TopicConsumer,Closeable {
 
 		private class ConsumeRecords implements Callable<Boolean> {
 
-			ConsumerRecords<String,DefaultMessage> records;
+			ConsumerRecords<String,Serializable> records;
 			Map<TopicPartition, Long> partitionToUncommittedOffsetMap;
 
-			public ConsumeRecords(ConsumerRecords<String,DefaultMessage> records,
+			public ConsumeRecords(ConsumerRecords<String,Serializable> records,
 					Map<TopicPartition, Long> partitionToUncommittedOffsetMap) {
 				this.records = records;
 				this.partitionToUncommittedOffsetMap = partitionToUncommittedOffsetMap;
@@ -247,7 +307,7 @@ public class NewApiTopicConsumer implements TopicConsumer,Closeable {
 
 				logger.debug("Number of records received : {}", records.count());
 				try {
-					for (final ConsumerRecord<String,DefaultMessage> record : records) {
+					for (final ConsumerRecord<String,Serializable> record : records) {
 						TopicPartition tp = new TopicPartition(record.topic(), record.partition());
 						logger.info("Record received topicPartition : {}, offset : {}", tp,record.offset());
 						partitionToUncommittedOffsetMap.put(tp, record.offset());

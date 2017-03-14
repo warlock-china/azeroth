@@ -48,6 +48,19 @@ public class ZkConsumerCommand {
 	private ZkClient zkClient;
 	private ZkUtils zkUtils;
 	
+public ZkConsumerCommand(String zkServers,String kafkaServers) {
+		
+		kafkaServerList.addAll(Arrays.asList(kafkaServers.split(",")));
+		
+		if(zkClient == null){			
+			zkClient = new ZkClient(zkServers, 10000, 10000, ZKStringSerializer$.MODULE$);
+		}
+		zkClient = new ZkClient(zkServers, 10000, 10000, ZKStringSerializer$.MODULE$);
+		
+		boolean isSecureKafkaCluster = false;
+		zkUtils = new ZkUtils(zkClient, new ZkConnection(zkServers), isSecureKafkaCluster);
+	}
+	
 	public ZkConsumerCommand(ZkClient zkClient,String zkServers,String kafkaServers) {
 		
 		kafkaServerList.addAll(Arrays.asList(kafkaServers.split(",")));
@@ -156,9 +169,9 @@ public class ZkConsumerCommand {
 		List<TopicPartitionInfo> result = new ArrayList<>();
 		String path = "/consumers/" + groupId + "/offsets/"+topic;
 		if(!zkClient.exists(path))return new ArrayList<>();
-        List<String> children = zkClient.getChildren(path);
+    List<String> children = zkClient.getChildren(path);
 		
-        TopicPartitionInfo tp;
+    TopicPartitionInfo tp;
 		for (String child : children) {
 			Stat stat = new Stat();
 			Object data = zkClient.readData(path + "/" + child,stat);
@@ -168,6 +181,11 @@ public class ZkConsumerCommand {
 			result.add(tp);
 		}
 		return result;
+	}
+	
+	public void resetTopicOffsets(String groupId,String topic,int partition,long newOffsets){
+		String path = "/consumers/" + groupId + "/offsets/"+topic + "/" + partition;
+		zkClient.writeData(path, String.valueOf(newOffsets));
 	}
 	
 	public String fetchPartitionOwner(String groupId,String topic,int partition){
@@ -185,34 +203,34 @@ public class ZkConsumerCommand {
 	}
 	
 	private SimpleConsumer getConsumerClient(String kafkaServer){
-    	if(consumers.containsKey(kafkaServer))return consumers.get(kafkaServer);
-    	String host = kafkaServer.split(":")[0];
+	if(consumers.containsKey(kafkaServer))return consumers.get(kafkaServer);
+	String host = kafkaServer.split(":")[0];
 		int port = Integer.parseInt(kafkaServer.split(":")[1]);
 		
 		SimpleConsumer consumer = new SimpleConsumer(host, port, 100000, 64 * 1024, CLIENT_ID);
 		consumers.put(kafkaServer, consumer);
 		return consumer;
-    }
-    
-    private SimpleConsumer getConsumerClient(String host,int port){
-    	return getConsumerClient(host + ":" + port);
-    }
-    
-    /**
-     * 获取指定主题及分区logsize
-     * @param stat
-     */
-    public void getTopicPartitionLogSize(TopicPartitionInfo stat){
-    	BrokerEndPoint leader = findLeader(stat.getTopic(), stat.getPartition()).leader();
-    	SimpleConsumer consumer = getConsumerClient(leader.host(), leader.port());	
-    	
-    	try {			
-    		long logsize = getLastOffset(consumer,stat.getTopic(), stat.getPartition(), kafka.api.OffsetRequest.LatestTime());
-    		stat.setLogSize(logsize);
+}
+
+private SimpleConsumer getConsumerClient(String host,int port){
+	return getConsumerClient(host + ":" + port);
+}
+
+/**
+ * 获取指定主题及分区logsize
+ * @param stat
+ */
+public void getTopicPartitionLogSize(TopicPartitionInfo stat){
+	BrokerEndPoint leader = findLeader(stat.getTopic(), stat.getPartition()).leader();
+	SimpleConsumer consumer = getConsumerClient(leader.host(), leader.port());	
+	
+	try {			
+		long logsize = getLastOffset(consumer,stat.getTopic(), stat.getPartition(), kafka.api.OffsetRequest.LatestTime());
+		stat.setLogSize(logsize);
 		} finally {
 			consumer.close();
 		}
-    }
+}
 
 	private static long getLastOffset(SimpleConsumer consumer, String topic, int partition, long whichTime) {
 		TopicAndPartition topicAndPartition = new TopicAndPartition(topic, partition);

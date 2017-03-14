@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -13,12 +12,15 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.com.warlock.kafka.handler.MessageHandler;
 import cn.com.warlock.kafka.message.DefaultMessage;
+import cn.com.warlock.kafka.monitor.ZkConsumerCommand;
+import cn.com.warlock.kafka.monitor.model.TopicPartitionInfo;
 import cn.com.warlock.kafka.serializer.MessageDecoder;
 import cn.com.warlock.kafka.thread.StandardThreadExecutor;
 import cn.com.warlock.kafka.thread.StandardThreadExecutor.StandardThreadFactory;
@@ -26,6 +28,7 @@ import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
+import kafka.message.MessageAndMetadata;
 import kafka.serializer.StringDecoder;
 import kafka.utils.VerifiableProperties;
 
@@ -38,7 +41,7 @@ public class OldApiTopicConsumer implements TopicConsumer,Closeable {
 	
 	private Deserializer<Object> deserializer;
 	//
-	private Map<String, MessageHandler> topics;
+	private ConsumerContext consumerContext;
 	//接收线程
 	private StandardThreadExecutor fetchExecutor;
 	//默认处理线程
@@ -58,28 +61,32 @@ public class OldApiTopicConsumer implements TopicConsumer,Closeable {
 	 * @param processThreads 
 	 */
 	@SuppressWarnings("unchecked")
-	public OldApiTopicConsumer(Properties configs, Map<String, MessageHandler> topics,int maxProcessThreads) {
+	public OldApiTopicConsumer(ConsumerContext context) {
 		
+		this.consumerContext = context;
 		try {
-			Class<?> deserializerClass = Class.forName(configs.getProperty("value.deserializer"));
+			Class<?> deserializerClass = Class.forName(context.getProperties().getProperty("value.deserializer"));
 			deserializer = (Deserializer<Object>) deserializerClass.newInstance();
 		} catch (Exception e) {}
-		this.connector = kafka.consumer.Consumer.createJavaConsumerConnector(new ConsumerConfig(configs));
-		this.topics = topics;
+		this.connector = kafka.consumer.Consumer.createJavaConsumerConnector(new ConsumerConfig(context.getProperties()));
 		
-		int poolSize = topics.size();
+		int poolSize = consumerContext.getMessageHandlers().size();
 		this.fetchExecutor = new StandardThreadExecutor(poolSize, poolSize,0, TimeUnit.SECONDS, poolSize,new StandardThreadFactory("KafkaFetcher"));
 		
-		this.defaultProcessExecutor = new StandardThreadExecutor(1, maxProcessThreads,30, TimeUnit.SECONDS, maxProcessThreads,new StandardThreadFactory("KafkaProcessor"),new PoolFullRunsPolicy());
+		this.defaultProcessExecutor = new StandardThreadExecutor(1, context.getMaxProcessThreads(),30, TimeUnit.SECONDS, context.getMaxProcessThreads(),new StandardThreadFactory("KafkaProcessor"),new PoolFullRunsPolicy());
 		
-		logger.info("Kafka Conumer ThreadPool initialized,fetchPool Size:{},defalutProcessPool Size:{} ",poolSize,maxProcessThreads);
+		logger.info("Kafka Conumer ThreadPool initialized,fetchPool Size:{},defalutProcessPool Size:{} ",poolSize,context.getMaxProcessThreads());
 	}
 
 
 	@Override
 	public void start() {
+		//重置offset
+		if(consumerContext.getOffsetLogHanlder() != null){	
+			resetCorrectOffsets();
+		}
 		Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
-		for (String topicName : topics.keySet()) {
+		for (String topicName : consumerContext.getMessageHandlers().keySet()) {
 			int nThreads = 1;
 			topicCountMap.put(topicName, nThreads);
 			logger.info("topic[{}] assign fetch Threads {}",topicName,nThreads);
@@ -91,7 +98,7 @@ public class OldApiTopicConsumer implements TopicConsumer,Closeable {
 		Map<String, List<KafkaStream<String, Object>>> consumerMap = this.connector.createMessageStreams(topicCountMap,
 				keyDecoder, valueDecoder);
 
-		for (String topicName : topics.keySet()) {
+		for (String topicName : consumerContext.getMessageHandlers().keySet()) {
 			final List<KafkaStream<String, Object>> streams = consumerMap.get(topicName);
 
 			for (final KafkaStream<String, Object> stream : streams) {
@@ -101,6 +108,38 @@ public class OldApiTopicConsumer implements TopicConsumer,Closeable {
 		}
 		//
 		runing.set(true);
+	}
+	
+	
+	/**
+	 * 按上次记录重置offsets
+	 */
+	private void resetCorrectOffsets() {
+		String kafkaServers = consumerContext.getProperties().getProperty("bootstrap.servers");
+		String zkServers = consumerContext.getProperties().getProperty("zookeeper.connect");
+		if(StringUtils.isAnyBlank(kafkaServers,zkServers)){
+			logger.warn("resetCorrectOffsets exit。Please check [bootstrap.servers] and [zookeeper.connect] is existing");
+			return;
+		}
+		ZkConsumerCommand command = new ZkConsumerCommand(zkServers, kafkaServers);
+		try {
+			List<String> topics = command.getSubscribeTopics(consumerContext.getGroupId());
+			for (String topic : topics) {
+				List<TopicPartitionInfo> partitions = command.getTopicOffsets(consumerContext.getGroupId(), topic);
+				for (TopicPartitionInfo partition : partitions) {
+					//期望的偏移
+					long expectOffsets = consumerContext.getLatestProcessedOffsets(topic, partition.getPartition());
+					//
+					if(expectOffsets >= 0 && expectOffsets < partition.getOffset()){			
+						command.resetTopicOffsets(consumerContext.getGroupId(), topic, partition.getPartition(), expectOffsets);
+						logger.info("seek Topic[{}] partition[{}] from {} to {}",topic,partition.getPartition(),partition.getOffset(),expectOffsets);
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		command.close();
 	}
 
 	/**
@@ -118,13 +157,13 @@ public class OldApiTopicConsumer implements TopicConsumer,Closeable {
 		public MessageProcessor(String topicName, KafkaStream<String, Object> stream) {
 			this.stream = stream;
 			this.topicName = topicName;
-			this.messageHandler = topics.get(topicName);
+			this.messageHandler = consumerContext.getMessageHandlers().get(topicName);
 			this.processorName = this.messageHandler.getClass().getName();
 		}
 
 		@Override
 		public void run() {
- 
+
 			if (logger.isInfoEnabled()) {
 				logger.info("MessageProcessor [{}] start, topic:{}",Thread.currentThread().getName(),topicName);
 			}
@@ -141,17 +180,20 @@ public class OldApiTopicConsumer implements TopicConsumer,Closeable {
 					try {Thread.sleep(200);} catch (Exception e) {}
 				}
 				try {					
-					Object _message = it.next().message();
+					MessageAndMetadata<String, Object> messageAndMeta = it.next();
+					Object _message = messageAndMeta.message();
 					DefaultMessage message = null;
 					try {
 						message = (DefaultMessage) _message;
 					} catch (ClassCastException e) {
 						message = new DefaultMessage((Serializable) _message);
 					}
+					//
+					consumerContext.saveOffsetsBeforeProcessed(messageAndMeta.topic(), messageAndMeta.partition(), messageAndMeta.offset());
 					//第一阶段处理
 					messageHandler.p1Process(message);
 					//第二阶段处理
-					submitMessageToProcess(topicName,message);
+					submitMessageToProcess(topicName,messageAndMeta,message);
 				} catch (Exception e) {
 					logger.error("received_topic_error,topic:"+topicName,e);
 				}
@@ -164,7 +206,7 @@ public class OldApiTopicConsumer implements TopicConsumer,Closeable {
 		 * 提交消息到处理线程队列
 		 * @param message
 		 */
-		private void submitMessageToProcess(final String topicName,final DefaultMessage message) {
+		private void submitMessageToProcess(final String topicName,final MessageAndMetadata<String, Object> messageAndMeta,final DefaultMessage message) {
 			defaultProcessExecutor.submit(new Runnable() {
 				@Override
 				public void run() {
@@ -175,6 +217,9 @@ public class OldApiTopicConsumer implements TopicConsumer,Closeable {
 							long useTime = System.currentTimeMillis() - start;
 							if(useTime > 1000)logger.debug("received_topic_useTime [{}]process topic:{} use time {} ms",processorName,topicName,useTime);
 						}
+						
+						consumerContext.saveOffsetsAfterProcessed(messageAndMeta.topic(), messageAndMeta.partition(), messageAndMeta.offset());
+						
 					} catch (Exception e) {
 						boolean processed = messageHandler.onProcessError(message);
 						if(processed == false){
@@ -203,13 +248,16 @@ public class OldApiTopicConsumer implements TopicConsumer,Closeable {
 	
 	/**
 	 * 处理线程满后策略
+	 * @description <br>
+	 * @author <a href="mailto:vakinge@gmail.com">vakin</a>
+	 * @date 2016年7月25日
 	 */
 	private class PoolFullRunsPolicy implements RejectedExecutionHandler {
 		
-        public PoolFullRunsPolicy() {}
-        public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
-        	poolRejectedExecutor.execute(r);
-        }
+    public PoolFullRunsPolicy() {}
+    public void rejectedExecution(Runnable r, ThreadPoolExecutor e) {
+    	poolRejectedExecutor.execute(r);
     }
+}
 		
 }

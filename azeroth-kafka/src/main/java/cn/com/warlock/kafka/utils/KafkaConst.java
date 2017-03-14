@@ -19,4 +19,5 @@ public class KafkaConst {
 	
 	public final static String PROP_TOPIC_LAT_THRESHOLD = "topic.lat.threshold";
 
+	public final static String PROP_ENV_ROUTE = "topic.route.env";
 }
