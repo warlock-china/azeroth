@@ -5,12 +5,14 @@ import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 import org.springframework.web.filter.RequestContextFilter;
 
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+
 import cn.com.warlock.rest.excetion.BaseExceptionMapper;
 import cn.com.warlock.rest.filter.DefaultWebFilter;
+import cn.com.warlock.rest.filter.FilterConfig;
 import cn.com.warlock.rest.resolver.ObjectMapperResolver;
 import cn.com.warlock.rest.resolver.ValidationContextResolver;
-
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import io.swagger.jaxrs.listing.SwaggerSerializers;
 
 public abstract class BaseApplicaionConfig extends ResourceConfig implements CustomConfig {
 
@@ -30,6 +32,10 @@ public abstract class BaseApplicaionConfig extends ResourceConfig implements Cus
 		register(RequestContextFilter.class);
 		
 		register(DefaultWebFilter.class);
+		
+		if(FilterConfig.apiDocEnabled()){
+		    register(SwaggerSerializers.class);
+		}
 	}
 
 	
