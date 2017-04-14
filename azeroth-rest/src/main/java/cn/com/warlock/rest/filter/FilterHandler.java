@@ -7,11 +7,11 @@ import javax.ws.rs.container.ResourceInfo;
 
 public interface FilterHandler {
 
-	void processRequest(ContainerRequestContext requestContext, HttpServletRequest request,
-			ResourceInfo resourceInfo);
-	
-	void processResponse(ContainerRequestContext requestContext, ContainerResponseContext responseContext,
-			ResourceInfo resourceInfo) ;
-	
-	int getPriority();
+    void processRequest(ContainerRequestContext requestContext, HttpServletRequest request,
+                        ResourceInfo resourceInfo);
+
+    void processResponse(ContainerRequestContext requestContext,
+                         ContainerResponseContext responseContext, ResourceInfo resourceInfo);
+
+    int getPriority();
 }

@@ -25,146 +25,149 @@ import redis.clients.jedis.Protocol;
 /**
  * redis服务提供者注册工厂
  */
-public class JedisProviderFactoryBean implements ApplicationContextAware,InitializingBean{
+public class JedisProviderFactoryBean implements ApplicationContextAware, InitializingBean {
 
-	protected static final Logger logger = LoggerFactory.getLogger(JedisProviderFactoryBean.class);
-	/**
-	 * 
-	 */
-	public static final String DEFAULT_GROUP_NAME = "default";
-	
-	private static final String REDIS_PROVIDER_SUFFIX = "RedisProvider";
-	
-	private Pattern pattern = Pattern.compile("^.+[:]\\d{1,5}\\s*$");
+    protected static final Logger logger                = LoggerFactory
+        .getLogger(JedisProviderFactoryBean.class);
+    /**
+     * 
+     */
+    public static final String    DEFAULT_GROUP_NAME    = "default";
 
-	private String mode = JedisStandaloneProvider.MODE;//
-	
-	private JedisPoolConfig jedisPoolConfig;
-	
-	//用来区分不同组的缓存
-	private String group;
-	private String servers;
-	private Integer timeout = 3000; //单位：毫秒
-	private String password;
-	private int database = Protocol.DEFAULT_DATABASE;
-	private String masterName;
-	private String clientName;
-	
-	private ApplicationContext context;
+    private static final String   REDIS_PROVIDER_SUFFIX = "RedisProvider";
 
-	public void setGroup(String group) {
-		this.group = group;
-	}
+    private Pattern               pattern               = Pattern.compile("^.+[:]\\d{1,5}\\s*$");
 
-	public String getGroup() {
-		if(group == null)group = DEFAULT_GROUP_NAME;
-		return group;
-	}
+    private String                mode                  = JedisStandaloneProvider.MODE;          //
 
-	public void setMode(String mode) {
-		this.mode = mode;
-	}
+    private JedisPoolConfig       jedisPoolConfig;
 
-	public void setJedisPoolConfig(JedisPoolConfig jedisPoolConfig) {
-		this.jedisPoolConfig = jedisPoolConfig;
-	}
+    //用来区分不同组的缓存
+    private String                group;
+    private String                servers;
+    private Integer               timeout               = 3000;                                  //单位：毫秒
+    private String                password;
+    private int                   database              = Protocol.DEFAULT_DATABASE;
+    private String                masterName;
+    private String                clientName;
 
-	public void setServers(String servers) {
-		this.servers = servers;
-	}
+    private ApplicationContext    context;
 
-	public void setTimeout(Integer timeout) {
-		this.timeout = timeout;
-	}
-	
-	
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setGroup(String group) {
+        this.group = group;
+    }
 
-	public void setDatabase(int database) {
-		this.database = database;
-	}
+    public String getGroup() {
+        if (group == null)
+            group = DEFAULT_GROUP_NAME;
+        return group;
+    }
 
-	public void setMasterName(String masterName) {
-		this.masterName = masterName;
-	}
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
 
-	public void setClientName(String clientName) {
-		this.clientName = clientName;
-	}
+    public void setJedisPoolConfig(JedisPoolConfig jedisPoolConfig) {
+        this.jedisPoolConfig = jedisPoolConfig;
+    }
 
-	@Override
-	public void setApplicationContext(ApplicationContext context) throws BeansException {
-		this.context = context;
-		//
-		InstanceFactory.setInstanceProvider(new SpringInstanceProvider(context));
-	}
-	
-	
-	
+    public void setServers(String servers) {
+        this.servers = servers;
+    }
 
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		if(jedisPoolConfig == null)throw new Exception("jedisPoolConfig Not config ??");
-		if(org.apache.commons.lang3.StringUtils.isAnyBlank(mode,servers)){
-			throw new Exception("type or servers is empty??");
-		}
-		registerRedisProvier(); 
-	}
+    public void setTimeout(Integer timeout) {
+        this.timeout = timeout;
+    }
 
-	/**
-	 * 
-	 */
-	private void registerRedisProvier() {
-		String beanName = getGroup() + REDIS_PROVIDER_SUFFIX;
-		if(context.containsBean(beanName)){
-			throw new RuntimeException("已包含group为［"+this.group+"］的缓存实例");
-		}
-		
-		String[] servers = StringUtils.tokenizeToStringArray(this.servers, ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
-		
-		//检查ip和port格式
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setDatabase(int database) {
+        this.database = database;
+    }
+
+    public void setMasterName(String masterName) {
+        this.masterName = masterName;
+    }
+
+    public void setClientName(String clientName) {
+        this.clientName = clientName;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext context) throws BeansException {
+        this.context = context;
+        //
+        InstanceFactory.setInstanceProvider(new SpringInstanceProvider(context));
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if (jedisPoolConfig == null)
+            throw new Exception("jedisPoolConfig Not config ??");
+        if (org.apache.commons.lang3.StringUtils.isAnyBlank(mode, servers)) {
+            throw new Exception("type or servers is empty??");
+        }
+        registerRedisProvier();
+    }
+
+    /**
+     * 
+     */
+    private void registerRedisProvier() {
+        String beanName = getGroup() + REDIS_PROVIDER_SUFFIX;
+        if (context.containsBean(beanName)) {
+            throw new RuntimeException("已包含group为［" + this.group + "］的缓存实例");
+        }
+
+        String[] servers = StringUtils.tokenizeToStringArray(this.servers,
+            ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
+
+        //检查ip和port格式
         for (String server : servers) {
-			if(!pattern.matcher(server).matches()){
-				throw new RuntimeException("参数servers："+this.servers+"错误");
-			}
-		}
-        
-		Class<?> beanClass = null;
-		if(JedisStandaloneProvider.MODE.equalsIgnoreCase(mode)){	
-			beanClass = JedisStandaloneProvider.class;
-		}else if(JedisClusterProvider.MODE.equalsIgnoreCase(mode)){
-			beanClass = JedisClusterProvider.class;
-		}else if(JedisSentinelProvider.MODE.equalsIgnoreCase(mode)){
-			beanClass = JedisSentinelProvider.class;
-			//
-			Validate.notBlank(masterName, "Sentinel模式[masterName]参数 required");
-		}else{
-			throw new RuntimeException("参数mode："+this.mode+"不支持");
-		}
-		
-		
-		DefaultListableBeanFactory acf = (DefaultListableBeanFactory) context.getAutowireCapableBeanFactory();  
-		BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(beanClass);
-		beanDefinitionBuilder.addConstructorArgValue(getGroup())//
-		        .addConstructorArgValue(jedisPoolConfig)//
-		        .addConstructorArgValue(servers)//
-		        .addConstructorArgValue(timeout);//
-		
-		if(JedisStandaloneProvider.MODE.equalsIgnoreCase(mode) 
-				|| JedisSentinelProvider.MODE.equalsIgnoreCase(mode)){
-			beanDefinitionBuilder.addConstructorArgValue(org.apache.commons.lang3.StringUtils.trimToNull(password))//
-			    .addConstructorArgValue(database)//
-			    .addConstructorArgValue(clientName);
-		}
-		
-		if(JedisSentinelProvider.MODE.equalsIgnoreCase(mode)){
-			beanDefinitionBuilder.addConstructorArgValue(masterName);
-		}
-		
-		acf.registerBeanDefinition(beanName, beanDefinitionBuilder.getRawBeanDefinition());
-		//
-		logger.info("register JedisProvider OK,Class:{},beanName:{}",beanClass.getSimpleName(),beanName);
-	}
+            if (!pattern.matcher(server).matches()) {
+                throw new RuntimeException("参数servers：" + this.servers + "错误");
+            }
+        }
+
+        Class<?> beanClass = null;
+        if (JedisStandaloneProvider.MODE.equalsIgnoreCase(mode)) {
+            beanClass = JedisStandaloneProvider.class;
+        } else if (JedisClusterProvider.MODE.equalsIgnoreCase(mode)) {
+            beanClass = JedisClusterProvider.class;
+        } else if (JedisSentinelProvider.MODE.equalsIgnoreCase(mode)) {
+            beanClass = JedisSentinelProvider.class;
+            //
+            Validate.notBlank(masterName, "Sentinel模式[masterName]参数 required");
+        } else {
+            throw new RuntimeException("参数mode：" + this.mode + "不支持");
+        }
+
+        DefaultListableBeanFactory acf = (DefaultListableBeanFactory) context
+            .getAutowireCapableBeanFactory();
+        BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
+            .genericBeanDefinition(beanClass);
+        beanDefinitionBuilder.addConstructorArgValue(getGroup())//
+            .addConstructorArgValue(jedisPoolConfig)//
+            .addConstructorArgValue(servers)//
+            .addConstructorArgValue(timeout);//
+
+        if (JedisStandaloneProvider.MODE.equalsIgnoreCase(mode)
+            || JedisSentinelProvider.MODE.equalsIgnoreCase(mode)) {
+            beanDefinitionBuilder
+                .addConstructorArgValue(org.apache.commons.lang3.StringUtils.trimToNull(password))//
+                .addConstructorArgValue(database)//
+                .addConstructorArgValue(clientName);
+        }
+
+        if (JedisSentinelProvider.MODE.equalsIgnoreCase(mode)) {
+            beanDefinitionBuilder.addConstructorArgValue(masterName);
+        }
+
+        acf.registerBeanDefinition(beanName, beanDefinitionBuilder.getRawBeanDefinition());
+        //
+        logger.info("register JedisProvider OK,Class:{},beanName:{}", beanClass.getSimpleName(),
+            beanName);
+    }
 }

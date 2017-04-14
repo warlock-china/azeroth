@@ -4,5 +4,5 @@ import cn.com.warlock.rest.response.WrapperResponseEntity;
 
 public interface ExcetionWrapper {
 
-	WrapperResponseEntity toResponse(Exception e);
+    WrapperResponseEntity toResponse(Exception e);
 }

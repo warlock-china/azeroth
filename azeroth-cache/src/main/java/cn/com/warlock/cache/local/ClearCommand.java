@@ -10,69 +10,69 @@ import cn.com.warlock.common.json.JsonUtils;
 
 public class ClearCommand implements Serializable {
 
-	private static final long serialVersionUID = 1137020215396485376L;
+    private static final long serialVersionUID = 1137020215396485376L;
 
-	public final static byte DELETE_KEY = 0x01; // 删除缓存
-	public final static byte CLEAR = 0x02; // 清除缓存
+    public final static byte  DELETE_KEY       = 0x01;                // 删除缓存
+    public final static byte  CLEAR            = 0x02;                // 清除缓存
 
-	private String cacheName;
-	private String key;
-	private String origin;
+    private String            cacheName;
+    private String            key;
+    private String            origin;
 
-	private static String CURRENT_NODE_ID;
+    private static String     CURRENT_NODE_ID;
 
-	static {
-		try {
-			CURRENT_NODE_ID = InetAddress.getLocalHost().getHostName() + "_"
-					+ RandomStringUtils.random(6, true, true).toLowerCase();
-		} catch (Exception e) {
-			CURRENT_NODE_ID = UUID.randomUUID().toString();
-		}
-	}
+    static {
+        try {
+            CURRENT_NODE_ID = InetAddress.getLocalHost().getHostName() + "_"
+                              + RandomStringUtils.random(6, true, true).toLowerCase();
+        } catch (Exception e) {
+            CURRENT_NODE_ID = UUID.randomUUID().toString();
+        }
+    }
 
-	public String getCacheName() {
-		return cacheName;
-	}
+    public String getCacheName() {
+        return cacheName;
+    }
 
-	public void setCacheName(String cacheName) {
-		this.cacheName = cacheName;
-	}
+    public void setCacheName(String cacheName) {
+        this.cacheName = cacheName;
+    }
 
-	public String getKey() {
-		return key;
-	}
+    public String getKey() {
+        return key;
+    }
 
-	public void setKey(String key) {
-		this.key = key;
-	}
+    public void setKey(String key) {
+        this.key = key;
+    }
 
-	public String getOrigin() {
-		return origin;
-	}
+    public String getOrigin() {
+        return origin;
+    }
 
-	public void setOrigin(String origin) {
-		this.origin = origin;
-	}
+    public void setOrigin(String origin) {
+        this.origin = origin;
+    }
 
-	public ClearCommand() {
-	}
+    public ClearCommand() {
+    }
 
-	public ClearCommand(String cacheName, String key) {
-		super();
-		this.origin = CURRENT_NODE_ID;
-		this.cacheName = cacheName;
-		this.key = key;
-	}
+    public ClearCommand(String cacheName, String key) {
+        super();
+        this.origin = CURRENT_NODE_ID;
+        this.cacheName = cacheName;
+        this.key = key;
+    }
 
-	public String serialize() {
-		return JsonUtils.toJson(this);
-	}
-	
-	public boolean isLocalCommand(){
-		return CURRENT_NODE_ID.equals(origin);
-	}
+    public String serialize() {
+        return JsonUtils.toJson(this);
+    }
 
-	public static ClearCommand deserialize(String json) {
-		return JsonUtils.toObject(json, ClearCommand.class);
-	}
+    public boolean isLocalCommand() {
+        return CURRENT_NODE_ID.equals(origin);
+    }
+
+    public static ClearCommand deserialize(String json) {
+        return JsonUtils.toObject(json, ClearCommand.class);
+    }
 }

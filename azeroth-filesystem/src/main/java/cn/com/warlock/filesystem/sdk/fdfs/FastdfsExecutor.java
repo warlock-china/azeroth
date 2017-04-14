@@ -30,20 +30,15 @@ import java.util.concurrent.CompletableFuture;
  */
 final class FastdfsExecutor implements Closeable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FastdfsExecutor.class);
+    private static final Logger    LOG = LoggerFactory.getLogger(FastdfsExecutor.class);
 
-    private final EventLoopGroup loopGroup;
+    private final EventLoopGroup   loopGroup;
     private final FastdfsPoolGroup poolGroup;
 
     FastdfsExecutor(FastdfsSettings settings) {
         loopGroup = new NioEventLoopGroup(settings.maxThreads());
-        poolGroup = new FastdfsPoolGroup(
-                loopGroup,
-                settings.connectTimeout(),
-                settings.readTimeout(),
-                settings.idleTimeout(),
-                settings.maxConnPerHost()
-        );
+        poolGroup = new FastdfsPoolGroup(loopGroup, settings.connectTimeout(),
+            settings.readTimeout(), settings.idleTimeout(), settings.maxConnPerHost());
     }
 
     /**
@@ -54,7 +49,8 @@ final class FastdfsExecutor implements Closeable {
      * @param decoder
      * @return
      */
-    <T> CompletableFuture<T> execute(InetSocketAddress addr, Requestor.Encoder encoder, Replier.Decoder<T> decoder) {
+    <T> CompletableFuture<T> execute(InetSocketAddress addr, Requestor.Encoder encoder,
+                                     Replier.Decoder<T> decoder) {
         return execute(addr, new RequestorEncoder(encoder), new ReplierDecoder<>(decoder));
     }
 
@@ -65,7 +61,8 @@ final class FastdfsExecutor implements Closeable {
      * @param <T>
      * @return
      */
-    <T> CompletableFuture<T> execute(InetSocketAddress addr, Requestor.Encoder encoder, Replier<T> replier) {
+    <T> CompletableFuture<T> execute(InetSocketAddress addr, Requestor.Encoder encoder,
+                                     Replier<T> replier) {
         return execute(addr, new RequestorEncoder(encoder), replier);
     }
 
@@ -76,13 +73,15 @@ final class FastdfsExecutor implements Closeable {
      * @param <T>
      * @return
      */
-    <T> CompletableFuture<T> execute(InetSocketAddress addr, Requestor requestor, Replier<T> replier) {
+    <T> CompletableFuture<T> execute(InetSocketAddress addr, Requestor requestor,
+                                     Replier<T> replier) {
         CompletableFuture<T> promise = new CompletableFuture<>();
         execute(addr, requestor, replier, promise);
         return promise;
     }
 
-    private <T> void execute(InetSocketAddress addr, Requestor requestor, Replier<T> replier, CompletableFuture<T> promise) {
+    private <T> void execute(InetSocketAddress addr, Requestor requestor, Replier<T> replier,
+                             CompletableFuture<T> promise) {
         FastdfsPool pool = poolGroup.get(addr);
         pool.acquire().addListener(new FastdfsChannelListener<>(pool, requestor, replier, promise));
     }
@@ -103,14 +102,12 @@ final class FastdfsExecutor implements Closeable {
 
     private static class FastdfsChannelListener<T> implements FutureListener<Channel> {
 
-        final FastdfsPool pool;
-        final Requestor requestor;
-        final Replier<T> replier;
+        final FastdfsPool          pool;
+        final Requestor            requestor;
+        final Replier<T>           replier;
         final CompletableFuture<T> promise;
 
-        FastdfsChannelListener(FastdfsPool pool,
-                               Requestor requestor,
-                               Replier<T> replier,
+        FastdfsChannelListener(FastdfsPool pool, Requestor requestor, Replier<T> replier,
                                CompletableFuture<T> promise) {
             this.pool = pool;
             this.requestor = requestor;
@@ -136,7 +133,8 @@ final class FastdfsExecutor implements Closeable {
 
             try {
 
-                FastdfsOperation<T> fastdfsOperation = new FastdfsOperation<>(channel, requestor, replier, promise);
+                FastdfsOperation<T> fastdfsOperation = new FastdfsOperation<>(channel, requestor,
+                    replier, promise);
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("execute {}", fastdfsOperation);
                 }

@@ -10,7 +10,7 @@ import io.netty.buffer.ByteBuf;
  */
 public enum FileInfoDecoder implements Replier.Decoder<FileInfo> {
 
-    INSTANCE;
+                                                                  INSTANCE;
 
     @Override
     public FileInfo decode(ByteBuf buf) {
@@ -18,11 +18,7 @@ public enum FileInfoDecoder implements Replier.Decoder<FileInfo> {
         long createTime = buf.readLong();
         long crc32 = buf.readLong();
         String address = FastdfsUtils.readString(buf, 16);
-        return FileInfo.newBuilder()
-                        .fileSize(fileSize)
-                        .createTime(createTime)
-                        .crc32(crc32)
-                        .address(address)
-                        .build();
+        return FileInfo.newBuilder().fileSize(fileSize).createTime(createTime).crc32(crc32)
+            .address(address).build();
     }
 }

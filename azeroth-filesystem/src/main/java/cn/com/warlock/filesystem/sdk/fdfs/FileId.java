@@ -3,7 +3,6 @@
  */
 package cn.com.warlock.filesystem.sdk.fdfs;
 
-
 import java.util.Base64;
 import java.util.Objects;
 
@@ -16,8 +15,8 @@ public class FileId {
 
     private static final char SEPARATER = '/';
 
-    private final String group;
-    private final String path;
+    private final String      group;
+    private final String      path;
 
     /**
      * @param group

@@ -8,8 +8,8 @@ import java.net.InetSocketAddress;
 public class TrackerServer {
 
     private String host;
-    private int port;
-    private int weight;
+    private int    port;
+    private int    weight;
 
     /**
      * @param host
@@ -60,10 +60,7 @@ public class TrackerServer {
 
     @Override
     public String toString() {
-        return "TrackerServer{" +
-                "host='" + host + '\'' +
-                ", port=" + port +
-                ", weight=" + weight +
-                '}';
+        return "TrackerServer{" + "host='" + host + '\'' + ", port=" + port + ", weight=" + weight
+               + '}';
     }
 }

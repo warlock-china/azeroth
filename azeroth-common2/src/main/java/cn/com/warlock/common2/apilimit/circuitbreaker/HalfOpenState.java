@@ -22,5 +22,5 @@ public class HalfOpenState implements CircuitBreakerState {
     public String toString() {
         return "HALF_OPEN";
     }
-    
+
 }

@@ -16,7 +16,7 @@ import static cn.com.warlock.filesystem.sdk.fdfs.FastdfsUtils.readString;
  */
 public enum StorageServerDecoder implements Replier.Decoder<StorageServer> {
 
-    INSTANCE;
+                                                                            INSTANCE;
 
     @Override
     public long expectLength() {

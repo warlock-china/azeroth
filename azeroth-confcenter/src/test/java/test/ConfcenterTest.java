@@ -10,16 +10,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:test-confcenter.xml")
-public class ConfcenterTest implements ApplicationContextAware{
+public class ConfcenterTest implements ApplicationContextAware {
 
-	
-	@Test
-	public void test(){
-		
-	}
-	
-	
-	@Override
-	public void setApplicationContext(ApplicationContext arg0) throws BeansException {}
+    @Test
+    public void test() {
+
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext arg0) throws BeansException {
+    }
 
 }

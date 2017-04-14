@@ -5,24 +5,23 @@ import java.util.Set;
 
 import javax.persistence.GenerationType;
 
-
 public class EntityMapper {
 
     // 表
-    private TableMapper tableMapper;
+    private TableMapper         tableMapper;
 
     // 全部列
-    private Set<ColumnMapper> columnsMapper;
+    private Set<ColumnMapper>   columnsMapper;
 
     // 主键
-    private ColumnMapper idColumn;
+    private ColumnMapper        idColumn;
 
     // 字段名和属性名的映射
     private Map<String, String> aliasMap;
 
-    private Class<?> idClass;
-    
-    private GenerationType idStrategy;
+    private Class<?>            idClass;
+
+    private GenerationType      idStrategy;
 
     public TableMapper getTableMapper() {
         return tableMapper;
@@ -40,16 +39,15 @@ public class EntityMapper {
         this.columnsMapper = columnsMapper;
     }
 
-
     public ColumnMapper getIdColumn() {
-		return idColumn;
-	}
+        return idColumn;
+    }
 
-	public void setIdColumn(ColumnMapper idColumn) {
-		this.idColumn = idColumn;
-	}
+    public void setIdColumn(ColumnMapper idColumn) {
+        this.idColumn = idColumn;
+    }
 
-	public Map<String, String> getAliasMap() {
+    public Map<String, String> getAliasMap() {
         return aliasMap;
     }
 
@@ -65,16 +63,16 @@ public class EntityMapper {
         this.idClass = idClass;
     }
 
-	public GenerationType getIdStrategy() {
-		return idStrategy;
-	}
+    public GenerationType getIdStrategy() {
+        return idStrategy;
+    }
 
-	public void setIdStrategy(GenerationType idStrategy) {
-		this.idStrategy = idStrategy;
-	}
-   
-	public boolean autoId(){
-		return idStrategy != null;
-	}
+    public void setIdStrategy(GenerationType idStrategy) {
+        this.idStrategy = idStrategy;
+    }
+
+    public boolean autoId() {
+        return idStrategy != null;
+    }
 
 }

@@ -7,36 +7,34 @@ import java.util.List;
  */
 public interface ShardStrategy<T> {
 
-	/**
-	 * 分库字段
-	 * @return
-	 */
-	public String shardDbField();
-	
-	/**
-	 * 分库字段对应实体属性名
-	 * @return
-	 */
-	public String shardEntityField();
-	
-	
-	
-	/**
-	 * 分配逻辑
-	 * @param value
-	 * @return 数据库index
-	 */
-	public int assigned(Object value);
-	
-	/**
-	 * 忽略分库表名列表
-	 * @return
-	 */
-	public List<String> ignoreTables();
-	
-	/**
-	 * 是否全局
-	 * @return
-	 */
-	public boolean isGlobal();
+    /**
+     * 分库字段
+     * @return
+     */
+    public String shardDbField();
+
+    /**
+     * 分库字段对应实体属性名
+     * @return
+     */
+    public String shardEntityField();
+
+    /**
+     * 分配逻辑
+     * @param value
+     * @return 数据库index
+     */
+    public int assigned(Object value);
+
+    /**
+     * 忽略分库表名列表
+     * @return
+     */
+    public List<String> ignoreTables();
+
+    /**
+     * 是否全局
+     * @return
+     */
+    public boolean isGlobal();
 }

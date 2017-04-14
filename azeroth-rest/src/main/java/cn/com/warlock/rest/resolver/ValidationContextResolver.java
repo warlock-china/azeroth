@@ -16,39 +16,41 @@ import org.glassfish.jersey.server.validation.internal.InjectingConstraintValida
 
 public class ValidationContextResolver implements ContextResolver<ValidationConfig> {
 
-	@Context
-	private ResourceContext resourceContext;
+    @Context
+    private ResourceContext resourceContext;
 
-	@Override
-	public ValidationConfig getContext(final Class<?> type) {
-		final ValidationConfig config = new ValidationConfig();
-		config.constraintValidatorFactory(resourceContext.getResource(InjectingConstraintValidatorFactory.class));
-		config.parameterNameProvider(new CustomParameterNameProvider());
-		return config;
-	}
+    @Override
+    public ValidationConfig getContext(final Class<?> type) {
+        final ValidationConfig config = new ValidationConfig();
+        config.constraintValidatorFactory(
+            resourceContext.getResource(InjectingConstraintValidatorFactory.class));
+        config.parameterNameProvider(new CustomParameterNameProvider());
+        return config;
+    }
 
-	/**
-	 * See ContactCardTest#testAddInvalidContact.
-	 */
-	private class CustomParameterNameProvider implements ParameterNameProvider {
+    /**
+     * See ContactCardTest#testAddInvalidContact.
+     */
+    private class CustomParameterNameProvider implements ParameterNameProvider {
 
-		private final ParameterNameProvider nameProvider;
+        private final ParameterNameProvider nameProvider;
 
-		public CustomParameterNameProvider() {
-			nameProvider = Validation.byDefaultProvider().configure().getDefaultParameterNameProvider();
-		}
+        public CustomParameterNameProvider() {
+            nameProvider = Validation.byDefaultProvider().configure()
+                .getDefaultParameterNameProvider();
+        }
 
-		@Override
-		public List<String> getParameterNames(final Constructor<?> constructor) {
-			return nameProvider.getParameterNames(constructor);
-		}
+        @Override
+        public List<String> getParameterNames(final Constructor<?> constructor) {
+            return nameProvider.getParameterNames(constructor);
+        }
 
-		@Override
-		public List<String> getParameterNames(final Method method) {
-			if ("addContact".equals(method.getName())) {
-				return Arrays.asList("contact");
-			}
-			return nameProvider.getParameterNames(method);
-		}
-	}
+        @Override
+        public List<String> getParameterNames(final Method method) {
+            if ("addContact".equals(method.getName())) {
+                return Arrays.asList("contact");
+            }
+            return nameProvider.getParameterNames(method);
+        }
+    }
 }

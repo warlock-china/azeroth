@@ -38,8 +38,6 @@ public class ReplierDecoder<T> extends ReplierSupport<T> {
 
     @Override
     public String toString() {
-        return "ReplierDecoder{" +
-                "decoder=" + decoder +
-                '}';
+        return "ReplierDecoder{" + "decoder=" + decoder + '}';
     }
 }

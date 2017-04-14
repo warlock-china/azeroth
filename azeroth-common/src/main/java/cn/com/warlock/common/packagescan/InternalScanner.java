@@ -23,12 +23,13 @@ import org.slf4j.LoggerFactory;
  */
 class InternalScanner {
     /**
-	 * 
-	 */
-	private static final String SUFFIX_CLASS = ".class";
-	private final Logger log = LoggerFactory.getLogger(InternalScanner.class);
-    private Map<String,Set<String>> jarContentCache = new HashMap<String,Set<String>>();
-    private ClassLoader classloader;
+     * 
+     */
+    private static final String      SUFFIX_CLASS    = ".class";
+    private final Logger             log             = LoggerFactory
+        .getLogger(InternalScanner.class);
+    private Map<String, Set<String>> jarContentCache = new HashMap<String, Set<String>>();
+    private ClassLoader              classloader;
 
     static interface Test {
         boolean matchesPackage(String pkg);
@@ -40,15 +41,13 @@ class InternalScanner {
         this.classloader = cl;
     }
 
-
     Set<String> findInPackages(Test test, String... roots) {
-    	Set<String> localClsssOrPkgs = new HashSet<String>();
+        Set<String> localClsssOrPkgs = new HashSet<String>();
         for (String pkg : roots) {
-        	localClsssOrPkgs.addAll(findInPackage(test, pkg));
+            localClsssOrPkgs.addAll(findInPackage(test, pkg));
         }
         return localClsssOrPkgs;
     }
-
 
     /**
      * Scans for classes starting at the package provided and descending into subpackages.
@@ -61,7 +60,7 @@ class InternalScanner {
      * @return List of packages to export.
      */
     List<String> findInPackage(Test test, String packageName) {
-    	List<String> localClsssOrPkgs = new ArrayList<String>();
+        List<String> localClsssOrPkgs = new ArrayList<String>();
 
         packageName = packageName.replace('.', '/');
         Enumeration<URL> urls;
@@ -69,12 +68,10 @@ class InternalScanner {
         try {
             urls = classloader.getResources(packageName);
             // test for empty
-            if (!urls.hasMoreElements())
-            {
+            if (!urls.hasMoreElements()) {
                 log.warn("Unable to find any resources for package '" + packageName + "'");
             }
-        }
-        catch (IOException ioe) {
+        } catch (IOException ioe) {
             log.warn("Could not read package: " + packageName);
             return localClsssOrPkgs;
         }
@@ -82,9 +79,8 @@ class InternalScanner {
         return findInPackageWithUrls(test, packageName, urls);
     }
 
-    List<String> findInPackageWithUrls(Test test, String packageName, Enumeration<URL> urls)
-    {
-    	List<String> localClsssOrPkgs = new ArrayList<String>();
+    List<String> findInPackageWithUrls(Test test, String packageName, Enumeration<URL> urls) {
+        List<String> localClsssOrPkgs = new ArrayList<String>();
         while (urls.hasMoreElements()) {
             try {
                 URL url = urls.nextElement();
@@ -93,46 +89,41 @@ class InternalScanner {
                 // it's in a JAR, grab the path to the jar
                 if (urlPath.lastIndexOf('!') > 0) {
                     urlPath = urlPath.substring(0, urlPath.lastIndexOf('!'));
-                    if (urlPath.startsWith("/"))
-                    {
+                    if (urlPath.startsWith("/")) {
                         urlPath = "file:" + urlPath;
                     }
                 } else if (!urlPath.startsWith("file:")) {
-                    urlPath = "file:"+urlPath;
+                    urlPath = "file:" + urlPath;
                 }
 
                 log.debug("Scanning for packages in [" + urlPath + "].");
                 File file = null;
-                try
-                {
+                try {
                     URL fileURL = new URL(urlPath);
                     // only scan elements in the classpath that are local files
-                    if("file".equals(fileURL.getProtocol().toLowerCase()))
+                    if ("file".equals(fileURL.getProtocol().toLowerCase()))
                         file = new File(fileURL.toURI());
                     else
-                        log.info("Skipping non file classpath element [ "+urlPath+ " ]");
-                }
-                catch (URISyntaxException e)
-                {
+                        log.info("Skipping non file classpath element [ " + urlPath + " ]");
+                } catch (URISyntaxException e) {
                     //Yugh, this is necessary as the URL might not be convertible to a URI, so resolve it by the file path
                     file = new File(urlPath.substring("file:".length()));
                 }
 
-                if (file!=null && file.isDirectory()) {
-                	localClsssOrPkgs.addAll(loadImplementationsInDirectory(test, packageName, file));
-                } else if (file!=null) {
+                if (file != null && file.isDirectory()) {
+                    localClsssOrPkgs
+                        .addAll(loadImplementationsInDirectory(test, packageName, file));
+                } else if (file != null) {
                     if (test.matchesJar(file.getName())) {
-                    	localClsssOrPkgs.addAll(loadImplementationsInJar(test, file));
+                        localClsssOrPkgs.addAll(loadImplementationsInJar(test, file));
                     }
                 }
-            }
-            catch (IOException ioe) {
+            } catch (IOException ioe) {
                 log.error("could not read entries: " + ioe);
             }
         }
         return localClsssOrPkgs;
     }
-
 
     /**
      * Finds matches in a physical directory on a filesystem.  Examines all
@@ -148,30 +139,30 @@ class InternalScanner {
      * @return List of packages to export.
      */
     List<String> loadImplementationsInDirectory(Test test, String parent, File location) {
-        log.debug("Scanning directory " + location.getAbsolutePath() + " parent: '" + parent + "'.");
+        log.debug(
+            "Scanning directory " + location.getAbsolutePath() + " parent: '" + parent + "'.");
         File[] files = location.listFiles();
         List<String> localClsssOrPkgs = new ArrayList<String>();
 
         for (File file : files) {
             final String packageOrClass;
-            if (parent == null || parent.length() == 0)
-            {
+            if (parent == null || parent.length() == 0) {
                 packageOrClass = file.getName();
-            }
-            else
-            {
+            } else {
                 packageOrClass = parent + "/" + file.getName();
             }
 
             if (file.isDirectory()) {
-            	localClsssOrPkgs.addAll(loadImplementationsInDirectory(test, packageOrClass, file));
+                localClsssOrPkgs.addAll(loadImplementationsInDirectory(test, packageOrClass, file));
 
-            // If the parent is empty, then assume the directory's jars should be searched
-            } else if ("".equals(parent) && file.getName().endsWith(".jar") && test.matchesJar(file.getName())) {
-            	localClsssOrPkgs.addAll(loadImplementationsInJar(test, file));
+                // If the parent is empty, then assume the directory's jars should be searched
+            } else if ("".equals(parent) && file.getName().endsWith(".jar")
+                       && test.matchesJar(file.getName())) {
+                localClsssOrPkgs.addAll(loadImplementationsInJar(test, file));
             } else {
                 String pkg = packageOrClass;
-                if(pkg.endsWith(SUFFIX_CLASS))localClsssOrPkgs.add(pkg);
+                if (pkg.endsWith(SUFFIX_CLASS))
+                    localClsssOrPkgs.add(pkg);
             }
         }
         return localClsssOrPkgs;
@@ -190,30 +181,25 @@ class InternalScanner {
 
         List<String> localClsssOrPkgs = new ArrayList<String>();
         Set<String> packages = jarContentCache.get(file.getPath());
-        if (packages == null)
-        {
+        if (packages == null) {
             packages = new HashSet<String>();
             try {
                 JarFile jarFile = new JarFile(file);
 
-
-                for (Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements(); ) {
+                for (Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
                     JarEntry entry = e.nextElement();
                     String name = entry.getName();
                     if (!entry.isDirectory()) {
-                    	if(name.endsWith(SUFFIX_CLASS)){
-                    		localClsssOrPkgs.add(name);
-                    	}
-                     }
+                        if (name.endsWith(SUFFIX_CLASS)) {
+                            localClsssOrPkgs.add(name);
+                        }
+                    }
                 }
-            }
-            catch (IOException ioe) {
-                log.error("Could not search jar file '" + file + "' for classes matching criteria: " +
-                        test + " due to an IOException" + ioe);
+            } catch (IOException ioe) {
+                log.error("Could not search jar file '" + file + "' for classes matching criteria: "
+                          + test + " due to an IOException" + ioe);
                 return Collections.emptyList();
-            }
-            finally
-            {
+            } finally {
                 jarContentCache.put(file.getPath(), packages);
             }
         }
@@ -221,5 +207,4 @@ class InternalScanner {
         return localClsssOrPkgs;
     }
 
-   
 }

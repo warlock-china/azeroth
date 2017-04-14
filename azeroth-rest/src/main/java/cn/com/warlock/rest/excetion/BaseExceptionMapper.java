@@ -26,37 +26,40 @@ import com.fasterxml.jackson.core.JsonProcessingException;
  */
 public class BaseExceptionMapper implements ExceptionMapper<Exception> {
 
-	private static Logger log = LoggerFactory.getLogger(BaseExceptionMapper.class);
+    private static Logger      log = LoggerFactory.getLogger(BaseExceptionMapper.class);
 
-	@Context
-	private HttpServletRequest request;
-	
-	private ExcetionWrapper excetionWrapper;
-	
-	public BaseExceptionMapper() {}
+    @Context
+    private HttpServletRequest request;
 
-	public BaseExceptionMapper(ExcetionWrapper excetionWrapper) {
-		super();
-		this.excetionWrapper = excetionWrapper;
-	}
+    private ExcetionWrapper    excetionWrapper;
 
-	@Override
-	public Response toResponse(Exception e) {
+    public BaseExceptionMapper() {
+    }
 
-		WrapperResponseEntity response = null;
-		if (e instanceof NotFoundException) {
-			response = new WrapperResponseEntity(ResponseCode.NOT_FOUND);
-		} else if (e instanceof NotAllowedException) {
-			response = new WrapperResponseEntity(ResponseCode.FORBIDDEN);
-		} else if (e instanceof JsonProcessingException) {
-			response = new WrapperResponseEntity(ResponseCode.ERROR_JSON);
-		} else if (e instanceof NotSupportedException) {
-			response = new WrapperResponseEntity(ResponseCode.UNSUPPORTED_MEDIA_TYPE);
-		} else {
-			response = excetionWrapper != null ? excetionWrapper.toResponse(e) : null;
-			if(response == null)response = new WrapperResponseEntity(ResponseCode.INTERNAL_SERVER_ERROR);
-		}
-		return Response.status(response.httpStatus()).type(MediaType.APPLICATION_JSON).entity(response).build();
-	}
+    public BaseExceptionMapper(ExcetionWrapper excetionWrapper) {
+        super();
+        this.excetionWrapper = excetionWrapper;
+    }
+
+    @Override
+    public Response toResponse(Exception e) {
+
+        WrapperResponseEntity response = null;
+        if (e instanceof NotFoundException) {
+            response = new WrapperResponseEntity(ResponseCode.NOT_FOUND);
+        } else if (e instanceof NotAllowedException) {
+            response = new WrapperResponseEntity(ResponseCode.FORBIDDEN);
+        } else if (e instanceof JsonProcessingException) {
+            response = new WrapperResponseEntity(ResponseCode.ERROR_JSON);
+        } else if (e instanceof NotSupportedException) {
+            response = new WrapperResponseEntity(ResponseCode.UNSUPPORTED_MEDIA_TYPE);
+        } else {
+            response = excetionWrapper != null ? excetionWrapper.toResponse(e) : null;
+            if (response == null)
+                response = new WrapperResponseEntity(ResponseCode.INTERNAL_SERVER_ERROR);
+        }
+        return Response.status(response.httpStatus()).type(MediaType.APPLICATION_JSON)
+            .entity(response).build();
+    }
 
 }

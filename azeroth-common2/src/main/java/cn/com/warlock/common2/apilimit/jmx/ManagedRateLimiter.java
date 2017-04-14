@@ -9,13 +9,14 @@ import cn.com.warlock.common2.apilimit.Key;
 import cn.com.warlock.common2.apilimit.RateLimiter;
 import cn.com.warlock.common2.apilimit.Token;
 
-public class ManagedRateLimiter extends NotificationBroadcasterSupport implements ManagedRateLimiterMBean {
+public class ManagedRateLimiter extends NotificationBroadcasterSupport
+                                implements ManagedRateLimiterMBean {
 
     private static final String JMX_MONITOR_RATE_LIMIT_SERVICE_TYPE = "jmx.monitor.rate-limit.service";
 
-    private final RateLimiter delegate;
+    private final RateLimiter   delegate;
 
-    private long sequenceNumber;
+    private long                sequenceNumber;
 
     public ManagedRateLimiter(RateLimiter delegate) {
         if (delegate == null) {
@@ -27,9 +28,9 @@ public class ManagedRateLimiter extends NotificationBroadcasterSupport implement
     @Override
     public MBeanNotificationInfo[] getNotificationInfo() {
         String[] types = new String[] { JMX_MONITOR_RATE_LIMIT_SERVICE_TYPE,
-                MonitorNotification.THRESHOLD_VALUE_EXCEEDED };
+                                        MonitorNotification.THRESHOLD_VALUE_EXCEEDED };
         MBeanNotificationInfo info = new MBeanNotificationInfo(types, Notification.class.getName(),
-                "rate-limited request processed");
+            "rate-limited request processed");
         return new MBeanNotificationInfo[] { info };
     }
 
@@ -37,11 +38,11 @@ public class ManagedRateLimiter extends NotificationBroadcasterSupport implement
         Token token = delegate.getToken(key);
 
         if (token.isUsable()) {
-            sendNotification(new Notification(JMX_MONITOR_RATE_LIMIT_SERVICE_TYPE, this, getSequenceNumber(),
-                    "allowed request " + key));
+            sendNotification(new Notification(JMX_MONITOR_RATE_LIMIT_SERVICE_TYPE, this,
+                getSequenceNumber(), "allowed request " + key));
         } else {
-            sendNotification(new Notification(MonitorNotification.THRESHOLD_VALUE_EXCEEDED, this, getSequenceNumber(),
-                    "denied request " + key));
+            sendNotification(new Notification(MonitorNotification.THRESHOLD_VALUE_EXCEEDED, this,
+                getSequenceNumber(), "denied request " + key));
         }
 
         return token;

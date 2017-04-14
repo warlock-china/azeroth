@@ -29,7 +29,7 @@ public class KyroMessageSerializer implements Serializer<Serializable> {
      */
     @Override
     public byte[] serialize(String topic, Serializable data) {
-    	return SerializeUtils.serialize(data);
+        return SerializeUtils.serialize(data);
     }
 
     /**

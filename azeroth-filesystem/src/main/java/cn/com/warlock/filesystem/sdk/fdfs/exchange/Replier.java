@@ -52,7 +52,7 @@ public interface Replier<T> {
      */
     enum NOPDecoder implements Decoder<Void> {
 
-        INSTANCE;
+                                              INSTANCE;
 
         @Override
         public long expectLength() {

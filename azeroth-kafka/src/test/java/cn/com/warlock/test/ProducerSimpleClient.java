@@ -15,37 +15,37 @@ import cn.com.warlock.kafka.spring.TopicProducerSpringProvider;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:test-kafka-producer.xml")
-public class ProducerSimpleClient implements ApplicationContextAware{
-	
-	@Autowired
-	private TopicProducerSpringProvider topicProducer;
-	
-	@Test
-	public void testPublish() throws InterruptedException{
+public class ProducerSimpleClient implements ApplicationContextAware {
+
+    @Autowired
+    private TopicProducerSpringProvider topicProducer;
+
+    @Test
+    public void testPublish() throws InterruptedException {
         //默认模式（异步/ ）发送
-		for (int i = 0; i < 5; i++) {			
-			topicProducer.publish("demo-topic", new DefaultMessage("hello,man"));
-			topicProducer.publish("demo2-topic", new DefaultMessage("hello,women"));
-		}
-//		
-//		DefaultMessage msg = new DefaultMessage("hello,man")
-//		            .header("headerkey1", "headerval1")//写入header信息
-//		            .header("headerkey1", "headerval1")//写入header信息
-//		            .partitionFactor(1000) //分区因子，譬如userId＝1000的将发送到同一分区、从而发送到消费者的同一节点(有状态)
-//		            .consumerAck(true);// 已消费回执(未发布)
-//		
-		
-//		User user = new User();
-//		user.setAge(17);
-//		user.setId(1);
-//		user.setName("kafka");
-//		//异步发送
-//		topicProducer.publishNoWrapperMessage("demo-topic", JsonUtils.toJson(user),true);
-				
-	}
-	
-	
-	@Override
-	public void setApplicationContext(ApplicationContext arg0) throws BeansException {}
+        for (int i = 0; i < 5; i++) {
+            topicProducer.publish("demo-topic", new DefaultMessage("hello,man"));
+            topicProducer.publish("demo2-topic", new DefaultMessage("hello,women"));
+        }
+        //		
+        //		DefaultMessage msg = new DefaultMessage("hello,man")
+        //		            .header("headerkey1", "headerval1")//写入header信息
+        //		            .header("headerkey1", "headerval1")//写入header信息
+        //		            .partitionFactor(1000) //分区因子，譬如userId＝1000的将发送到同一分区、从而发送到消费者的同一节点(有状态)
+        //		            .consumerAck(true);// 已消费回执(未发布)
+        //		
+
+        //		User user = new User();
+        //		user.setAge(17);
+        //		user.setId(1);
+        //		user.setName("kafka");
+        //		//异步发送
+        //		topicProducer.publishNoWrapperMessage("demo-topic", JsonUtils.toJson(user),true);
+
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext arg0) throws BeansException {
+    }
 
 }

@@ -29,7 +29,7 @@ import static cn.com.warlock.filesystem.sdk.fdfs.FastdfsConstants.FDFS_HEAD_LEN;
 abstract class FileOperationEncoder implements Requestor.Encoder {
 
     private final Object content;
-    private final long size;
+    private final long   size;
 
     FileOperationEncoder(File file) {
         long length = file.length();
@@ -61,7 +61,8 @@ abstract class FileOperationEncoder implements Requestor.Encoder {
             return Unpooled.wrappedBuffer((byte[]) content);
         }
 
-        throw new IllegalArgumentException("unknown content type : " + content.getClass().getName());
+        throw new IllegalArgumentException(
+            "unknown content type : " + content.getClass().getName());
     }
 
     @Override

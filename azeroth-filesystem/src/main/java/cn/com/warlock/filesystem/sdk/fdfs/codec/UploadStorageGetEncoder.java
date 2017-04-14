@@ -32,7 +32,8 @@ public class UploadStorageGetEncoder implements Requestor.Encoder {
     @Override
     public List<Object> encode(ByteBufAllocator alloc) {
         int length = isEmpty(group) ? 0 : FDFS_GROUP_LEN;
-        byte cmd = isEmpty(group) ? SERVICE_QUERY_STORE_WITHOUT_GROUP_ONE : SERVICE_QUERY_STORE_WITH_GROUP_ONE;
+        byte cmd = isEmpty(group) ? SERVICE_QUERY_STORE_WITHOUT_GROUP_ONE
+            : SERVICE_QUERY_STORE_WITH_GROUP_ONE;
 
         ByteBuf buf = alloc.buffer(length + FDFS_HEAD_LEN);
         buf.writeLong(length);

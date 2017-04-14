@@ -4,7 +4,7 @@ public class OpenState implements CircuitBreakerState {
 
     private final long tripTime;
 
-    private final int timeout;
+    private final int  timeout;
 
     OpenState(int timeout) {
         this.tripTime = System.currentTimeMillis();
@@ -31,10 +31,10 @@ public class OpenState implements CircuitBreakerState {
         long elapsed = now - this.tripTime;
 
         if (elapsed < this.timeout) {
-            
+
             return this.timeout - elapsed;
         }
-        
+
         return 0;
     }
 

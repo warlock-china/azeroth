@@ -11,7 +11,8 @@ import java.util.List;
 
 public class ZooKeeperHelper {
 
-    static void mkdirp(ZooKeeper zookeeper, String znode) throws KeeperException, InterruptedException {
+    static void mkdirp(ZooKeeper zookeeper, String znode) throws KeeperException,
+                                                          InterruptedException {
         boolean createPath = false;
         for (String path : pathParts(znode)) {
             if (!createPath) {
@@ -26,15 +27,18 @@ public class ZooKeeperHelper {
         }
     }
 
-    static void create(ZooKeeper zookeeper, String znode) throws KeeperException, InterruptedException {
+    static void create(ZooKeeper zookeeper, String znode) throws KeeperException,
+                                                          InterruptedException {
         zookeeper.create(znode, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
     }
 
-    static void create(ZooKeeper zookeeper, String znode, byte[] value) throws KeeperException, InterruptedException {
+    static void create(ZooKeeper zookeeper, String znode, byte[] value) throws KeeperException,
+                                                                        InterruptedException {
         zookeeper.create(znode, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
     }
 
-    static void createIfNotThere(ZooKeeper zookeeper, String znode) throws KeeperException, InterruptedException {
+    static void createIfNotThere(ZooKeeper zookeeper, String znode) throws KeeperException,
+                                                                    InterruptedException {
         try {
             create(zookeeper, znode);
         } catch (KeeperException e) {

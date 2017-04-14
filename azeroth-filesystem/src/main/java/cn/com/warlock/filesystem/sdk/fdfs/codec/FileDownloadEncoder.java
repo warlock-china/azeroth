@@ -24,11 +24,11 @@ import static cn.com.warlock.filesystem.sdk.fdfs.FastdfsUtils.writeFixLength;
 public class FileDownloadEncoder implements Requestor.Encoder {
 
     private static final long DEFAULT_OFFSET = 0L;
-    private static final long SIZE_UNLIMIT = 0L;
+    private static final long SIZE_UNLIMIT   = 0L;
 
-    private final FileId fileId;
-    private final long offset;
-    private final long size;
+    private final FileId      fileId;
+    private final long        offset;
+    private final long        size;
 
     /**
      * @param fileId

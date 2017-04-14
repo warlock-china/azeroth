@@ -22,122 +22,120 @@ import cn.com.warlock.cache.command.RedisString;
 import cn.com.warlock.spring.InstanceFactory;
 import cn.com.warlock.spring.SpringInstanceProvider;
 
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath:test-cache.xml"})
-public class CacheCommondTest implements ApplicationContextAware{
-	
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
+@ContextConfiguration(locations = { "classpath:test-cache.xml" })
+public class CacheCommondTest implements ApplicationContextAware {
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
-	@Override
-	public void setApplicationContext(ApplicationContext arg0) throws BeansException {	
-		InstanceFactory.setInstanceProvider(new SpringInstanceProvider(arg0));
-	}
-	
-	@Test
-	public void testRedisString(){
-		//字符串
-		RedisString redisString = new RedisString("User.id:1001");
-		redisString.set("user1001",60);
-		String value = redisString.get();
-		
-		redisString.getTtl();
-		redisString.exists();
-		redisString.setExpire(300);
-		redisString.remove();
-		
-		//对象
-		RedisObject redisObject = new RedisObject("User.id:1001");
-		redisObject.set(new User(1001, "jack"));
-		Object user = redisObject.get();
-		redisObject.getTtl();
-		redisObject.exists();
-		redisObject.setExpire(300);
-		redisObject.remove();
-		
-		//hash 
-		RedisHashMap redisHashMap = new RedisHashMap("User.all");
-		redisHashMap.set("1001", new User(1001, "jack"));
-		redisHashMap.set("1002", new User(1002, "jack2"));
-		
-		Map<String, User> users = redisHashMap.get("1001","1002");
-		users = redisHashMap.getAll();
-		User one = redisHashMap.getOne("1001");
-		
-		redisHashMap.containsKey("1001");
-		
-		redisHashMap.remove();
-		
-		//
-		RedisSortSet sortSet = new RedisSortSet("redisSortSet");
-		
-		sortSet.add(1, "1");
-		sortSet.add(2, "2");
-		sortSet.add(3, "3");
-		sortSet.add(4, "4");
-		
-		System.out.println("==============");
-		System.out.println(sortSet.get());
-		
-		sortSet.removeByScore(1, 2);
-		
-		System.out.println(sortSet.get());
-		
-	}
-	
-	@Test
-	public void testRedisNumber(){
-		long increase = new RedisNumber("ins_test").increase(5);
-		System.out.println(increase);
-		System.out.println(new RedisNumber("ins_test").increase(5));
-	}
-	
-	@Test
-	public void testLocalRedis() throws InterruptedException{
-		//字符串
-		RedisString redisString = new RedisString("User.id:1001");
-		redisString.set("user1001",60);
-		String value = redisString.get();
-		System.out.println(value);
-		value = redisString.get();
-		System.out.println(value);
-		
-		redisString.remove();
-		
-		Thread.sleep(5000);
-	}
-	
-	@Test
-	public void test11(){
-		RedisSet redisSet = new RedisSet("setkey");
-		
-		redisSet.remove();
-		
-		User user = new User(1, "jim");
-		
-		User user2 = new User();
-		user2.setMobile("13800138000");
-		user2.setEmail("@@@");
-		
-		User user3 = new User();
-		user3.setId(1);
-		user3.setMobile("13800138000");
-		user3.setEmail("@@@222222");
-		
-		redisSet.add(user,user2,user3);
-		
-//		for (int i = 0; i < 3; i++) {
-//			User userx = new User();
-//			userx.setId(1);
-//			userx.setName("name"+i);
-//			redisSet.add(userx);
-//		}
-		
-		Set<User> set = redisSet.get();
-		
-		System.out.println(set);
-	}
-	
+    @Override
+    public void setApplicationContext(ApplicationContext arg0) throws BeansException {
+        InstanceFactory.setInstanceProvider(new SpringInstanceProvider(arg0));
+    }
+
+    @Test
+    public void testRedisString() {
+        //字符串
+        RedisString redisString = new RedisString("User.id:1001");
+        redisString.set("user1001", 60);
+        String value = redisString.get();
+
+        redisString.getTtl();
+        redisString.exists();
+        redisString.setExpire(300);
+        redisString.remove();
+
+        //对象
+        RedisObject redisObject = new RedisObject("User.id:1001");
+        redisObject.set(new User(1001, "jack"));
+        Object user = redisObject.get();
+        redisObject.getTtl();
+        redisObject.exists();
+        redisObject.setExpire(300);
+        redisObject.remove();
+
+        //hash 
+        RedisHashMap redisHashMap = new RedisHashMap("User.all");
+        redisHashMap.set("1001", new User(1001, "jack"));
+        redisHashMap.set("1002", new User(1002, "jack2"));
+
+        Map<String, User> users = redisHashMap.get("1001", "1002");
+        users = redisHashMap.getAll();
+        User one = redisHashMap.getOne("1001");
+
+        redisHashMap.containsKey("1001");
+
+        redisHashMap.remove();
+
+        //
+        RedisSortSet sortSet = new RedisSortSet("redisSortSet");
+
+        sortSet.add(1, "1");
+        sortSet.add(2, "2");
+        sortSet.add(3, "3");
+        sortSet.add(4, "4");
+
+        System.out.println("==============");
+        System.out.println(sortSet.get());
+
+        sortSet.removeByScore(1, 2);
+
+        System.out.println(sortSet.get());
+
+    }
+
+    @Test
+    public void testRedisNumber() {
+        long increase = new RedisNumber("ins_test").increase(5);
+        System.out.println(increase);
+        System.out.println(new RedisNumber("ins_test").increase(5));
+    }
+
+    @Test
+    public void testLocalRedis() throws InterruptedException {
+        //字符串
+        RedisString redisString = new RedisString("User.id:1001");
+        redisString.set("user1001", 60);
+        String value = redisString.get();
+        System.out.println(value);
+        value = redisString.get();
+        System.out.println(value);
+
+        redisString.remove();
+
+        Thread.sleep(5000);
+    }
+
+    @Test
+    public void test11() {
+        RedisSet redisSet = new RedisSet("setkey");
+
+        redisSet.remove();
+
+        User user = new User(1, "jim");
+
+        User user2 = new User();
+        user2.setMobile("13800138000");
+        user2.setEmail("@@@");
+
+        User user3 = new User();
+        user3.setId(1);
+        user3.setMobile("13800138000");
+        user3.setEmail("@@@222222");
+
+        redisSet.add(user, user2, user3);
+
+        //		for (int i = 0; i < 3; i++) {
+        //			User userx = new User();
+        //			userx.setId(1);
+        //			userx.setName("name"+i);
+        //			redisSet.add(userx);
+        //		}
+
+        Set<User> set = redisSet.get();
+
+        System.out.println(set);
+    }
+
 }

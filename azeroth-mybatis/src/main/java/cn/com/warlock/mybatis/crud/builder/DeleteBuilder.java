@@ -22,40 +22,43 @@ import cn.com.warlock.mybatis.parser.EntityInfo;
 
 public class DeleteBuilder {
 
-	/**
-	 * @param configuration
-	 * @param entity
-	 */
-	public static void build(Configuration configuration,LanguageDriver languageDriver, EntityInfo entity) {
-		String msId = entity.getMapperClass().getName() + "." + GeneralSqlGenerator.methodDefines.deleteName();
+    /**
+     * @param configuration
+     * @param entity
+     */
+    public static void build(Configuration configuration, LanguageDriver languageDriver,
+                             EntityInfo entity) {
+        String msId = entity.getMapperClass().getName() + "."
+                      + GeneralSqlGenerator.methodDefines.deleteName();
 
-		// 从参数对象里提取注解信息
-		EntityMapper entityMapper = EntityHelper.getEntityMapper(entity.getEntityClass());
-		// 生成sql
-		String sql = buildDeleteSql(entityMapper);
-		
-		SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql, entity.getEntityClass());
-		
-		MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, msId, sqlSource,SqlCommandType.DELETE);
+        // 从参数对象里提取注解信息
+        EntityMapper entityMapper = EntityHelper.getEntityMapper(entity.getEntityClass());
+        // 生成sql
+        String sql = buildDeleteSql(entityMapper);
 
-		MappedStatement statement = statementBuilder.build();
-		configuration.addMappedStatement(statement);
-	}
-	
-	
-	public static String buildDeleteSql(EntityMapper entityMapper) {
+        SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql,
+            entity.getEntityClass());
 
-		// 从表注解里获取表名等信息
-		TableMapper tableMapper = entityMapper.getTableMapper();
-		ColumnMapper idColumn = entityMapper.getIdColumn();
+        MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, msId,
+            sqlSource, SqlCommandType.DELETE);
 
-		// 根据字段注解和属性值联合生成sql语句
-		BEGIN();
-		DELETE_FROM(tableMapper.getName());
+        MappedStatement statement = statementBuilder.build();
+        configuration.addMappedStatement(statement);
+    }
 
-		WHERE(idColumn.getColumn() + "=#{" + idColumn.getProperty() + "}");
+    public static String buildDeleteSql(EntityMapper entityMapper) {
 
-		return String.format(SqlTemplate.SCRIPT_TEMAPLATE, SQL());
-	}
+        // 从表注解里获取表名等信息
+        TableMapper tableMapper = entityMapper.getTableMapper();
+        ColumnMapper idColumn = entityMapper.getIdColumn();
+
+        // 根据字段注解和属性值联合生成sql语句
+        BEGIN();
+        DELETE_FROM(tableMapper.getName());
+
+        WHERE(idColumn.getColumn() + "=#{" + idColumn.getProperty() + "}");
+
+        return String.format(SqlTemplate.SCRIPT_TEMAPLATE, SQL());
+    }
 
 }

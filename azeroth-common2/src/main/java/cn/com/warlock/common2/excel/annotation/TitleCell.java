@@ -2,7 +2,6 @@ package cn.com.warlock.common2.excel.annotation;
 
 import java.lang.annotation.*;
 
-
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
@@ -21,18 +20,18 @@ public @interface TitleCell {
      * @return 顺序
      */
     int index() default 0;
-    
+
     boolean notNull() default false;
-    
+
     String format() default "";
-    
+
     int width() default 15;
-    
+
     /**
      * 嵌套父级列名称
      */
     int parentIndex() default 0;
-    
+
     /**
      * 嵌套父级列名称
      */

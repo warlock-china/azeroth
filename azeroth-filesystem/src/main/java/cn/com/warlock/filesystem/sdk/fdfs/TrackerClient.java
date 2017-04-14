@@ -13,20 +13,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-
 final class TrackerClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TrackerClient.class);
+    private static final Logger       LOG = LoggerFactory.getLogger(TrackerClient.class);
 
-    private final FastdfsExecutor executor;
-    private final TrackerSelector selector;
+    private final FastdfsExecutor     executor;
+    private final TrackerSelector     selector;
     private final List<TrackerServer> servers;
 
     TrackerClient(FastdfsExecutor executor, TrackerSelector selector, List<TrackerServer> servers) {
         this.executor = executor;
         this.servers = Collections.unmodifiableList(servers);
         this.selector = servers.size() == 1 ? TrackerSelector.FIRST : selector;
-        LOG.info("TrackerClient inited with {} servers and selector {}.", servers.size(), this.selector);
+        LOG.info("TrackerClient inited with {} servers and selector {}.", servers.size(),
+            this.selector);
     }
 
     private InetSocketAddress trackerSelect() {
@@ -45,7 +45,8 @@ final class TrackerClient {
      * @return
      */
     CompletableFuture<StorageServer> uploadStorageGet(String group) {
-        return executor.execute(trackerSelect(), new UploadStorageGetEncoder(group), StorageServerDecoder.INSTANCE);
+        return executor.execute(trackerSelect(), new UploadStorageGetEncoder(group),
+            StorageServerDecoder.INSTANCE);
     }
 
     /**
@@ -53,7 +54,8 @@ final class TrackerClient {
      * @return
      */
     CompletableFuture<StorageServer> downloadStorageGet(FileId fileId) {
-        CompletableFuture<List<StorageServer>> result = executor.execute(trackerSelect(), new DownloadStorageGetEncoder(fileId), StorageServerListDecoder.INSTANCE);
+        CompletableFuture<List<StorageServer>> result = executor.execute(trackerSelect(),
+            new DownloadStorageGetEncoder(fileId), StorageServerListDecoder.INSTANCE);
         return result.thenApply(FastdfsUtils::first);
     }
 
@@ -63,7 +65,8 @@ final class TrackerClient {
      * @param fileId
      */
     CompletableFuture<StorageServer> updateStorageGet(FileId fileId) {
-        CompletableFuture<List<StorageServer>> result = executor.execute(trackerSelect(), new UpdateStorageGetEncoder(fileId), StorageServerListDecoder.INSTANCE);
+        CompletableFuture<List<StorageServer>> result = executor.execute(trackerSelect(),
+            new UpdateStorageGetEncoder(fileId), StorageServerListDecoder.INSTANCE);
         return result.thenApply(FastdfsUtils::first);
     }
 
@@ -72,6 +75,7 @@ final class TrackerClient {
      * @return
      */
     CompletableFuture<List<StorageServer>> downloadStorageList(FileId fileId) {
-        return executor.execute(trackerSelect(), new DownloadStorageListEncoder(fileId), StorageServerListDecoder.INSTANCE);
+        return executor.execute(trackerSelect(), new DownloadStorageListEncoder(fileId),
+            StorageServerListDecoder.INSTANCE);
     }
 }

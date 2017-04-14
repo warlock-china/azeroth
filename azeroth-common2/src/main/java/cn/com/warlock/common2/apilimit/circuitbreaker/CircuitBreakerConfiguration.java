@@ -4,7 +4,7 @@ public class CircuitBreakerConfiguration {
 
     private int threshold = 3;
 
-    private int timeout = 10000;
+    private int timeout   = 10000;
 
     public CircuitBreaker createCircuitBreaker() {
         return new CircuitBreakerImpl(threshold, timeout);

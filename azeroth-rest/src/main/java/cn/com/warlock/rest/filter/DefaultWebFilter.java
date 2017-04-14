@@ -24,53 +24,53 @@ import cn.com.warlock.rest.filter.handler.ResponseWrapperHandler;
 @Priority(5)
 public class DefaultWebFilter implements ContainerRequestFilter, ContainerResponseFilter {
 
-	@Context
-	HttpServletRequest request;
+    @Context
+    HttpServletRequest  request;
 
-	@Context
-	ResourceInfo resourceInfo;
+    @Context
+    ResourceInfo        resourceInfo;
 
-	List<FilterHandler> filterHandlers = new ArrayList<>();
+    List<FilterHandler> filterHandlers = new ArrayList<>();
 
-	int handlerCount;
+    int                 handlerCount;
 
-	public DefaultWebFilter() {
-		if (FilterConfig.corsEnabled()) {
-			registerHandler(new CorsHandler());
-		}
-		if (FilterConfig.reqRspLogEnabled()) {
-			registerHandler(new ReqResLogHandler());
-		}
-		registerHandler(new ResponseWrapperHandler());
-	}
+    public DefaultWebFilter() {
+        if (FilterConfig.corsEnabled()) {
+            registerHandler(new CorsHandler());
+        }
+        if (FilterConfig.reqRspLogEnabled()) {
+            registerHandler(new ReqResLogHandler());
+        }
+        registerHandler(new ResponseWrapperHandler());
+    }
 
-	private void registerHandler(FilterHandler hander) {
-		filterHandlers.add(hander);
-		handlerCount = filterHandlers.size();
+    private void registerHandler(FilterHandler hander) {
+        filterHandlers.add(hander);
+        handlerCount = filterHandlers.size();
 
-		Collections.sort(filterHandlers, new Comparator<FilterHandler>() {
-			@Override
-			public int compare(FilterHandler o1, FilterHandler o2) {
-				return o1.getPriority() - o2.getPriority();
-			}
-		});
-	}
+        Collections.sort(filterHandlers, new Comparator<FilterHandler>() {
+            @Override
+            public int compare(FilterHandler o1, FilterHandler o2) {
+                return o1.getPriority() - o2.getPriority();
+            }
+        });
+    }
 
-	@Override
-	public void filter(ContainerRequestContext requestContext) throws IOException {
-		for (int i = 0; i < handlerCount; i++) {
-			filterHandlers.get(i).processRequest(requestContext, request, resourceInfo);
-		}
-	}
+    @Override
+    public void filter(ContainerRequestContext requestContext) throws IOException {
+        for (int i = 0; i < handlerCount; i++) {
+            filterHandlers.get(i).processRequest(requestContext, request, resourceInfo);
+        }
+    }
 
-	@Override
-	public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
-			throws IOException {
+    @Override
+    public void filter(ContainerRequestContext requestContext,
+                       ContainerResponseContext responseContext) throws IOException {
 
-		for (int i = handlerCount - 1; i >= 0; i--) {
-			filterHandlers.get(i).processResponse(requestContext, responseContext, resourceInfo);
-		}
+        for (int i = handlerCount - 1; i >= 0; i--) {
+            filterHandlers.get(i).processResponse(requestContext, responseContext, resourceInfo);
+        }
 
-	}
+    }
 
 }

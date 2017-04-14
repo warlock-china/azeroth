@@ -84,12 +84,12 @@ public class EntityHelper {
                 columnMapper.setJavaType(field.getType());
 
                 // 是否主键
-                if(field.isAnnotationPresent(Id.class)){                	
-                	columnMapper.setId(true);
-                	if(field.isAnnotationPresent(GeneratedValue.class)){ 
-                		idStrategy = field.getAnnotation(GeneratedValue.class).strategy();
-                	}
-                	idColumn = columnMapper;
+                if (field.isAnnotationPresent(Id.class)) {
+                    columnMapper.setId(true);
+                    if (field.isAnnotationPresent(GeneratedValue.class)) {
+                        idStrategy = field.getAnnotation(GeneratedValue.class).strategy();
+                    }
+                    idColumn = columnMapper;
                 }
                 // 添加到所有字段映射信息
                 columnMapperSet.add(columnMapper);
@@ -167,7 +167,8 @@ public class EntityHelper {
     private static String camelhumpToUnderline(String str) {
         final int size;
         final char[] chars;
-        final StringBuilder sb = new StringBuilder((size = (chars = str.toCharArray()).length) * 3 / 2 + 1);
+        final StringBuilder sb = new StringBuilder(
+            (size = (chars = str.toCharArray()).length) * 3 / 2 + 1);
         char c;
         for (int i = 0; i < size; i++) {
             c = chars[i];
@@ -226,7 +227,8 @@ public class EntityHelper {
         }
         Class<?> superClass = entityClass.getSuperclass();
         if (superClass != null && !superClass.equals(Object.class)
-                && (!Map.class.isAssignableFrom(superClass) && !Collection.class.isAssignableFrom(superClass))) {
+            && (!Map.class.isAssignableFrom(superClass)
+                && !Collection.class.isAssignableFrom(superClass))) {
             return getAllField(entityClass.getSuperclass(), fieldList);
         }
         return fieldList;

@@ -2,13 +2,13 @@ package cn.com.warlock.common2.apilimit;
 
 public class FixedBucket implements RateLimiter {
 
-    private volatile boolean enabled = true;
+    private volatile boolean enabled         = true;
 
-    private int timeToLive = 1;
+    private int              timeToLive      = 1;
 
-    private int allowedRequests = 1;
+    private int              allowedRequests = 1;
 
-    private TokenStore cache;
+    private TokenStore       cache;
 
     public void setTokenStore(TokenStore cache) {
         this.cache = cache;

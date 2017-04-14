@@ -35,8 +35,7 @@ public class TestCircuitBreaker {
 
         assertEquals("第二次模拟失败之后跳闸", 1L, circuitBreaker.getTripCount());
         assertEquals("OPEN", circuitBreaker.getCurrentState());
-        
-        
+
     }
 
     @Test
@@ -71,7 +70,7 @@ public class TestCircuitBreaker {
         tryGuardedOperation(circuitBreaker, new Runnable() {
 
             public void run() {
-        	doSuccessOp();
+                doSuccessOp();
             }
         });
 
@@ -103,18 +102,19 @@ public class TestCircuitBreaker {
         circuitBreaker.reset();
 
         assertEquals("CLOSED", circuitBreaker.getCurrentState());
-        
+
         tryGuardedOperation(circuitBreaker, new Runnable() {
 
             public void run() {
-        	doSuccessOp();
+                doSuccessOp();
             }
         });
 
-        assertEquals("当模拟一次成功的操作后，再次变成关闭状态了,这次不用sleep了发现没？", "CLOSED", circuitBreaker.getCurrentState());
-         
+        assertEquals("当模拟一次成功的操作后，再次变成关闭状态了,这次不用sleep了发现没？", "CLOSED",
+            circuitBreaker.getCurrentState());
+
     }
-    
+
     private void tryGuardedOperation(CircuitBreaker circuitBreaker, Runnable operation) {
         try {
             circuitBreaker.before();
@@ -128,8 +128,8 @@ public class TestCircuitBreaker {
     private void doFailingOp() {
         throw new RuntimeException("假装失败了");
     }
-    
-    private void doSuccessOp(){
-	//System.out.println("模拟成功的操作");
+
+    private void doSuccessOp() {
+        //System.out.println("模拟成功的操作");
     }
 }

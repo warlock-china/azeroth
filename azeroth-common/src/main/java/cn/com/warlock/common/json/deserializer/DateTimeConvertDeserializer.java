@@ -11,24 +11,24 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
-
 public class DateTimeConvertDeserializer extends JsonDeserializer<Date> {
 
-	private static String pattern = "yyyy-MM-dd HH:mm:ss";
+    private static String pattern = "yyyy-MM-dd HH:mm:ss";
 
-	@Override
-	public Date deserialize(JsonParser jsonParser, DeserializationContext dc) throws JsonProcessingException {
-		Date date = null;
-		DateFormat dateFormat = new SimpleDateFormat(pattern);
-		try {
-			String val = jsonParser.getText();
+    @Override
+    public Date deserialize(JsonParser jsonParser,
+                            DeserializationContext dc) throws JsonProcessingException {
+        Date date = null;
+        DateFormat dateFormat = new SimpleDateFormat(pattern);
+        try {
+            String val = jsonParser.getText();
 
-			date = dateFormat.parse(val);
-		} catch (ParseException | IOException pex) {
-			throw new RuntimeException("json转换Date异常，格式：" + pattern);
-		}
+            date = dateFormat.parse(val);
+        } catch (ParseException | IOException pex) {
+            throw new RuntimeException("json转换Date异常，格式：" + pattern);
+        }
 
-		return date;
-	}
+        return date;
+    }
 
 }

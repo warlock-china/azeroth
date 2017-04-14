@@ -1,56 +1,56 @@
 package cn.com.warlock.rest.response;
 
 public enum ResponseCode implements HttpCodeType {
-	
-	OK(200, "成功"),
 
-	BAD_REQUEST(400, "错误请求"),
+                                                  OK(200, "成功"),
 
-	UNAUTHORIZED(401, "未授权"),
+                                                  BAD_REQUEST(400, "错误请求"),
 
-	PAYMENT_REQUIRED(402, "要求回应"),
+                                                  UNAUTHORIZED(401, "未授权"),
 
-	FORBIDDEN(403, "禁止访问"),
+                                                  PAYMENT_REQUIRED(402, "要求回应"),
 
-	NOT_FOUND(404, "找不到路径"),
+                                                  FORBIDDEN(403, "禁止访问"),
 
-	METHOD_NOT_ALLOWED(405, "不允许此方法"),
+                                                  NOT_FOUND(404, "找不到路径"),
 
-	UNSUPPORTED_MEDIA_TYPE(415, "不支持的媒体类型"),
-	
-	NOT_ALLOW_NULL(418,"不允许为空"),
-	
-	NOT_ALLOWED_REPEAT(419,"不允许重复"),
-	
-	NO_RESOURCES(420,"资源不存在"),
+                                                  METHOD_NOT_ALLOWED(405, "不允许此方法"),
 
-	ERROR_JSON(499, "错误JSON"),
+                                                  UNSUPPORTED_MEDIA_TYPE(415, "不支持的媒体类型"),
 
-	INTERNAL_SERVER_ERROR(500, "服务器异常");
+                                                  NOT_ALLOW_NULL(418, "不允许为空"),
 
-	private int code;
+                                                  NOT_ALLOWED_REPEAT(419, "不允许重复"),
 
-	private String msg;
+                                                  NO_RESOURCES(420, "资源不存在"),
 
-	ResponseCode(int code, String msg) {
-		this.code = code;
-		this.msg = msg;
-	}
+                                                  ERROR_JSON(499, "错误JSON"),
 
-	public int getCode() {
-		return code;
-	}
+                                                  INTERNAL_SERVER_ERROR(500, "服务器异常");
 
-	public void setCode(int code) {
-		this.code = code;
-	}
+    private int    code;
 
-	public String getMsg() {
-		return msg;
-	}
+    private String msg;
 
-	public void setMsg(String msg) {
-		this.msg = msg;
-	}
+    ResponseCode(int code, String msg) {
+        this.code = code;
+        this.msg = msg;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
 
 }

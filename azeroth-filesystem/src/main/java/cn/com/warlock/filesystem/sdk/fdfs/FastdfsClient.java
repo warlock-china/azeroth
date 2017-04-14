@@ -17,26 +17,21 @@ import java.util.concurrent.TimeUnit;
  */
 public final class FastdfsClient implements Closeable {
 
-    public static final long DEFAULT_CONNECT_TIMEOUT = 3000;
-    public static final long DEFAULT_READ_TIMEOUT = 3000;
-    public static final long DEFAULT_IDLE_TIMEOUT = 60000;
+    public static final long      DEFAULT_CONNECT_TIMEOUT   = 3000;
+    public static final long      DEFAULT_READ_TIMEOUT      = 3000;
+    public static final long      DEFAULT_IDLE_TIMEOUT      = 60000;
 
-    public static final int DEFAULT_MAX_THREADS = 0;
-    public static final int DEFAULT_MAX_CONN_PER_HOST = 100;
+    public static final int       DEFAULT_MAX_THREADS       = 0;
+    public static final int       DEFAULT_MAX_CONN_PER_HOST = 100;
 
     private final FastdfsExecutor executor;
-    private final TrackerClient trackerClient;
-    private final StorageClient storageClient;
+    private final TrackerClient   trackerClient;
+    private final StorageClient   storageClient;
 
     private FastdfsClient(Builder builder) {
 
-        FastdfsSettings settings = new FastdfsSettings(
-                builder.connectTimeout,
-                builder.readTimeout,
-                builder.idleTimeout,
-                builder.maxThreads,
-                builder.maxConnPerHost
-        );
+        FastdfsSettings settings = new FastdfsSettings(builder.connectTimeout, builder.readTimeout,
+            builder.idleTimeout, builder.maxThreads, builder.maxConnPerHost);
 
         this.executor = new FastdfsExecutor(settings);
         this.trackerClient = new TrackerClient(executor, builder.selector, builder.trackers);
@@ -51,7 +46,6 @@ public final class FastdfsClient implements Closeable {
         return upload(null, file);
     }
 
-
     /**
      * @param group
      * @param file
@@ -59,9 +53,8 @@ public final class FastdfsClient implements Closeable {
      */
     public CompletableFuture<FileId> upload(String group, File file) {
         Objects.requireNonNull(file, "file must not be null.");
-        return trackerClient
-                .uploadStorageGet(group)
-                .thenCompose(server -> storageClient.upload(server, file));
+        return trackerClient.uploadStorageGet(group)
+            .thenCompose(server -> storageClient.upload(server, file));
     }
 
     /**
@@ -79,7 +72,8 @@ public final class FastdfsClient implements Closeable {
      * @param metadata
      * @return
      */
-    public CompletableFuture<FileId> upload(String filename, byte[] content, FileMetadata metadata) {
+    public CompletableFuture<FileId> upload(String filename, byte[] content,
+                                            FileMetadata metadata) {
         return upload(null, filename, content, metadata);
     }
 
@@ -100,10 +94,10 @@ public final class FastdfsClient implements Closeable {
      * @param metadata
      * @return
      */
-    public CompletableFuture<FileId> upload(String group, String filename, byte[] content, FileMetadata metadata) {
+    public CompletableFuture<FileId> upload(String group, String filename, byte[] content,
+                                            FileMetadata metadata) {
         return upload(group, content, filename, content.length, metadata);
     }
-
 
     /**
      * @param file
@@ -155,12 +149,12 @@ public final class FastdfsClient implements Closeable {
      * @param filename 扩展名
      * @return
      */
-    public CompletableFuture<FileId> upload(String group, Object content, String filename, long size) {
+    public CompletableFuture<FileId> upload(String group, Object content, String filename,
+                                            long size) {
         Objects.requireNonNull(content, "content must not be null.");
         Objects.requireNonNull(filename, "filename must not be null.");
-        return trackerClient
-                .uploadStorageGet(group)
-                .thenCompose(server -> storageClient.upload(server, content, filename, size));
+        return trackerClient.uploadStorageGet(group)
+            .thenCompose(server -> storageClient.upload(server, content, filename, size));
     }
 
     /**
@@ -170,7 +164,8 @@ public final class FastdfsClient implements Closeable {
      * @param metadata
      * @return
      */
-    public CompletableFuture<FileId> upload(Object content, String filename, long size, FileMetadata metadata) {
+    public CompletableFuture<FileId> upload(Object content, String filename, long size,
+                                            FileMetadata metadata) {
         return upload(null, content, filename, size, metadata);
     }
 
@@ -182,7 +177,8 @@ public final class FastdfsClient implements Closeable {
      * @param metadata
      * @return
      */
-    public CompletableFuture<FileId> upload(String group, Object content, String filename, long size, FileMetadata metadata) {
+    public CompletableFuture<FileId> upload(String group, Object content, String filename,
+                                            long size, FileMetadata metadata) {
         Objects.requireNonNull(content, "content must not be null.");
         Objects.requireNonNull(filename, "filename must not be null.");
         Objects.requireNonNull(metadata, "metadata must not be null.");
@@ -216,9 +212,8 @@ public final class FastdfsClient implements Closeable {
      */
     public CompletableFuture<FileId> uploadAppender(String group, File file) {
         Objects.requireNonNull(file, "file must not be null.");
-        return trackerClient
-                .uploadStorageGet(group)
-                .thenCompose(server -> storageClient.uploadAppender(server, file));
+        return trackerClient.uploadStorageGet(group)
+            .thenCompose(server -> storageClient.uploadAppender(server, file));
     }
 
     /**
@@ -226,12 +221,12 @@ public final class FastdfsClient implements Closeable {
      * @param file
      * @return
      */
-    public CompletableFuture<FileId> uploadAppender(String group, File file, FileMetadata metadata) {
-        return uploadAppender(group, file)
-                .thenApply(fileId -> {
-                    metadataSet(fileId, metadata);
-                    return fileId;
-                });
+    public CompletableFuture<FileId> uploadAppender(String group, File file,
+                                                    FileMetadata metadata) {
+        return uploadAppender(group, file).thenApply(fileId -> {
+            metadataSet(fileId, metadata);
+            return fileId;
+        });
     }
 
     /**
@@ -260,7 +255,8 @@ public final class FastdfsClient implements Closeable {
      * @param metadata
      * @return
      */
-    public CompletableFuture<FileId> uploadAppender(String group, String filename, byte[] content, FileMetadata metadata) {
+    public CompletableFuture<FileId> uploadAppender(String group, String filename, byte[] content,
+                                                    FileMetadata metadata) {
         return uploadAppender(group, content, filename, content.length, metadata);
     }
 
@@ -274,7 +270,6 @@ public final class FastdfsClient implements Closeable {
         return uploadAppender(null, content, filename, size);
     }
 
-
     /**
      * @param content
      * @param filename
@@ -282,7 +277,8 @@ public final class FastdfsClient implements Closeable {
      * @param metadata
      * @return
      */
-    public CompletableFuture<FileId> uploadAppender(Object content, String filename, long size, FileMetadata metadata) {
+    public CompletableFuture<FileId> uploadAppender(Object content, String filename, long size,
+                                                    FileMetadata metadata) {
         return uploadAppender(null, content, filename, size, metadata);
     }
 
@@ -302,12 +298,12 @@ public final class FastdfsClient implements Closeable {
      * @param size     内容长度
      * @return
      */
-    public CompletableFuture<FileId> uploadAppender(String group, Object content, String filename, long size) {
+    public CompletableFuture<FileId> uploadAppender(String group, Object content, String filename,
+                                                    long size) {
         Objects.requireNonNull(content, "content must not be null.");
         Objects.requireNonNull(filename, "filename must not be null.");
-        return trackerClient
-                .uploadStorageGet(group)
-                .thenCompose(server -> storageClient.uploadAppender(server, content, filename, size));
+        return trackerClient.uploadStorageGet(group)
+            .thenCompose(server -> storageClient.uploadAppender(server, content, filename, size));
     }
 
     /**
@@ -318,12 +314,12 @@ public final class FastdfsClient implements Closeable {
      * @param metadata
      * @return
      */
-    public CompletableFuture<FileId> uploadAppender(String group, Object content, String filename, long size, FileMetadata metadata) {
-        return uploadAppender(group, content, filename, size)
-                .thenApply(fileId -> {
-                    metadataSet(fileId, metadata);
-                    return fileId;
-                });
+    public CompletableFuture<FileId> uploadAppender(String group, Object content, String filename,
+                                                    long size, FileMetadata metadata) {
+        return uploadAppender(group, content, filename, size).thenApply(fileId -> {
+            metadataSet(fileId, metadata);
+            return fileId;
+        });
     }
 
     /**
@@ -350,9 +346,8 @@ public final class FastdfsClient implements Closeable {
     public CompletableFuture<Void> download(FileId fileId, Object out) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
         Objects.requireNonNull(out, "out must not be null.");
-        return trackerClient
-                .downloadStorageGet(fileId)
-                .thenCompose(server -> storageClient.download(server, fileId, out));
+        return trackerClient.downloadStorageGet(fileId)
+            .thenCompose(server -> storageClient.download(server, fileId, out));
     }
 
     /**
@@ -376,9 +371,8 @@ public final class FastdfsClient implements Closeable {
     public CompletableFuture<Void> download(FileId fileId, Object out, long offset, long size) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
         Objects.requireNonNull(out, "out must not be null.");
-        return trackerClient
-                .downloadStorageGet(fileId)
-                .thenCompose(server -> storageClient.download(server, fileId, out, offset, size));
+        return trackerClient.downloadStorageGet(fileId)
+            .thenCompose(server -> storageClient.download(server, fileId, out, offset, size));
     }
 
     /**
@@ -395,9 +389,8 @@ public final class FastdfsClient implements Closeable {
      */
     public CompletableFuture<Void> delete(FileId fileId) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
-        return trackerClient
-                .updateStorageGet(fileId)
-                .thenCompose(server -> storageClient.delete(server, fileId));
+        return trackerClient.updateStorageGet(fileId)
+            .thenCompose(server -> storageClient.delete(server, fileId));
     }
 
     /**
@@ -419,9 +412,8 @@ public final class FastdfsClient implements Closeable {
     public CompletableFuture<Void> append(FileId fileId, File file) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
         Objects.requireNonNull(file, "file must not be null.");
-        return trackerClient
-                .updateStorageGet(fileId)
-                .thenCompose(server -> storageClient.append(server, fileId, file));
+        return trackerClient.updateStorageGet(fileId)
+            .thenCompose(server -> storageClient.append(server, fileId, file));
     }
 
     /**
@@ -463,9 +455,8 @@ public final class FastdfsClient implements Closeable {
     public CompletableFuture<Void> append(FileId fileId, Object content, long size) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
         Objects.requireNonNull(content, "content must not be null.");
-        return trackerClient
-                .updateStorageGet(fileId)
-                .thenCompose(server -> storageClient.append(server, fileId, content, size));
+        return trackerClient.updateStorageGet(fileId)
+            .thenCompose(server -> storageClient.append(server, fileId, content, size));
     }
 
     /**
@@ -487,9 +478,8 @@ public final class FastdfsClient implements Closeable {
     public CompletableFuture<Void> modify(FileId fileId, File file, long offset) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
         Objects.requireNonNull(file, "file must not be null.");
-        return trackerClient
-                .updateStorageGet(fileId)
-                .thenCompose(server -> storageClient.modify(server, fileId, file, offset));
+        return trackerClient.updateStorageGet(fileId)
+            .thenCompose(server -> storageClient.modify(server, fileId, file, offset));
     }
 
     /**
@@ -533,9 +523,8 @@ public final class FastdfsClient implements Closeable {
     public CompletableFuture<Void> modify(FileId fileId, Object content, long size, long offset) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
         Objects.requireNonNull(content, "content must not be null.");
-        return trackerClient
-                .updateStorageGet(fileId)
-                .thenCompose(server -> storageClient.modify(server, fileId, content, size, offset));
+        return trackerClient.updateStorageGet(fileId)
+            .thenCompose(server -> storageClient.modify(server, fileId, content, size, offset));
     }
 
     /**
@@ -574,9 +563,8 @@ public final class FastdfsClient implements Closeable {
      */
     public CompletableFuture<Void> truncate(FileId fileId, long truncatedSize) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
-        return trackerClient
-                .updateStorageGet(fileId)
-                .thenCompose(server -> storageClient.truncate(server, fileId, truncatedSize));
+        return trackerClient.updateStorageGet(fileId)
+            .thenCompose(server -> storageClient.truncate(server, fileId, truncatedSize));
     }
 
     /**
@@ -618,9 +606,8 @@ public final class FastdfsClient implements Closeable {
     public CompletableFuture<Void> metadataSet(FileId fileId, FileMetadata metadata, byte flag) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
         Objects.requireNonNull(metadata, "metadata must not be null.");
-        return trackerClient
-                .updateStorageGet(fileId)
-                .thenCompose(server -> storageClient.setMetadata(server, fileId, metadata, flag));
+        return trackerClient.updateStorageGet(fileId)
+            .thenCompose(server -> storageClient.setMetadata(server, fileId, metadata, flag));
     }
 
     /**
@@ -639,9 +626,8 @@ public final class FastdfsClient implements Closeable {
      */
     public CompletableFuture<FileMetadata> metadataGet(FileId fileId) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
-        return trackerClient
-                .updateStorageGet(fileId)
-                .thenCompose(server -> storageClient.getMetadata(server, fileId));
+        return trackerClient.updateStorageGet(fileId)
+            .thenCompose(server -> storageClient.getMetadata(server, fileId));
     }
 
     /**
@@ -660,9 +646,8 @@ public final class FastdfsClient implements Closeable {
      */
     public CompletableFuture<FileInfo> infoGet(FileId fileId) {
         Objects.requireNonNull(fileId, "fileId must not be null.");
-        return trackerClient
-                .updateStorageGet(fileId)
-                .thenCompose(server -> storageClient.getInfo(server, fileId));
+        return trackerClient.updateStorageGet(fileId)
+            .thenCompose(server -> storageClient.getInfo(server, fileId));
     }
 
     @Override
@@ -679,15 +664,15 @@ public final class FastdfsClient implements Closeable {
 
     public static class Builder {
 
-        long connectTimeout = DEFAULT_CONNECT_TIMEOUT; // 连接超时时间(毫秒)
-        long readTimeout = DEFAULT_READ_TIMEOUT;// 读超时时间(毫秒)
-        long idleTimeout = DEFAULT_IDLE_TIMEOUT;// 连接闲置时间(毫秒)
+        long                connectTimeout = DEFAULT_CONNECT_TIMEOUT;   // 连接超时时间(毫秒)
+        long                readTimeout    = DEFAULT_READ_TIMEOUT;      // 读超时时间(毫秒)
+        long                idleTimeout    = DEFAULT_IDLE_TIMEOUT;      // 连接闲置时间(毫秒)
 
-        int maxThreads = DEFAULT_MAX_THREADS; // 线程数量
-        int maxConnPerHost = DEFAULT_MAX_CONN_PER_HOST; // 每个IP最大连接数
+        int                 maxThreads     = DEFAULT_MAX_THREADS;       // 线程数量
+        int                 maxConnPerHost = DEFAULT_MAX_CONN_PER_HOST; // 每个IP最大连接数
 
-        TrackerSelector selector = TrackerSelector.RANDOM;
-        List<TrackerServer> trackers = new LinkedList<>();
+        TrackerSelector     selector       = TrackerSelector.RANDOM;
+        List<TrackerServer> trackers       = new LinkedList<>();
 
         Builder() {
         }
@@ -717,7 +702,6 @@ public final class FastdfsClient implements Closeable {
             return this;
         }
 
-
         /**
          * @param selector
          * @return
@@ -732,7 +716,8 @@ public final class FastdfsClient implements Closeable {
          * @return
          */
         public Builder trackers(List<TrackerServer> servers) {
-            this.trackers = new LinkedList<>(Objects.requireNonNull(servers, "servers must not be null."));
+            this.trackers = new LinkedList<>(
+                Objects.requireNonNull(servers, "servers must not be null."));
             return this;
         }
 

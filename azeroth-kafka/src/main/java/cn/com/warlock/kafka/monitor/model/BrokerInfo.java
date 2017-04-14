@@ -2,52 +2,51 @@ package cn.com.warlock.kafka.monitor.model;
 
 public class BrokerInfo {
 
-	private String id;
-	private String host;
-	private int port;
-	private int version;
-	
-	public BrokerInfo() {}
+    private String id;
+    private String host;
+    private int    port;
+    private int    version;
 
-	public BrokerInfo(String id, String host, int port) {
-		super();
-		this.id = id;
-		this.host = host;
-		this.port = port;
-	}
+    public BrokerInfo() {
+    }
 
-	public String getId() {
-		return id;
-	}
+    public BrokerInfo(String id, String host, int port) {
+        super();
+        this.id = id;
+        this.host = host;
+        this.port = port;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public String getHost() {
-		return host;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public void setHost(String host) {
-		this.host = host;
-	}
+    public String getHost() {
+        return host;
+    }
 
-	public int getPort() {
-		return port;
-	}
+    public void setHost(String host) {
+        this.host = host;
+    }
 
-	public void setPort(int port) {
-		this.port = port;
-	}
+    public int getPort() {
+        return port;
+    }
 
-	public int getVersion() {
-		return version;
-	}
+    public void setPort(int port) {
+        this.port = port;
+    }
 
-	public void setVersion(int version) {
-		this.version = version;
-	}
-	
-	
-	
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
+
 }

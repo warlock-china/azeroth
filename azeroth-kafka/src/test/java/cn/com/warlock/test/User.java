@@ -5,96 +5,94 @@ import java.util.Date;
 
 public class User implements Serializable {
 
-	private int id;
-	
-	private int age;
-	
-	private String name;
-	
-	private String nickName;
-	
-	private int gender;
-	
-	private String password;
-	
-	private String idcard;
-	
-	private Date createdAt;
-	
-	private Date updatedAt;
+    private int    id;
 
-	public int getId() {
-		return id;
-	}
+    private int    age;
 
-	public void setId(int id) {
-		this.id = id;
-	}
+    private String name;
 
-	public int getAge() {
-		return age;
-	}
+    private String nickName;
 
-	public void setAge(int age) {
-		this.age = age;
-	}
+    private int    gender;
 
-	public String getName() {
-		return name;
-	}
+    private String password;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    private String idcard;
 
-	public String getNickName() {
-		return nickName;
-	}
+    private Date   createdAt;
 
-	public void setNickName(String nickName) {
-		this.nickName = nickName;
-	}
+    private Date   updatedAt;
 
-	public int getGender() {
-		return gender;
-	}
+    public int getId() {
+        return id;
+    }
 
-	public void setGender(int gender) {
-		this.gender = gender;
-	}
+    public void setId(int id) {
+        this.id = id;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public int getAge() {
+        return age;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public void setAge(int age) {
+        this.age = age;
+    }
 
-	public String getIdcard() {
-		return idcard;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setIdcard(String idcard) {
-		this.idcard = idcard;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public Date getCreatedAt() {
-		return createdAt;
-	}
+    public String getNickName() {
+        return nickName;
+    }
 
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
-	}
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
 
-	public Date getUpdatedAt() {
-		return updatedAt;
-	}
+    public int getGender() {
+        return gender;
+    }
 
-	public void setUpdatedAt(Date updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-	
-	
-	
+    public void setGender(int gender) {
+        this.gender = gender;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getIdcard() {
+        return idcard;
+    }
+
+    public void setIdcard(String idcard) {
+        this.idcard = idcard;
+    }
+
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
 }

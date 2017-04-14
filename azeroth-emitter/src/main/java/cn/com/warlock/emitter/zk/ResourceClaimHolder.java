@@ -3,9 +3,9 @@ package cn.com.warlock.emitter.zk;
 import java.util.function.Supplier;
 
 public class ResourceClaimHolder {
-    private ResourceClaim claim;
+    private ResourceClaim                 claim;
     private final Supplier<ResourceClaim> freshClaimSupplier;
-    private final int clusterId;
+    private final int                     clusterId;
 
     public ResourceClaimHolder(Supplier<ResourceClaim> freshClaimSupplier, int clusterId) {
         this.freshClaimSupplier = freshClaimSupplier;

@@ -21,20 +21,19 @@ import org.mybatis.generator.config.Context;
 import org.mybatis.generator.internal.types.JavaTypeResolverDefaultImpl;
 import org.mybatis.generator.internal.util.StringUtility;
 
-
 public class CrudSupportPlugin extends PluginAdapter {
-    private Set<String> mappers = new HashSet<String>();
-    private boolean caseSensitive = false;
+    private Set<String>                   mappers            = new HashSet<String>();
+    private boolean                       caseSensitive      = false;
     //开始的分隔符，例如mysql为`，sqlserver为[
-    private String beginningDelimiter = "";
+    private String                        beginningDelimiter = "";
     //结束的分隔符，例如mysql为`，sqlserver为]
-    private String endingDelimiter = "";
+    private String                        endingDelimiter    = "";
     //数据库模式
-    private String schema;
+    private String                        schema;
     //注释生成器
     private CommentGeneratorConfiguration commentCfg;
-    
-    private JavaTypeResolverDefaultImpl javaTypeResolver = new JavaTypeResolverDefaultImpl();
+
+    private JavaTypeResolverDefaultImpl   javaTypeResolver   = new JavaTypeResolverDefaultImpl();
 
     @Override
     public void setContext(Context context) {
@@ -104,20 +103,23 @@ public class CrudSupportPlugin extends PluginAdapter {
      * @return
      */
     @Override
-    public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientGenerated(Interface interfaze, TopLevelClass topLevelClass,
+                                   IntrospectedTable introspectedTable) {
         //获取实体类
-        FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(introspectedTable.getBaseRecordType());
+        FullyQualifiedJavaType entityType = new FullyQualifiedJavaType(
+            introspectedTable.getBaseRecordType());
         //主键
         FullyQualifiedJavaType idType = null;
         List<IntrospectedColumn> columns = introspectedTable.getPrimaryKeyColumns();
         for (IntrospectedColumn col : columns) {
-        	idType = javaTypeResolver.calculateJavaType(col);
-        	break;
+            idType = javaTypeResolver.calculateJavaType(col);
+            break;
         }
         //import接口
         for (String mapper : mappers) {
             interfaze.addImportedType(new FullyQualifiedJavaType(mapper));
-            interfaze.addSuperInterface(new FullyQualifiedJavaType(mapper + "<" + entityType.getShortName() + ","+idType.getShortName()+">"));
+            interfaze.addSuperInterface(new FullyQualifiedJavaType(
+                mapper + "<" + entityType.getShortName() + "," + idType.getShortName() + ">"));
         }
         //import实体类
         interfaze.addImportedType(entityType);
@@ -130,15 +132,14 @@ public class CrudSupportPlugin extends PluginAdapter {
      * @param topLevelClass
      * @param introspectedTable
      */
-    private void processEntityClass(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    private void processEntityClass(TopLevelClass topLevelClass,
+                                    IntrospectedTable introspectedTable) {
         //引入JPA注解
         topLevelClass.addImportedType("javax.persistence.*");
         String tableName = introspectedTable.getFullyQualifiedTableNameAtRuntime();
         //如果包含空格，或者需要分隔符，需要完善
         if (StringUtility.stringContainsSpace(tableName)) {
-            tableName = context.getBeginningDelimiter()
-                    + tableName
-                    + context.getEndingDelimiter();
+            tableName = context.getBeginningDelimiter() + tableName + context.getEndingDelimiter();
         }
         //是否忽略大小写，对于区分大小写的数据库，会有用
         if (caseSensitive && !topLevelClass.getType().getShortName().equals(tableName)) {
@@ -146,8 +147,8 @@ public class CrudSupportPlugin extends PluginAdapter {
         } else if (!topLevelClass.getType().getShortName().equalsIgnoreCase(tableName)) {
             topLevelClass.addAnnotation("@Table(name = \"" + getDelimiterName(tableName) + "\")");
         } else if (StringUtility.stringHasValue(schema)
-                || StringUtility.stringHasValue(beginningDelimiter)
-                || StringUtility.stringHasValue(endingDelimiter)) {
+                   || StringUtility.stringHasValue(beginningDelimiter)
+                   || StringUtility.stringHasValue(endingDelimiter)) {
             topLevelClass.addAnnotation("@Table(name = \"" + getDelimiterName(tableName) + "\")");
         }
     }
@@ -160,7 +161,8 @@ public class CrudSupportPlugin extends PluginAdapter {
      * @return
      */
     @Override
-    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean modelBaseRecordClassGenerated(TopLevelClass topLevelClass,
+                                                 IntrospectedTable introspectedTable) {
         processEntityClass(topLevelClass, introspectedTable);
         return true;
     }
@@ -173,7 +175,8 @@ public class CrudSupportPlugin extends PluginAdapter {
      * @return
      */
     @Override
-    public boolean modelPrimaryKeyClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean modelPrimaryKeyClassGenerated(TopLevelClass topLevelClass,
+                                                 IntrospectedTable introspectedTable) {
         processEntityClass(topLevelClass, introspectedTable);
         return true;
     }
@@ -186,149 +189,188 @@ public class CrudSupportPlugin extends PluginAdapter {
      * @return
      */
     @Override
-    public boolean modelRecordWithBLOBsClassGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean modelRecordWithBLOBsClassGenerated(TopLevelClass topLevelClass,
+                                                      IntrospectedTable introspectedTable) {
         processEntityClass(topLevelClass, introspectedTable);
         return false;
     }
 
     //下面所有return false的方法都不生成。这些都是基础的CRUD方法，使用通用Mapper实现
     @Override
-    public boolean clientDeleteByPrimaryKeyMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientDeleteByPrimaryKeyMethodGenerated(Method method,
+                                                           TopLevelClass topLevelClass,
+                                                           IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientInsertMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientInsertMethodGenerated(Method method, TopLevelClass topLevelClass,
+                                               IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientInsertSelectiveMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientInsertSelectiveMethodGenerated(Method method, TopLevelClass topLevelClass,
+                                                        IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientSelectByPrimaryKeyMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientSelectByPrimaryKeyMethodGenerated(Method method,
+                                                           TopLevelClass topLevelClass,
+                                                           IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientUpdateByPrimaryKeySelectiveMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientUpdateByPrimaryKeySelectiveMethodGenerated(Method method,
+                                                                    TopLevelClass topLevelClass,
+                                                                    IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientUpdateByPrimaryKeyWithBLOBsMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientUpdateByPrimaryKeyWithBLOBsMethodGenerated(Method method,
+                                                                    TopLevelClass topLevelClass,
+                                                                    IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientUpdateByPrimaryKeyWithoutBLOBsMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientUpdateByPrimaryKeyWithoutBLOBsMethodGenerated(Method method,
+                                                                       TopLevelClass topLevelClass,
+                                                                       IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientDeleteByPrimaryKeyMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
+    public boolean clientDeleteByPrimaryKeyMethodGenerated(Method method, Interface interfaze,
+                                                           IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientInsertMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
+    public boolean clientInsertMethodGenerated(Method method, Interface interfaze,
+                                               IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientInsertSelectiveMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
+    public boolean clientInsertSelectiveMethodGenerated(Method method, Interface interfaze,
+                                                        IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientSelectAllMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
+    public boolean clientSelectAllMethodGenerated(Method method, Interface interfaze,
+                                                  IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientSelectAllMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean clientSelectAllMethodGenerated(Method method, TopLevelClass topLevelClass,
+                                                  IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientSelectByPrimaryKeyMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
+    public boolean clientSelectByPrimaryKeyMethodGenerated(Method method, Interface interfaze,
+                                                           IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientUpdateByPrimaryKeySelectiveMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
+    public boolean clientUpdateByPrimaryKeySelectiveMethodGenerated(Method method,
+                                                                    Interface interfaze,
+                                                                    IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientUpdateByPrimaryKeyWithBLOBsMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
+    public boolean clientUpdateByPrimaryKeyWithBLOBsMethodGenerated(Method method,
+                                                                    Interface interfaze,
+                                                                    IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean clientUpdateByPrimaryKeyWithoutBLOBsMethodGenerated(Method method, Interface interfaze, IntrospectedTable introspectedTable) {
+    public boolean clientUpdateByPrimaryKeyWithoutBLOBsMethodGenerated(Method method,
+                                                                       Interface interfaze,
+                                                                       IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean sqlMapDeleteByPrimaryKeyElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+    public boolean sqlMapDeleteByPrimaryKeyElementGenerated(XmlElement element,
+                                                            IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean sqlMapInsertElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+    public boolean sqlMapInsertElementGenerated(XmlElement element,
+                                                IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean sqlMapInsertSelectiveElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+    public boolean sqlMapInsertSelectiveElementGenerated(XmlElement element,
+                                                         IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean sqlMapSelectAllElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+    public boolean sqlMapSelectAllElementGenerated(XmlElement element,
+                                                   IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean sqlMapSelectByPrimaryKeyElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+    public boolean sqlMapSelectByPrimaryKeyElementGenerated(XmlElement element,
+                                                            IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean sqlMapUpdateByPrimaryKeySelectiveElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+    public boolean sqlMapUpdateByPrimaryKeySelectiveElementGenerated(XmlElement element,
+                                                                     IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean sqlMapUpdateByPrimaryKeyWithBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+    public boolean sqlMapUpdateByPrimaryKeyWithBLOBsElementGenerated(XmlElement element,
+                                                                     IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean sqlMapUpdateByPrimaryKeyWithoutBLOBsElementGenerated(XmlElement element, IntrospectedTable introspectedTable) {
+    public boolean sqlMapUpdateByPrimaryKeyWithoutBLOBsElementGenerated(XmlElement element,
+                                                                        IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean providerGenerated(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean providerGenerated(TopLevelClass topLevelClass,
+                                     IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean providerApplyWhereMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean providerApplyWhereMethodGenerated(Method method, TopLevelClass topLevelClass,
+                                                     IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean providerInsertSelectiveMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean providerInsertSelectiveMethodGenerated(Method method,
+                                                          TopLevelClass topLevelClass,
+                                                          IntrospectedTable introspectedTable) {
         return false;
     }
 
     @Override
-    public boolean providerUpdateByPrimaryKeySelectiveMethodGenerated(Method method, TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
+    public boolean providerUpdateByPrimaryKeySelectiveMethodGenerated(Method method,
+                                                                      TopLevelClass topLevelClass,
+                                                                      IntrospectedTable introspectedTable) {
         return false;
     }
 }

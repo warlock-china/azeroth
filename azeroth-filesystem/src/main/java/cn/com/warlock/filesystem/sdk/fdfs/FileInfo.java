@@ -5,9 +5,9 @@ package cn.com.warlock.filesystem.sdk.fdfs;
  */
 public class FileInfo {
 
-    private long fileSize;
-    private long createTime;
-    private long crc32;
+    private long   fileSize;
+    private long   createTime;
+    private long   crc32;
     private String address;
 
     /**
@@ -38,12 +38,8 @@ public class FileInfo {
 
     @Override
     public String toString() {
-        return "FileInfo{" +
-                "fileSize=" + fileSize +
-                ", createTime=" + createTime +
-                ", crc32=" + crc32 +
-                ", address='" + address + '\'' +
-                '}';
+        return "FileInfo{" + "fileSize=" + fileSize + ", createTime=" + createTime + ", crc32="
+               + crc32 + ", address='" + address + '\'' + '}';
     }
 
     /**
@@ -54,9 +50,9 @@ public class FileInfo {
     }
 
     public static class Builder {
-        long fileSize;
-        long createTime;
-        long crc32;
+        long   fileSize;
+        long   createTime;
+        long   crc32;
         String address;
 
         Builder() {

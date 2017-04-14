@@ -8,14 +8,14 @@ import java.util.concurrent.locks.ReentrantLock;
 public class CoarseMemoryTokenStore implements TokenStore {
 
     private final Map<Key, StoreEntry> cache;
-    
-    private final Lock lock;
+
+    private final Lock                 lock;
 
     public CoarseMemoryTokenStore() {
         this.cache = new HashMap<Key, StoreEntry>();
         this.lock = new ReentrantLock();
     }
-    
+
     public StoreEntry create(Key key, int timeToLiveInSecs) {
         try {
             StoreEntryImpl result = new StoreEntryImpl(timeToLiveInSecs);
@@ -28,19 +28,19 @@ public class CoarseMemoryTokenStore implements TokenStore {
 
     public StoreEntry get(Key key) {
         lock.lock();
-        
+
         StoreEntry result = cache.get(key);
-        
+
         if (!(result == null || result.isExpired())) {
-            
+
             lock.unlock();
             return result;
-        }  else {
-            
+        } else {
+
             result = null;
             cache.put(key, result);
         }
-        
+
         return result;
     }
 

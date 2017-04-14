@@ -5,33 +5,33 @@ import java.util.List;
 
 public class JobGroupInfo {
 
-	private String name;
-	
-	List<JobConfig> jobs = new ArrayList<>();
-	
-	List<String >clusterNodes = new ArrayList<>();
-	
-	public String getName() {
-		return name;
-	}
+    private String  name;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    List<JobConfig> jobs         = new ArrayList<>();
 
-	public List<JobConfig> getJobs() {
-		return jobs;
-	}
+    List<String>    clusterNodes = new ArrayList<>();
 
-	public void setJobs(List<JobConfig> jobs) {
-		this.jobs = jobs;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public List<String> getClusterNodes() {
-		return clusterNodes;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setClusterNodes(List<String> clusterNodes) {
-		this.clusterNodes = clusterNodes;
-	}
+    public List<JobConfig> getJobs() {
+        return jobs;
+    }
+
+    public void setJobs(List<JobConfig> jobs) {
+        this.jobs = jobs;
+    }
+
+    public List<String> getClusterNodes() {
+        return clusterNodes;
+    }
+
+    public void setClusterNodes(List<String> clusterNodes) {
+        this.clusterNodes = clusterNodes;
+    }
 }

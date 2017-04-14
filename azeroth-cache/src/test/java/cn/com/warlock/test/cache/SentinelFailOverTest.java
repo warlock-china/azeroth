@@ -15,31 +15,33 @@ import cn.com.warlock.cache.command.RedisString;
 import cn.com.warlock.spring.InstanceFactory;
 import cn.com.warlock.spring.SpringInstanceProvider;
 
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations={"classpath:test-cache.xml"})
-public class SentinelFailOverTest implements ApplicationContextAware{
-	
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
+@ContextConfiguration(locations = { "classpath:test-cache.xml" })
+public class SentinelFailOverTest implements ApplicationContextAware {
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
-	@Override
-	public void setApplicationContext(ApplicationContext arg0) throws BeansException {	
-		InstanceFactory.setInstanceProvider(new SpringInstanceProvider(arg0));
-	}
-	
-	@Test
-	public void testRedisString(){
-		int count = 0;
-		while(true){	
-			if(count == 1000)break;
-			RedisString redis = new RedisString("foo"+RandomUtils.nextInt(100, 999999));
-			redis.set("bar",10);
-			System.out.println(String.format("val:%s,ttl:%s", redis.get(),redis.getTtl()));
-			count++;
-			try {Thread.sleep(300);} catch (Exception e) {}
-		}
-	}
-	
+    @Override
+    public void setApplicationContext(ApplicationContext arg0) throws BeansException {
+        InstanceFactory.setInstanceProvider(new SpringInstanceProvider(arg0));
+    }
+
+    @Test
+    public void testRedisString() {
+        int count = 0;
+        while (true) {
+            if (count == 1000)
+                break;
+            RedisString redis = new RedisString("foo" + RandomUtils.nextInt(100, 999999));
+            redis.set("bar", 10);
+            System.out.println(String.format("val:%s,ttl:%s", redis.get(), redis.getTtl()));
+            count++;
+            try {
+                Thread.sleep(300);
+            } catch (Exception e) {
+            }
+        }
+    }
+
 }

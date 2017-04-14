@@ -12,72 +12,78 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class InstanceFactory {
 
-	private static SpringInstanceProvider instanceProvider;
-	private static Long timeStarting = System.currentTimeMillis();
-	private static AtomicBoolean initialized = new AtomicBoolean(false);
+    private static SpringInstanceProvider instanceProvider;
+    private static Long                   timeStarting = System.currentTimeMillis();
+    private static AtomicBoolean          initialized  = new AtomicBoolean(false);
 
-	/**
-	 * 设置实例提供者。
-	 * @param provider 一个实例提供者的实例。
-	 */
-	public static void setInstanceProvider(SpringInstanceProvider provider) {
-		instanceProvider = provider;
-		initialized.set(true);
-	}
+    /**
+     * 设置实例提供者。
+     * @param provider 一个实例提供者的实例。
+     */
+    public static void setInstanceProvider(SpringInstanceProvider provider) {
+        instanceProvider = provider;
+        initialized.set(true);
+    }
 
-	/**
-	 * 获取指定类型的对象实例。如果IoC容器没配置好或者IoC容器中找不到该类型的实例则抛出异常。
-	 * 
-	 * @param <T> 对象的类型
-	 * @param beanClass 对象的类
-	 * @return 类型为T的对象实例
-	 */
-	public static <T> T getInstance(Class<T> beanClass) {
-		return (T) getInstanceProvider().getInstance(beanClass);
-	}
+    /**
+     * 获取指定类型的对象实例。如果IoC容器没配置好或者IoC容器中找不到该类型的实例则抛出异常。
+     * 
+     * @param <T> 对象的类型
+     * @param beanClass 对象的类
+     * @return 类型为T的对象实例
+     */
+    public static <T> T getInstance(Class<T> beanClass) {
+        return (T) getInstanceProvider().getInstance(beanClass);
+    }
 
-	/**
-	 * 获取指定类型的对象实例。如果IoC容器没配置好或者IoC容器中找不到该实例则抛出异常。
-	 * 
-	 * @param <T> 对象的类型
-	 * @param beanName 实现类在容器中配置的名字
-	 * @param beanClass 对象的类
-	 * @return 类型为T的对象实例
-	 */
-	public static <T> T getInstance(Class<T> beanClass, String beanName) {
-		return (T) getInstanceProvider().getInstance(beanClass, beanName);
-	}
+    /**
+     * 获取指定类型的对象实例。如果IoC容器没配置好或者IoC容器中找不到该实例则抛出异常。
+     * 
+     * @param <T> 对象的类型
+     * @param beanName 实现类在容器中配置的名字
+     * @param beanClass 对象的类
+     * @return 类型为T的对象实例
+     */
+    public static <T> T getInstance(Class<T> beanClass, String beanName) {
+        return (T) getInstanceProvider().getInstance(beanClass, beanName);
+    }
 
-	/**
-	 * 获取指定类型的对象实例
-	 * @param <T> 对象的类型
-	 * @param beanName 实现类在容器中配置的名字
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> T getInstance(String beanName) {
-		return (T) getInstanceProvider().getInstance(beanName);
-	}
+    /**
+     * 获取指定类型的对象实例
+     * @param <T> 对象的类型
+     * @param beanName 实现类在容器中配置的名字
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T getInstance(String beanName) {
+        return (T) getInstanceProvider().getInstance(beanName);
+    }
 
-	/**
-	 * 获取实例提供者。
-	 * @return 实体提供者的一个实现类。
-	 */
-	public static SpringInstanceProvider getInstanceProvider() {
-		return instanceProvider;
-	}
-	
-	/**
-	 * 这是一个阻塞方法，直到context初始化完成
-	 */
-	public synchronized static void waitUtilInitialized(){
-		if(initialized.get())return;
-		while(true){
-			if(initialized.get())break;
-			try {Thread.sleep(1000);} catch (Exception e) {}
-			long waiting = System.currentTimeMillis() - timeStarting;
-			if(waiting >60 * 1000)throw new RuntimeException("Spring Initialize failture");
-			System.out.println("Spring Initializing >>>>>"+waiting + " s");
-		}
-	}
+    /**
+     * 获取实例提供者。
+     * @return 实体提供者的一个实现类。
+     */
+    public static SpringInstanceProvider getInstanceProvider() {
+        return instanceProvider;
+    }
+
+    /**
+     * 这是一个阻塞方法，直到context初始化完成
+     */
+    public synchronized static void waitUtilInitialized() {
+        if (initialized.get())
+            return;
+        while (true) {
+            if (initialized.get())
+                break;
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e) {
+            }
+            long waiting = System.currentTimeMillis() - timeStarting;
+            if (waiting > 60 * 1000)
+                throw new RuntimeException("Spring Initialize failture");
+            System.out.println("Spring Initializing >>>>>" + waiting + " s");
+        }
+    }
 
 }

@@ -14,10 +14,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Provider
 public class ObjectMapperResolver implements ContextResolver<ObjectMapper> {
 
-	static JsonMapper jsonMapper = JsonMapper.nonNullMapper().dateAndTimestampConvert(true);
+    static JsonMapper jsonMapper = JsonMapper.nonNullMapper().dateAndTimestampConvert(true);
 
-	@Override
-	public ObjectMapper getContext(Class<?> type) {
-		return jsonMapper.getMapper();
-	}
+    @Override
+    public ObjectMapper getContext(Class<?> type) {
+        return jsonMapper.getMapper();
+    }
 }

@@ -21,7 +21,7 @@ import static cn.com.warlock.filesystem.sdk.fdfs.FastdfsUtils.writeFixLength;
 public class FileUploadEncoder extends FileOperationEncoder {
 
     private final String ext;
-    private final byte pathIdx;
+    private final byte   pathIdx;
 
     public FileUploadEncoder(File file, byte pathIdx) {
         super(file);

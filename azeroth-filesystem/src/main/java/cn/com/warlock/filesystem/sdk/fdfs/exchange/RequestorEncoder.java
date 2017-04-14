@@ -25,8 +25,6 @@ public class RequestorEncoder extends RequestorSupport {
 
     @Override
     public String toString() {
-        return "RequestorEncoder{" +
-                "encoder=" + encoder +
-                '}';
+        return "RequestorEncoder{" + "encoder=" + encoder + '}';
     }
 }

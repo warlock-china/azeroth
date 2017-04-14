@@ -16,7 +16,7 @@ import java.util.List;
 
 final class FastdfsHandler extends ByteToMessageDecoder {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FastdfsHandler.class);
+    private static final Logger          LOG = LoggerFactory.getLogger(FastdfsHandler.class);
 
     private volatile FastdfsOperation<?> operation;
 
@@ -25,7 +25,8 @@ final class FastdfsHandler extends ByteToMessageDecoder {
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in,
+                          List<Object> out) throws Exception {
 
         if (null != operation) {
             operation.await(in);
@@ -36,13 +37,9 @@ final class FastdfsHandler extends ByteToMessageDecoder {
             return;
         }
 
-        throw new FastdfsDataOverflowException(
-                String.format(
-                        "fastdfs channel %s remain %s data bytes, but there is not operation await.",
-                        ctx.channel(),
-                        in.readableBytes()
-                )
-        );
+        throw new FastdfsDataOverflowException(String.format(
+            "fastdfs channel %s remain %s data bytes, but there is not operation await.",
+            ctx.channel(), in.readableBytes()));
     }
 
     @Override
@@ -50,15 +47,11 @@ final class FastdfsHandler extends ByteToMessageDecoder {
 
         // read idle event.
         if (evt == IdleStateEvent.FIRST_READER_IDLE_STATE_EVENT
-                || evt == IdleStateEvent.READER_IDLE_STATE_EVENT) {
+            || evt == IdleStateEvent.READER_IDLE_STATE_EVENT) {
 
             if (null != operation) {
                 throw new FastdfsReadTimeoutException(
-                        String.format(
-                                "execute %s read timeout.",
-                                operation
-                        )
-                );
+                    String.format("execute %s read timeout.", operation));
             }
 
             return;
@@ -66,7 +59,7 @@ final class FastdfsHandler extends ByteToMessageDecoder {
 
         // all idle event.
         if (evt == IdleStateEvent.FIRST_ALL_IDLE_STATE_EVENT
-                || evt == IdleStateEvent.ALL_IDLE_STATE_EVENT) {
+            || evt == IdleStateEvent.ALL_IDLE_STATE_EVENT) {
             throw new FastdfsTimeoutException("fastdfs channel was idle timeout.");
         }
     }
@@ -108,7 +101,7 @@ final class FastdfsHandler extends ByteToMessageDecoder {
         }
 
         Throwable unwrap = cause;
-        for (; ; ) {
+        for (;;) {
 
             if (unwrap instanceof InvocationTargetException) {
                 unwrap = ((InvocationTargetException) unwrap).getTargetException();

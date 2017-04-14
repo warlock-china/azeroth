@@ -39,283 +39,285 @@ import cn.com.warlock.common2.excel.helper.ExcelValidator;
  * @author Nick Burch
  */
 public class XLS2CSV implements HSSFListener {
-	private int minColumns;
-	private POIFSFileSystem fs;
+    private int                           minColumns;
+    private POIFSFileSystem               fs;
 
-	private int lastRowNumber;
-	private int lastColumnNumber;
+    private int                           lastRowNumber;
+    private int                           lastColumnNumber;
 
-	/** Should we output the formula, or the value it has? */
-	private boolean outputFormulaValues = true;
+    /** Should we output the formula, or the value it has? */
+    private boolean                       outputFormulaValues = true;
 
-	/** For parsing Formulas */
-	private SheetRecordCollectingListener workbookBuildingListener;
-	private HSSFWorkbook stubWorkbook;
+    /** For parsing Formulas */
+    private SheetRecordCollectingListener workbookBuildingListener;
+    private HSSFWorkbook                  stubWorkbook;
 
-	// Records we pick up as we process
-	private SSTRecord sstRecord;
-	private FormatTrackingHSSFListener formatListener;
-	
-	/** So we known which sheet we're on */
-	private int sheetIndex = -1;
-	private BoundSheetRecord[] orderedBSRs;
-	private List<BoundSheetRecord> boundSheetRecords = new ArrayList<BoundSheetRecord>();
+    // Records we pick up as we process
+    private SSTRecord                     sstRecord;
+    private FormatTrackingHSSFListener    formatListener;
 
-	// For handling formulas with string results
-	private int nextRow;
-	private int nextColumn;
-	private boolean outputNextStringRecord;
-	
-	private List<String> results = new ArrayList<>();
-	
-	private StringBuilder _resultRowTmp = new StringBuilder();
-	
-	//出现空白的行数
-	private int blankRowNum = 0;
+    /** So we known which sheet we're on */
+    private int                           sheetIndex          = -1;
+    private BoundSheetRecord[]            orderedBSRs;
+    private List<BoundSheetRecord>        boundSheetRecords   = new ArrayList<BoundSheetRecord>();
 
-	/**
-	 * Creates a new XLS -> CSV converter
-	 * @param fs The POIFSFileSystem to process
-	 * @param output The PrintStream to output the CSV to
-	 * @param minColumns The minimum number of columns to output, or -1 for no minimum
-	 */
-	public XLS2CSV(POIFSFileSystem fs, int minColumns) {
-		this.fs = fs;
-		this.minColumns = minColumns;
-	}
+    // For handling formulas with string results
+    private int                           nextRow;
+    private int                           nextColumn;
+    private boolean                       outputNextStringRecord;
 
-	/**
-	 * Creates a new XLS -> CSV converter
-	 * @param filename The file to process
-	 * @param minColumns The minimum number of columns to output, or -1 for no minimum
-	 * @throws IOException
-	 * @throws FileNotFoundException
-	 */
-	public XLS2CSV(String filename, int minColumns) throws IOException, FileNotFoundException {
-		this(
-				new POIFSFileSystem(new FileInputStream(filename)), minColumns
-		);
-	}
+    private List<String>                  results             = new ArrayList<>();
 
-	/**
-	 * Initiates the processing of the XLS file to CSV
-	 */
-	public List<String> process() throws IOException {
-		MissingRecordAwareHSSFListener listener = new MissingRecordAwareHSSFListener(this);
-		formatListener = new FormatTrackingHSSFListener(listener);
+    private StringBuilder                 _resultRowTmp       = new StringBuilder();
 
-		HSSFEventFactory factory = new HSSFEventFactory();
-		HSSFRequest request = new HSSFRequest();
+    //出现空白的行数
+    private int                           blankRowNum         = 0;
 
-		if(outputFormulaValues) {
-			request.addListenerForAllRecords(formatListener);
-		} else {
-			workbookBuildingListener = new SheetRecordCollectingListener(formatListener);
-			request.addListenerForAllRecords(workbookBuildingListener);
-		}
+    /**
+     * Creates a new XLS -> CSV converter
+     * @param fs The POIFSFileSystem to process
+     * @param output The PrintStream to output the CSV to
+     * @param minColumns The minimum number of columns to output, or -1 for no minimum
+     */
+    public XLS2CSV(POIFSFileSystem fs, int minColumns) {
+        this.fs = fs;
+        this.minColumns = minColumns;
+    }
 
-		factory.processWorkbookEvents(request, fs);
-		
-		return results;
-	}
+    /**
+     * Creates a new XLS -> CSV converter
+     * @param filename The file to process
+     * @param minColumns The minimum number of columns to output, or -1 for no minimum
+     * @throws IOException
+     * @throws FileNotFoundException
+     */
+    public XLS2CSV(String filename, int minColumns) throws IOException, FileNotFoundException {
+        this(new POIFSFileSystem(new FileInputStream(filename)), minColumns);
+    }
 
-	/**
-	 * Main HSSFListener method, processes events, and outputs the
-	 *  CSV as the file is processed.
-	 */
-	public void processRecord(Record record) {
-		
-		//超过10行空白就不处理了
-		if(blankRowNum == 10)return;
-		
-		int thisRow = -1;
-		int thisColumn = -1;
-		String thisStr = null;
+    /**
+     * Initiates the processing of the XLS file to CSV
+     */
+    public List<String> process() throws IOException {
+        MissingRecordAwareHSSFListener listener = new MissingRecordAwareHSSFListener(this);
+        formatListener = new FormatTrackingHSSFListener(listener);
 
-		switch (record.getSid())
-		{
-		case BoundSheetRecord.sid:
-			boundSheetRecords.add((BoundSheetRecord)record);
-			break;
-		case BOFRecord.sid:
-			BOFRecord br = (BOFRecord)record;
-			if(br.getType() == BOFRecord.TYPE_WORKSHEET) {
-				// Create sub workbook if required
-				if(workbookBuildingListener != null && stubWorkbook == null) {
-					stubWorkbook = workbookBuildingListener.getStubHSSFWorkbook();
-				}
-				
-				// Output the worksheet name
-				// Works by ordering the BSRs by the location of
-				//  their BOFRecords, and then knowing that we
-				//  process BOFRecords in byte offset order
-				sheetIndex++;
-				if(orderedBSRs == null) {
-					orderedBSRs = BoundSheetRecord.orderByBofPosition(boundSheetRecords);
-				}
-				//sheetName
-				//System.out.println(orderedBSRs[sheetIndex].getSheetname() + " [" + (sheetIndex+1) + "]:" );
-			}
-			break;
+        HSSFEventFactory factory = new HSSFEventFactory();
+        HSSFRequest request = new HSSFRequest();
 
-		case SSTRecord.sid:
-			sstRecord = (SSTRecord) record;
-			break;
+        if (outputFormulaValues) {
+            request.addListenerForAllRecords(formatListener);
+        } else {
+            workbookBuildingListener = new SheetRecordCollectingListener(formatListener);
+            request.addListenerForAllRecords(workbookBuildingListener);
+        }
 
-		case BlankRecord.sid:
-			BlankRecord brec = (BlankRecord) record;
+        factory.processWorkbookEvents(request, fs);
 
-			thisRow = brec.getRow();
-			thisColumn = brec.getColumn();
-			thisStr = "";
-			break;
-		case BoolErrRecord.sid:
-			BoolErrRecord berec = (BoolErrRecord) record;
+        return results;
+    }
 
-			thisRow = berec.getRow();
-			thisColumn = berec.getColumn();
-			thisStr = "";
-			break;
+    /**
+     * Main HSSFListener method, processes events, and outputs the
+     *  CSV as the file is processed.
+     */
+    public void processRecord(Record record) {
 
-		case FormulaRecord.sid:
-			FormulaRecord frec = (FormulaRecord) record;
+        //超过10行空白就不处理了
+        if (blankRowNum == 10)
+            return;
 
-			thisRow = frec.getRow();
-			thisColumn = frec.getColumn();
+        int thisRow = -1;
+        int thisColumn = -1;
+        String thisStr = null;
 
-			if(outputFormulaValues) {
-				if(Double.isNaN( frec.getValue() )) {
-					// Formula result is a string
-					// This is stored in the next record
-					outputNextStringRecord = true;
-					nextRow = frec.getRow();
-					nextColumn = frec.getColumn();
-				} else {
-					thisStr = formatListener.formatNumberDateCell(frec);
-				}
-			} else {
-				thisStr = ExcelValidator.QUOTE + HSSFFormulaParser.toFormulaString(stubWorkbook, frec.getParsedExpression()) + ExcelValidator.QUOTE;
-			}
-			break;
-		case StringRecord.sid:
-			if(outputNextStringRecord) {
-				// String for formula
-				StringRecord srec = (StringRecord)record;
-				thisStr = srec.getString();
-				thisRow = nextRow;
-				thisColumn = nextColumn;
-				outputNextStringRecord = false;
-			}
-			break;
+        switch (record.getSid()) {
+            case BoundSheetRecord.sid:
+                boundSheetRecords.add((BoundSheetRecord) record);
+                break;
+            case BOFRecord.sid:
+                BOFRecord br = (BOFRecord) record;
+                if (br.getType() == BOFRecord.TYPE_WORKSHEET) {
+                    // Create sub workbook if required
+                    if (workbookBuildingListener != null && stubWorkbook == null) {
+                        stubWorkbook = workbookBuildingListener.getStubHSSFWorkbook();
+                    }
 
-		case LabelRecord.sid:
-			LabelRecord lrec = (LabelRecord) record;
+                    // Output the worksheet name
+                    // Works by ordering the BSRs by the location of
+                    //  their BOFRecords, and then knowing that we
+                    //  process BOFRecords in byte offset order
+                    sheetIndex++;
+                    if (orderedBSRs == null) {
+                        orderedBSRs = BoundSheetRecord.orderByBofPosition(boundSheetRecords);
+                    }
+                    //sheetName
+                    //System.out.println(orderedBSRs[sheetIndex].getSheetname() + " [" + (sheetIndex+1) + "]:" );
+                }
+                break;
 
-			thisRow = lrec.getRow();
-			thisColumn = lrec.getColumn();
-			thisStr = ExcelValidator.QUOTE + lrec.getValue() + ExcelValidator.QUOTE;
-			break;
-		case LabelSSTRecord.sid:
-			LabelSSTRecord lsrec = (LabelSSTRecord) record;
+            case SSTRecord.sid:
+                sstRecord = (SSTRecord) record;
+                break;
 
-			thisRow = lsrec.getRow();
-			thisColumn = lsrec.getColumn();
-			if(sstRecord == null) {
-				thisStr = ExcelValidator.QUOTE + "(No SST Record, can't identify string)" + ExcelValidator.QUOTE;
-			} else {
-				thisStr = ExcelValidator.QUOTE + sstRecord.getString(lsrec.getSSTIndex()).toString() + ExcelValidator.QUOTE;
-			}
-			break;
-		case NoteRecord.sid:
-			NoteRecord nrec = (NoteRecord) record;
+            case BlankRecord.sid:
+                BlankRecord brec = (BlankRecord) record;
 
-			thisRow = nrec.getRow();
-			thisColumn = nrec.getColumn();
-			// TODO: Find object to match nrec.getShapeId()
-			thisStr = ExcelValidator.QUOTE + "(TODO)" + ExcelValidator.QUOTE;
-			break;
-		case NumberRecord.sid:
-			NumberRecord numrec = (NumberRecord) record;
+                thisRow = brec.getRow();
+                thisColumn = brec.getColumn();
+                thisStr = "";
+                break;
+            case BoolErrRecord.sid:
+                BoolErrRecord berec = (BoolErrRecord) record;
 
-			thisRow = numrec.getRow();
-			thisColumn = numrec.getColumn();
+                thisRow = berec.getRow();
+                thisColumn = berec.getColumn();
+                thisStr = "";
+                break;
 
-			// Format
-			thisStr = formatListener.formatNumberDateCell(numrec);
-			break;
-		case RKRecord.sid:
-			RKRecord rkrec = (RKRecord) record;
+            case FormulaRecord.sid:
+                FormulaRecord frec = (FormulaRecord) record;
 
-			thisRow = rkrec.getRow();
-			thisColumn = rkrec.getColumn();
-			thisStr = ExcelValidator.QUOTE + "(TODO)" + ExcelValidator.QUOTE;
-			break;
-		default:
-			break;
-		}
+                thisRow = frec.getRow();
+                thisColumn = frec.getColumn();
 
-		// Handle new row
-		if(thisRow != -1 && thisRow != lastRowNumber) {
-			lastColumnNumber = -1;
-		}
+                if (outputFormulaValues) {
+                    if (Double.isNaN(frec.getValue())) {
+                        // Formula result is a string
+                        // This is stored in the next record
+                        outputNextStringRecord = true;
+                        nextRow = frec.getRow();
+                        nextColumn = frec.getColumn();
+                    } else {
+                        thisStr = formatListener.formatNumberDateCell(frec);
+                    }
+                } else {
+                    thisStr = ExcelValidator.QUOTE + HSSFFormulaParser.toFormulaString(stubWorkbook,
+                        frec.getParsedExpression()) + ExcelValidator.QUOTE;
+                }
+                break;
+            case StringRecord.sid:
+                if (outputNextStringRecord) {
+                    // String for formula
+                    StringRecord srec = (StringRecord) record;
+                    thisStr = srec.getString();
+                    thisRow = nextRow;
+                    thisColumn = nextColumn;
+                    outputNextStringRecord = false;
+                }
+                break;
 
-		// Handle missing column
-		if(record instanceof MissingCellDummyRecord) {
-			MissingCellDummyRecord mc = (MissingCellDummyRecord)record;
-			thisRow = mc.getRow();
-			thisColumn = mc.getColumn();
-			thisStr = "";
-		}
+            case LabelRecord.sid:
+                LabelRecord lrec = (LabelRecord) record;
 
+                thisRow = lrec.getRow();
+                thisColumn = lrec.getColumn();
+                thisStr = ExcelValidator.QUOTE + lrec.getValue() + ExcelValidator.QUOTE;
+                break;
+            case LabelSSTRecord.sid:
+                LabelSSTRecord lsrec = (LabelSSTRecord) record;
 
-		if(thisStr != null) {
-			if(thisColumn > 0) {
-				_resultRowTmp.append(ExcelValidator.FIELD_SPLIT);
-			}
-			_resultRowTmp.append(thisStr);
-		}
+                thisRow = lsrec.getRow();
+                thisColumn = lsrec.getColumn();
+                if (sstRecord == null) {
+                    thisStr = ExcelValidator.QUOTE + "(No SST Record, can't identify string)"
+                              + ExcelValidator.QUOTE;
+                } else {
+                    thisStr = ExcelValidator.QUOTE
+                              + sstRecord.getString(lsrec.getSSTIndex()).toString()
+                              + ExcelValidator.QUOTE;
+                }
+                break;
+            case NoteRecord.sid:
+                NoteRecord nrec = (NoteRecord) record;
 
-		// Update column and row count
-		if(thisRow > -1)
-			lastRowNumber = thisRow;
-		if(thisColumn > -1)
-			lastColumnNumber = thisColumn;
+                thisRow = nrec.getRow();
+                thisColumn = nrec.getColumn();
+                // TODO: Find object to match nrec.getShapeId()
+                thisStr = ExcelValidator.QUOTE + "(TODO)" + ExcelValidator.QUOTE;
+                break;
+            case NumberRecord.sid:
+                NumberRecord numrec = (NumberRecord) record;
 
-		// Handle end of row
-		if(record instanceof LastCellOfRowDummyRecord) {
-			// Print out any missing commas if needed
-			if(minColumns > 0) {
-				// Columns are 0 based
-				if(lastColumnNumber == -1) { lastColumnNumber = 0; }
-				for(int i=lastColumnNumber; i<(minColumns); i++) {
-					_resultRowTmp.append(',');
-				}
-			}
+                thisRow = numrec.getRow();
+                thisColumn = numrec.getColumn();
 
-			// We're onto a new row
-			lastColumnNumber = -1;
+                // Format
+                thisStr = formatListener.formatNumberDateCell(numrec);
+                break;
+            case RKRecord.sid:
+                RKRecord rkrec = (RKRecord) record;
 
-			// End the row
-			if(!ExcelValidator.isBlankCSVRow(_resultRowTmp.toString())){				
-				results.add(_resultRowTmp.toString());
-			}else{
-				blankRowNum = blankRowNum + 1;
-			}
-			_resultRowTmp.setLength(0);
-		}
-	}
+                thisRow = rkrec.getRow();
+                thisColumn = rkrec.getColumn();
+                thisStr = ExcelValidator.QUOTE + "(TODO)" + ExcelValidator.QUOTE;
+                break;
+            default:
+                break;
+        }
 
-	public static void main(String[] args) throws Exception {
+        // Handle new row
+        if (thisRow != -1 && thisRow != lastRowNumber) {
+            lastColumnNumber = -1;
+        }
 
-		long start = System.currentTimeMillis();
-		
-		XLS2CSV xls2csv = new XLS2CSV("/Users/ayg/Desktop/1.xls", -1);
-		List<String> process = xls2csv.process();
-		
-		
-		System.out.println("time:"+(System.currentTimeMillis() - start));
-		System.out.println(process.size());
+        // Handle missing column
+        if (record instanceof MissingCellDummyRecord) {
+            MissingCellDummyRecord mc = (MissingCellDummyRecord) record;
+            thisRow = mc.getRow();
+            thisColumn = mc.getColumn();
+            thisStr = "";
+        }
 
-	}
+        if (thisStr != null) {
+            if (thisColumn > 0) {
+                _resultRowTmp.append(ExcelValidator.FIELD_SPLIT);
+            }
+            _resultRowTmp.append(thisStr);
+        }
+
+        // Update column and row count
+        if (thisRow > -1)
+            lastRowNumber = thisRow;
+        if (thisColumn > -1)
+            lastColumnNumber = thisColumn;
+
+        // Handle end of row
+        if (record instanceof LastCellOfRowDummyRecord) {
+            // Print out any missing commas if needed
+            if (minColumns > 0) {
+                // Columns are 0 based
+                if (lastColumnNumber == -1) {
+                    lastColumnNumber = 0;
+                }
+                for (int i = lastColumnNumber; i < (minColumns); i++) {
+                    _resultRowTmp.append(',');
+                }
+            }
+
+            // We're onto a new row
+            lastColumnNumber = -1;
+
+            // End the row
+            if (!ExcelValidator.isBlankCSVRow(_resultRowTmp.toString())) {
+                results.add(_resultRowTmp.toString());
+            } else {
+                blankRowNum = blankRowNum + 1;
+            }
+            _resultRowTmp.setLength(0);
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        long start = System.currentTimeMillis();
+
+        XLS2CSV xls2csv = new XLS2CSV("/Users/ayg/Desktop/1.xls", -1);
+        List<String> process = xls2csv.process();
+
+        System.out.println("time:" + (System.currentTimeMillis() - start));
+        System.out.println(process.size());
+
+    }
 
 }

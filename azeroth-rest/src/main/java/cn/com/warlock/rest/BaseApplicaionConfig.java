@@ -16,27 +16,26 @@ import io.swagger.jaxrs.listing.SwaggerSerializers;
 
 public abstract class BaseApplicaionConfig extends ResourceConfig implements CustomConfig {
 
-	public BaseApplicaionConfig() {
-		//设置默认时区
-		System.setProperty("user.timezone","Asia/Shanghai");
-		
-		register(ValidationContextResolver.class);
-		property(ServerProperties.BV_SEND_ERROR_IN_RESPONSE, true);
-	    property(ServerProperties.BV_DISABLE_VALIDATE_ON_EXECUTABLE_OVERRIDE_CHECK, true);
-				
-		this.packages(packages());
-		register(ObjectMapperResolver.class);
-		register(JacksonFeature.class);
-		register(JacksonJsonProvider.class);
-		register(new BaseExceptionMapper(createExcetionWrapper()));
-		register(RequestContextFilter.class);
-		
-		register(DefaultWebFilter.class);
-		
-		if(FilterConfig.apiDocEnabled()){
-		    register(SwaggerSerializers.class);
-		}
-	}
+    public BaseApplicaionConfig() {
+        //设置默认时区
+        System.setProperty("user.timezone", "Asia/Shanghai");
 
-	
+        register(ValidationContextResolver.class);
+        property(ServerProperties.BV_SEND_ERROR_IN_RESPONSE, true);
+        property(ServerProperties.BV_DISABLE_VALIDATE_ON_EXECUTABLE_OVERRIDE_CHECK, true);
+
+        this.packages(packages());
+        register(ObjectMapperResolver.class);
+        register(JacksonFeature.class);
+        register(JacksonJsonProvider.class);
+        register(new BaseExceptionMapper(createExcetionWrapper()));
+        register(RequestContextFilter.class);
+
+        register(DefaultWebFilter.class);
+
+        if (FilterConfig.apiDocEnabled()) {
+            register(SwaggerSerializers.class);
+        }
+    }
+
 }

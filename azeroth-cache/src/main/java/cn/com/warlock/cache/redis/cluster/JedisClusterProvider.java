@@ -9,76 +9,75 @@ import redis.clients.jedis.HostAndPort;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPoolConfig;
 
-
 /**
  * 集群 redis服务提供者
  */
-public class JedisClusterProvider implements JedisProvider<JedisCluster,BinaryJedisCluster> {
-	
-	public static final String MODE = "cluster";
+public class JedisClusterProvider implements JedisProvider<JedisCluster, BinaryJedisCluster> {
 
-	private Integer maxRedirections = 3; //重试3次
-	
-	
-	private JedisCluster jedisCluster;
-	private BinaryJedisCluster binaryJedisCluster;
-	
-	private String groupName;
+    public static final String MODE            = "cluster";
 
-	/**
-	 * 
-	 */
-	public JedisClusterProvider(String groupName,JedisPoolConfig jedisPoolConfig, String[] servers, int timeout) {
-		this.groupName = groupName;
-		Set<HostAndPort> nodes = this.parseHostAndPort(servers);
-		jedisCluster = new JedisCluster(nodes, timeout, maxRedirections,jedisPoolConfig);
-		binaryJedisCluster = new BinaryJedisCluster(nodes, timeout, maxRedirections,jedisPoolConfig);
-	}
+    private Integer            maxRedirections = 3;        //重试3次
 
-	private Set<HostAndPort> parseHostAndPort(String[] servers){
-		try {
-			Set<HostAndPort> haps = new HashSet<HostAndPort>();
-			
-			for (String part : servers) {
-				String[] ipAndPort = part.split(":");
-				HostAndPort hap = new HostAndPort(ipAndPort[0], Integer.parseInt(ipAndPort[1]));
-				haps.add(hap);
-			}
+    private JedisCluster       jedisCluster;
+    private BinaryJedisCluster binaryJedisCluster;
 
-			return haps;
-		}catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
-	}
-	
+    private String             groupName;
 
-	@Override
-	public JedisCluster get() {
-		return jedisCluster;
-	}
-	
-	@Override
-	public BinaryJedisCluster getBinary() {
-		return binaryJedisCluster;
-	}
+    /**
+     * 
+     */
+    public JedisClusterProvider(String groupName, JedisPoolConfig jedisPoolConfig, String[] servers,
+                                int timeout) {
+        this.groupName = groupName;
+        Set<HostAndPort> nodes = this.parseHostAndPort(servers);
+        jedisCluster = new JedisCluster(nodes, timeout, maxRedirections, jedisPoolConfig);
+        binaryJedisCluster = new BinaryJedisCluster(nodes, timeout, maxRedirections,
+            jedisPoolConfig);
+    }
 
-	@Override
-	public void release() {}
+    private Set<HostAndPort> parseHostAndPort(String[] servers) {
+        try {
+            Set<HostAndPort> haps = new HashSet<HostAndPort>();
 
-	@Override
-	public void destroy() throws Exception{
-		jedisCluster.close();
-	}
+            for (String part : servers) {
+                String[] ipAndPort = part.split(":");
+                HostAndPort hap = new HostAndPort(ipAndPort[0], Integer.parseInt(ipAndPort[1]));
+                haps.add(hap);
+            }
 
+            return haps;
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
-	@Override
-	public String mode() {
-		return MODE;
-	}
+    @Override
+    public JedisCluster get() {
+        return jedisCluster;
+    }
 
-	@Override
-	public String groupName() {
-		return groupName;
-	}
+    @Override
+    public BinaryJedisCluster getBinary() {
+        return binaryJedisCluster;
+    }
+
+    @Override
+    public void release() {
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        jedisCluster.close();
+    }
+
+    @Override
+    public String mode() {
+        return MODE;
+    }
+
+    @Override
+    public String groupName() {
+        return groupName;
+    }
 
 }

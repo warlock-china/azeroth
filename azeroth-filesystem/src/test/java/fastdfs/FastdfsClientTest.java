@@ -16,26 +16,22 @@ import cn.com.warlock.filesystem.sdk.fdfs.FileId;
 import cn.com.warlock.filesystem.sdk.fdfs.FileInfo;
 import cn.com.warlock.filesystem.sdk.fdfs.FileMetadata;
 
-
 public class FastdfsClientTest {
 
     FastdfsClient client;
 
     @Before
     public void setUp() throws Exception {
-        client = FastdfsClient.newBuilder()
-                .connectTimeout(3000)
-                .readTimeout(100)
-                .maxThreads(100)
-                .tracker("120.24.185.19", 22122)
-                .build();
+        client = FastdfsClient.newBuilder().connectTimeout(3000).readTimeout(100).maxThreads(100)
+            .tracker("120.24.185.19", 22122).build();
 
     }
 
     @Test
     public void testUpload() throws Exception {
         long current = System.currentTimeMillis();
-        CompletableFuture<FileId> path = client.upload("group1", new File("/Users/warlock/Desktop/logo.gif"));
+        CompletableFuture<FileId> path = client.upload("group1",
+            new File("/Users/warlock/Desktop/logo.gif"));
         System.out.println(path.get());
         System.out.println("==========");
         System.out.println(System.currentTimeMillis() - current + " ms");
@@ -43,13 +39,13 @@ public class FastdfsClientTest {
 
     @Test
     public void testUpload2() throws Exception {
-    	
-    	byte[] byteArray = FileUtils.readFileToByteArray(new File("/Users/ayg/Desktop/logo.gif"));
-    	CompletableFuture<FileId> path = client.upload("123.gif", byteArray);
-    	FileId fileId = path.get();
-    	System.out.println(fileId);
-    	CompletableFuture<FileMetadata> metadataGet = client.metadataGet(fileId);
-		System.out.println(metadataGet.get(10, TimeUnit.SECONDS));
+
+        byte[] byteArray = FileUtils.readFileToByteArray(new File("/Users/ayg/Desktop/logo.gif"));
+        CompletableFuture<FileId> path = client.upload("123.gif", byteArray);
+        FileId fileId = path.get();
+        System.out.println(fileId);
+        CompletableFuture<FileMetadata> metadataGet = client.metadataGet(fileId);
+        System.out.println(metadataGet.get(10, TimeUnit.SECONDS));
         System.out.println("==========");
     }
 

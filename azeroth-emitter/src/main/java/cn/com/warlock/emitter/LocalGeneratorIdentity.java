@@ -9,7 +9,7 @@ import cn.com.warlock.emitter.bytes.Blueprint;
 public class LocalGeneratorIdentity implements GeneratorIdentityHolder {
     private final int clusterId;
     private final int generatorId;
-    private boolean closed = false;
+    private boolean   closed = false;
 
     LocalGeneratorIdentity(int clusterId, int generatorId) {
         this.clusterId = clusterId;
@@ -24,13 +24,15 @@ public class LocalGeneratorIdentity implements GeneratorIdentityHolder {
 
     @Override
     public int getClusterId() {
-        if (closed) throw new IllegalStateException("Resource was closed.");
+        if (closed)
+            throw new IllegalStateException("Resource was closed.");
         return clusterId;
     }
 
     @Override
     public int getGeneratorId() {
-        if (closed) throw new IllegalStateException("Resource was closed.");
+        if (closed)
+            throw new IllegalStateException("Resource was closed.");
         return generatorId;
     }
 

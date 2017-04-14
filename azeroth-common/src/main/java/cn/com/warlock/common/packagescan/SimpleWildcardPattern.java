@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
  */
 public class SimpleWildcardPattern implements CompiledPattern {
     private Pattern pattern;
-    private String original;
+    private String  original;
 
     public SimpleWildcardPattern(String pattern) {
 
@@ -18,7 +18,6 @@ public class SimpleWildcardPattern implements CompiledPattern {
         ptn = ptn.replace("*", ".*");
         this.pattern = Pattern.compile(ptn);
     }
-
 
     public String getOriginal() {
         return original;

@@ -5,5 +5,5 @@ package cn.com.warlock.kafka.producer.handler;
  */
 public interface ComsumerAckHandler {
 
-	int ack(String msgId);
+    int ack(String msgId);
 }

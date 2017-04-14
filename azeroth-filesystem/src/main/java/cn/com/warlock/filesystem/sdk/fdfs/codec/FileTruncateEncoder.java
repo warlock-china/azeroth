@@ -23,7 +23,7 @@ import static io.netty.util.CharsetUtil.UTF_8;
 public class FileTruncateEncoder implements Requestor.Encoder {
 
     private final FileId fileId;
-    private final long truncatedSize;
+    private final long   truncatedSize;
 
     public FileTruncateEncoder(FileId fileId, long truncatedSize) {
         this.fileId = fileId;

@@ -7,8 +7,8 @@ import java.util.concurrent.TimeUnit;
 
 public class OnePerMillisecondDecorator implements IDGenerator {
     final IDGenerator generator;
-    long previousInvocation = 0;
-    byte[] previous = null;
+    long              previousInvocation = 0;
+    byte[]            previous           = null;
 
     protected OnePerMillisecondDecorator(IDGenerator generator) {
         this.generator = generator;

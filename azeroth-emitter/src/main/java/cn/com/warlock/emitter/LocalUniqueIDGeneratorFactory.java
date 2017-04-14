@@ -15,7 +15,8 @@ public class LocalUniqueIDGeneratorFactory {
         assertParameterWithinBounds("clusterId", 0, Blueprint.MAX_CLUSTER_ID, clusterId);
         String generatorAndCluster = String.format("%d_%d", generatorId, clusterId);
         if (!instances.containsKey(generatorAndCluster)) {
-            GeneratorIdentityHolder identityHolder = LocalGeneratorIdentity.with(clusterId, generatorId);
+            GeneratorIdentityHolder identityHolder = LocalGeneratorIdentity.with(clusterId,
+                generatorId);
             instances.putIfAbsent(generatorAndCluster, new BaseUniqueIDGenerator(identityHolder));
         }
         return instances.get(generatorAndCluster);

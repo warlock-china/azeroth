@@ -5,7 +5,6 @@ package cn.com.warlock.filesystem.sdk.fdfs;
 
 import java.net.InetSocketAddress;
 
-
 /**
  * 存储服务器信息
  *
@@ -15,8 +14,8 @@ public class StorageServer {
 
     private final String group;
     private final String host;
-    private final int port;
-    private final byte pathIdx;
+    private final int    port;
+    private final byte   pathIdx;
 
     /**
      * @param group

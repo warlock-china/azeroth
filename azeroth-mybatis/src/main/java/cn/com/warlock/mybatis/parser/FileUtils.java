@@ -11,35 +11,36 @@ import org.apache.commons.lang3.StringUtils;
 
 public class FileUtils {
 
-	public static List<File> listFiles(List<File> results,File directory, final String extensions) {
-		
-		File[] subFiles = directory.listFiles();
-		for (File file : subFiles) {
-			if(file.isDirectory()){
-				listFiles(results, file, extensions);
-			}else if(file.getName().endsWith(extensions)){
-				results.add(file);
-			}
-		}		
-		return results;
-	}
-	
-	public static List<String> listFiles(JarFile jarFile, String extensions) {
-		if (jarFile == null || StringUtils.isEmpty(extensions))
-			return null;
-		
-		List<String> files = new ArrayList<String>();
-		
-		Enumeration<JarEntry> entries = jarFile.entries(); 
-        while (entries.hasMoreElements()) {  
-        	JarEntry entry = entries.nextElement();
-        	String name = entry.getName();
-    		
-    		if (name.endsWith(extensions)) {
-    			files.add(name);
-    		}
-        } 
-        
+    public static List<File> listFiles(List<File> results, File directory,
+                                       final String extensions) {
+
+        File[] subFiles = directory.listFiles();
+        for (File file : subFiles) {
+            if (file.isDirectory()) {
+                listFiles(results, file, extensions);
+            } else if (file.getName().endsWith(extensions)) {
+                results.add(file);
+            }
+        }
+        return results;
+    }
+
+    public static List<String> listFiles(JarFile jarFile, String extensions) {
+        if (jarFile == null || StringUtils.isEmpty(extensions))
+            return null;
+
+        List<String> files = new ArrayList<String>();
+
+        Enumeration<JarEntry> entries = jarFile.entries();
+        while (entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            String name = entry.getName();
+
+            if (name.endsWith(extensions)) {
+                files.add(name);
+            }
+        }
+
         return files;
-	}
+    }
 }

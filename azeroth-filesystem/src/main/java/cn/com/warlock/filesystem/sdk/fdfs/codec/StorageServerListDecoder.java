@@ -20,13 +20,14 @@ import static cn.com.warlock.filesystem.sdk.fdfs.FastdfsUtils.readString;
  * @author liulongbiao
  */
 public enum StorageServerListDecoder implements Replier.Decoder<List<StorageServer>> {
-    INSTANCE;
+                                                                                      INSTANCE;
 
     @Override
     public List<StorageServer> decode(ByteBuf in) {
         int size = in.readableBytes();
         if (size < FDFS_STORAGE_LEN) {
-            throw new FastdfsException("body length : " + size + " is less than required length " + FDFS_STORAGE_LEN);
+            throw new FastdfsException(
+                "body length : " + size + " is less than required length " + FDFS_STORAGE_LEN);
         }
         if ((size - FDFS_STORAGE_LEN) % FDFS_HOST_LEN != 0) {
             throw new FastdfsException("body length : " + size + " is invalidate. ");

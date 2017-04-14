@@ -29,68 +29,70 @@ import cn.com.warlock.kafka.handler.OffsetLogHanlder;
  */
 public class ConsumerContext {
 
-    private String groupId;
+    private String                      groupId;
 
-    private String consumerId;
+    private String                      consumerId;
 
-    private OffsetLogHanlder offsetLogHanlder;
+    private OffsetLogHanlder            offsetLogHanlder;
 
-    private Properties configs;
+    private Properties                  configs;
 
     private Map<String, MessageHandler> messageHandlers;
 
-    private int maxProcessThreads;
+    private int                         maxProcessThreads;
 
-    public ConsumerContext(Properties configs, String groupId, String consumerId, Map<String, MessageHandler> messageHandlers, int maxProcessThreads) {
-	super();
-	this.configs = configs;
-	this.groupId = groupId;
-	this.consumerId = consumerId;
-	this.messageHandlers = messageHandlers;
-	this.maxProcessThreads = maxProcessThreads;
+    public ConsumerContext(Properties configs, String groupId, String consumerId,
+                           Map<String, MessageHandler> messageHandlers, int maxProcessThreads) {
+        super();
+        this.configs = configs;
+        this.groupId = groupId;
+        this.consumerId = consumerId;
+        this.messageHandlers = messageHandlers;
+        this.maxProcessThreads = maxProcessThreads;
     }
 
     public String getGroupId() {
-	return groupId;
+        return groupId;
     }
 
     public String getConsumerId() {
-	return consumerId;
+        return consumerId;
     }
 
     public Properties getProperties() {
-	return configs;
+        return configs;
     }
 
     public Map<String, MessageHandler> getMessageHandlers() {
-	return messageHandlers;
+        return messageHandlers;
     }
 
     public int getMaxProcessThreads() {
-	return maxProcessThreads;
+        return maxProcessThreads;
     }
 
     public void setOffsetLogHanlder(OffsetLogHanlder offsetLogHanlder) {
-	this.offsetLogHanlder = offsetLogHanlder;
+        this.offsetLogHanlder = offsetLogHanlder;
     }
 
     public OffsetLogHanlder getOffsetLogHanlder() {
-	return offsetLogHanlder;
+        return offsetLogHanlder;
     }
 
     public long getLatestProcessedOffsets(String topic, int partition) {
-	return offsetLogHanlder != null ? offsetLogHanlder.getLatestProcessedOffsets(groupId, topic, partition) : -1;
+        return offsetLogHanlder != null
+            ? offsetLogHanlder.getLatestProcessedOffsets(groupId, topic, partition) : -1;
     }
 
     public void saveOffsetsBeforeProcessed(String topic, int partition, long offset) {
-	if (offsetLogHanlder != null) {
-	    offsetLogHanlder.saveOffsetsBeforeProcessed(groupId, topic, partition, offset);
-	}
+        if (offsetLogHanlder != null) {
+            offsetLogHanlder.saveOffsetsBeforeProcessed(groupId, topic, partition, offset);
+        }
     }
 
     public void saveOffsetsAfterProcessed(String topic, int partition, long offset) {
-	if (offsetLogHanlder != null) {
-	    offsetLogHanlder.saveOffsetsAfterProcessed(groupId, topic, partition, offset);
-	}
+        if (offsetLogHanlder != null) {
+            offsetLogHanlder.saveOffsetsAfterProcessed(groupId, topic, partition, offset);
+        }
     }
 }

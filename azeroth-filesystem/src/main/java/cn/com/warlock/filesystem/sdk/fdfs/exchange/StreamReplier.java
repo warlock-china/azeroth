@@ -39,7 +39,7 @@ public class StreamReplier extends ReplierSupport<Void> {
     }
 
     private final Sink sink;
-    private long readed = 0;
+    private long       readed = 0;
 
     private StreamReplier(Sink sink) {
         this.sink = sink;
@@ -63,10 +63,7 @@ public class StreamReplier extends ReplierSupport<Void> {
 
     @Override
     public String toString() {
-        return "StreamReplier{" +
-                "sink=" + sink +
-                ", readed=" + readed +
-                '}';
+        return "StreamReplier{" + "sink=" + sink + ", readed=" + readed + '}';
     }
 
     private interface Sink {

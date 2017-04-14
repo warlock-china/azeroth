@@ -20,20 +20,17 @@ import java.net.InetSocketAddress;
  */
 final class FastdfsPoolGroup extends AbstractChannelPoolMap<InetSocketAddress, FastdfsPool> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FastdfsPoolGroup.class);
+    private static final Logger  LOG = LoggerFactory.getLogger(FastdfsPoolGroup.class);
 
     private final EventLoopGroup loopGroup;
 
-    private final long connectTimeout;
-    private final long readTimeout;
-    private final long idleTimeout;
-    private final int maxConnPerHost;
+    private final long           connectTimeout;
+    private final long           readTimeout;
+    private final long           idleTimeout;
+    private final int            maxConnPerHost;
 
-    FastdfsPoolGroup(EventLoopGroup loopGroup,
-                     long connectTimeout,
-                     long readTimeout,
-                     long idleTimeout,
-                     int maxConnPerHost) {
+    FastdfsPoolGroup(EventLoopGroup loopGroup, long connectTimeout, long readTimeout,
+                     long idleTimeout, int maxConnPerHost) {
         this.loopGroup = loopGroup;
         this.connectTimeout = connectTimeout;
         this.readTimeout = readTimeout;
@@ -52,11 +49,6 @@ final class FastdfsPoolGroup extends AbstractChannelPoolMap<InetSocketAddress, F
         bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, (int) connectTimeout);
         bootstrap.option(ChannelOption.TCP_NODELAY, true);
         bootstrap.option(ChannelOption.SO_KEEPALIVE, true);
-        return new FastdfsPool(
-                bootstrap,
-                readTimeout,
-                idleTimeout,
-                maxConnPerHost
-        );
+        return new FastdfsPool(bootstrap, readTimeout, idleTimeout, maxConnPerHost);
     }
 }

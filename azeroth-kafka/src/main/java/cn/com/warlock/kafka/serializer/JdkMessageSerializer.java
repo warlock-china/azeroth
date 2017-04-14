@@ -28,7 +28,7 @@ public class JdkMessageSerializer implements Serializer<Serializable> {
      */
     @Override
     public byte[] serialize(String topic, Serializable data) {
-    	return SerializationUtils.serialize(data);
+        return SerializationUtils.serialize(data);
     }
 
     /**

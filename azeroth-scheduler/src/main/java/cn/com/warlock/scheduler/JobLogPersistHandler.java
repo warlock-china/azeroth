@@ -9,7 +9,7 @@ import cn.com.warlock.scheduler.model.JobConfig;
  */
 public interface JobLogPersistHandler {
 
-	public void onSucess(JobConfig conf, Date nextFireTime);
-	
-	public void onError(JobConfig conf, Date nextFireTime,Exception e);
+    public void onSucess(JobConfig conf, Date nextFireTime);
+
+    public void onError(JobConfig conf, Date nextFireTime, Exception e);
 }

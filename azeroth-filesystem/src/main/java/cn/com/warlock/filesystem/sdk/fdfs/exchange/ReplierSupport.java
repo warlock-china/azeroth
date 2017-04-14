@@ -19,7 +19,7 @@ import static cn.com.warlock.filesystem.sdk.fdfs.FastdfsConstants.Commands.RESP;
 public abstract class ReplierSupport<T> implements Replier<T> {
 
     protected boolean atHead = true;
-    protected long length;
+    protected long    length;
 
     @Override
     public void reply(ByteBuf in, CompletableFuture<T> promise) {
@@ -44,7 +44,8 @@ public abstract class ReplierSupport<T> implements Replier<T> {
         }
         long expectLength = expectLength();
         if (expectLength >= 0 && length != expectLength) {
-            throw new FastdfsException("Expect response length : " + expectLength + " , but reply length : " + length);
+            throw new FastdfsException(
+                "Expect response length : " + expectLength + " , but reply length : " + length);
         }
         atHead = false;
     }

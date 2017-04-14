@@ -9,96 +9,98 @@ import cn.com.warlock.common.util.DigestUtils;
 
 public class User implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private Integer id;
+    private Integer           id;
 
-	private String name;
+    private String            name;
 
-	private String password = DigestUtils.md5(RandomStringUtils.random(8, true, true));
+    private String            password         = DigestUtils
+        .md5(RandomStringUtils.random(8, true, true));
 
-	private String mobile = "13800138000";
+    private String            mobile           = "13800138000";
 
-	private String email;
+    private String            email;
 
-	private Short type = 1;
+    private Short             type             = 1;
 
-	private Short status = 1;
+    private Short             status           = 1;
 
-	private Date createdAt;
+    private Date              createdAt;
 
-	public User() {}
-	
-	public User(Integer id, String name) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.email = name + "@163.com";
-		this.createdAt = new Date();
-	}
+    public User() {
+    }
 
-	public Integer getId() {
-		return id;
-	}
+    public User(Integer id, String name) {
+        super();
+        this.id = id;
+        this.name = name;
+        this.email = name + "@163.com";
+        this.createdAt = new Date();
+    }
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public Integer getId() {
+        return id;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public String getMobile() {
-		return mobile;
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	public void setMobile(String mobile) {
-		this.mobile = mobile;
-	}
+    public String getMobile() {
+        return mobile;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public Short getType() {
-		return type;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public void setType(Short type) {
-		this.type = type;
-	}
+    public Short getType() {
+        return type;
+    }
 
-	public Short getStatus() {
-		return status;
-	}
+    public void setType(Short type) {
+        this.type = type;
+    }
 
-	public void setStatus(Short status) {
-		this.status = status;
-	}
+    public Short getStatus() {
+        return status;
+    }
 
-	public Date getCreatedAt() {
-		return createdAt;
-	}
+    public void setStatus(Short status) {
+        this.status = status;
+    }
 
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
-	}
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
 
 }

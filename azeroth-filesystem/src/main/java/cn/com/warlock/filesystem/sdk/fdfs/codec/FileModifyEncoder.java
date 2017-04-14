@@ -18,7 +18,7 @@ import java.io.File;
 public class FileModifyEncoder extends FileOperationEncoder {
 
     private final FileId fileId;
-    private final long offset;
+    private final long   offset;
 
     public FileModifyEncoder(FileId fileId, File file, long offset) {
         super(file);

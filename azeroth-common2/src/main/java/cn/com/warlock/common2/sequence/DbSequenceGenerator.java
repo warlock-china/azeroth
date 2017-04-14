@@ -8,9 +8,9 @@ package cn.com.warlock.common2.sequence;
  */
 public class DbSequenceGenerator implements IdGenerator {
 
-	@Override
-	public long nextId() {
-		return 0;
-	}
+    @Override
+    public long nextId() {
+        return 0;
+    }
 
 }

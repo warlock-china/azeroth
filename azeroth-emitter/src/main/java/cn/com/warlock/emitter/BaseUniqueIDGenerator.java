@@ -11,8 +11,8 @@ import cn.com.warlock.emitter.bytes.IDBuilder;
 public class BaseUniqueIDGenerator implements IDGenerator {
     protected final GeneratorIdentityHolder generatorIdentityHolder;
 
-    long previousTimestamp = 0;
-    int sequence = 0;
+    long                                    previousTimestamp = 0;
+    int                                     sequence          = 0;
 
     public BaseUniqueIDGenerator(GeneratorIdentityHolder generatorIdentityHolder) {
         this.generatorIdentityHolder = generatorIdentityHolder;
@@ -37,12 +37,8 @@ public class BaseUniqueIDGenerator implements IDGenerator {
         }
         previousTimestamp = now;
 
-        Blueprint blueprint = new Blueprint(
-                now,
-                sequence,
-                generatorIdentityHolder.getGeneratorId(),
-                generatorIdentityHolder.getClusterId()
-        );
+        Blueprint blueprint = new Blueprint(now, sequence, generatorIdentityHolder.getGeneratorId(),
+            generatorIdentityHolder.getClusterId());
 
         return IDBuilder.build(blueprint);
     }

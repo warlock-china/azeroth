@@ -6,7 +6,7 @@ class ClosedState implements CircuitBreakerState {
 
     private final AtomicInteger failureCount;
 
-    private final int threshold;
+    private final int           threshold;
 
     ClosedState(int threshold) {
         this.threshold = threshold;
@@ -37,5 +37,5 @@ class ClosedState implements CircuitBreakerState {
     public String toString() {
         return "CLOSED";
     }
-    
+
 }

@@ -20,7 +20,7 @@ import static cn.com.warlock.filesystem.sdk.fdfs.FastdfsUtils.readString;
  * @author liulongbiao
  */
 public enum FileMetadataDecoder implements Replier.Decoder<FileMetadata> {
-    INSTANCE;
+                                                                          INSTANCE;
 
     @Override
     public FileMetadata decode(ByteBuf buf) {

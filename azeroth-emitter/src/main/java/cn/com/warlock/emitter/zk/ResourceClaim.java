@@ -23,23 +23,24 @@ import cn.com.warlock.emitter.zk.connection.ZooKeeperConnection;
 import cn.com.warlock.emitter.zk.connection.ZooKeeperConnectionObserver;
 
 public class ResourceClaim implements ZooKeeperConnectionObserver, Closeable {
-    final static Logger logger = LoggerFactory.getLogger(ResourceClaim.class);
+    final static Logger       logger         = LoggerFactory.getLogger(ResourceClaim.class);
 
-    static String ZNODE;
-    static String QUEUE_NODE;
-    static String POOL_NODE;
-    final static String LOCKING_TICKET = "nr-00000000000000";
+    static String             ZNODE;
+    static String             QUEUE_NODE;
+    static String             POOL_NODE;
+    final static String       LOCKING_TICKET = "nr-00000000000000";
 
-    static final Random random = new Random();
-    final int resource;
+    static final Random       random         = new Random();
+    final int                 resource;
 
-    final int poolSize;
-    final ZooKeeper zookeeper;
+    final int                 poolSize;
+    final ZooKeeper           zookeeper;
     final ZooKeeperConnection zooKeeperConnection;
 
-    protected State state = State.UNCLAIMED;
+    protected State           state          = State.UNCLAIMED;
 
-    ResourceClaim(ZooKeeperConnection zooKeeperConnection, int poolSize, String znode) throws IOException {
+    ResourceClaim(ZooKeeperConnection zooKeeperConnection, int poolSize,
+                  String znode) throws IOException {
         logger.debug("Acquiring resource-claim…");
 
         ZNODE = znode;
@@ -70,13 +71,15 @@ public class ResourceClaim implements ZooKeeperConnectionObserver, Closeable {
         logger.debug("Resource-claim acquired ({}).", resource);
     }
 
-    void ensureRequiredZnodesExist(ZooKeeper zookeeper, String znode) throws KeeperException, InterruptedException {
-    	ZooKeeperHelper.mkdirp(zookeeper, znode);
-    	ZooKeeperHelper.createIfNotThere(zookeeper, QUEUE_NODE);
-    	ZooKeeperHelper.createIfNotThere(zookeeper, POOL_NODE);
+    void ensureRequiredZnodesExist(ZooKeeper zookeeper, String znode) throws KeeperException,
+                                                                      InterruptedException {
+        ZooKeeperHelper.mkdirp(zookeeper, znode);
+        ZooKeeperHelper.createIfNotThere(zookeeper, QUEUE_NODE);
+        ZooKeeperHelper.createIfNotThere(zookeeper, POOL_NODE);
     }
 
-    public static ResourceClaim claim(ZooKeeperConnection zooKeeperConnection, int poolSize, String znode) throws IOException {
+    public static ResourceClaim claim(ZooKeeperConnection zooKeeperConnection, int poolSize,
+                                      String znode) throws IOException {
         return new ResourceClaim(zooKeeperConnection, poolSize, znode);
     }
 
@@ -100,7 +103,8 @@ public class ResourceClaim implements ZooKeeperConnectionObserver, Closeable {
 
         logger.debug("Closing resource-claim ({}).", resource);
 
-        if (nodeAlreadyDeleted) return;
+        if (nodeAlreadyDeleted)
+            return;
 
         new Timer().schedule(new TimerTask() {
             @Override
@@ -110,15 +114,18 @@ public class ResourceClaim implements ZooKeeperConnectionObserver, Closeable {
         }, TimeUnit.SECONDS.toMillis(2));
     }
 
-    static String acquireLock(ZooKeeper zookeeper, String lockNode) throws KeeperException, InterruptedException {
+    static String acquireLock(ZooKeeper zookeeper, String lockNode) throws KeeperException,
+                                                                    InterruptedException {
         String placeInLine = takeQueueTicket(zookeeper, lockNode);
         logger.debug("Acquiring lock, waiting in queue: {}.", placeInLine);
 
         return waitInLine(zookeeper, lockNode, placeInLine);
     }
 
-    static String takeQueueTicket(ZooKeeper zookeeper, String lockNode) throws InterruptedException, KeeperException {
-        String ticket = String.format("nr-%014d-%04d", System.currentTimeMillis(), random.nextInt(10000));
+    static String takeQueueTicket(ZooKeeper zookeeper, String lockNode) throws InterruptedException,
+                                                                        KeeperException {
+        String ticket = String.format("nr-%014d-%04d", System.currentTimeMillis(),
+            random.nextInt(10000));
         if (grabTicket(zookeeper, lockNode, ticket)) {
             return ticket;
         } else {
@@ -126,8 +133,8 @@ public class ResourceClaim implements ZooKeeperConnectionObserver, Closeable {
         }
     }
 
-    static void releaseTicket(ZooKeeper zookeeper, String lockNode, String ticket)
-            throws KeeperException, InterruptedException {
+    static void releaseTicket(ZooKeeper zookeeper, String lockNode,
+                              String ticket) throws KeeperException, InterruptedException {
 
         logger.debug("Releasing ticket {}.", ticket);
         try {
@@ -140,8 +147,8 @@ public class ResourceClaim implements ZooKeeperConnectionObserver, Closeable {
         }
     }
 
-    static String waitInLine(ZooKeeper zookeeper, String lockNode, String placeInLine)
-            throws KeeperException, InterruptedException {
+    static String waitInLine(ZooKeeper zookeeper, String lockNode,
+                             String placeInLine) throws KeeperException, InterruptedException {
 
         List<String> children = zookeeper.getChildren(lockNode, false);
 
@@ -168,7 +175,8 @@ public class ResourceClaim implements ZooKeeperConnectionObserver, Closeable {
         }
 
         if (positionInQueue < 0) {
-            throw new RuntimeException("Created node (" + placeInLine + ") not found in getChildren().");
+            throw new RuntimeException(
+                "Created node (" + placeInLine + ") not found in getChildren().");
         }
 
         String placeBeforeUs;
@@ -196,10 +204,11 @@ public class ResourceClaim implements ZooKeeperConnectionObserver, Closeable {
         return waitInLine(zookeeper, lockNode, placeInLine);
     }
 
-    static boolean grabTicket(ZooKeeper zookeeper, String lockNode, String ticket)
-            throws InterruptedException, KeeperException {
+    static boolean grabTicket(ZooKeeper zookeeper, String lockNode,
+                              String ticket) throws InterruptedException, KeeperException {
         try {
-            zookeeper.create(lockNode + "/" + ticket, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+            zookeeper.create(lockNode + "/" + ticket, new byte[0], ZooDefs.Ids.OPEN_ACL_UNSAFE,
+                CreateMode.EPHEMERAL);
         } catch (KeeperException e) {
             if (e.code() == KeeperException.Code.NODEEXISTS) {
                 logger.debug("Failed to claim ticket {}.", ticket);
@@ -212,13 +221,14 @@ public class ResourceClaim implements ZooKeeperConnectionObserver, Closeable {
         return true;
     }
 
-    int claimResource(ZooKeeper zookeeper, String poolNode, int poolSize)
-            throws KeeperException, InterruptedException {
+    int claimResource(ZooKeeper zookeeper, String poolNode, int poolSize) throws KeeperException,
+                                                                          InterruptedException {
 
         logger.debug("Trying to claim a resource.");
         List<String> claimedResources = zookeeper.getChildren(poolNode, false);
         if (claimedResources.size() >= poolSize) {
-            logger.debug("No resources available at the moment (pool size: {}), waiting.", poolSize);
+            logger.debug("No resources available at the moment (pool size: {}), waiting.",
+                poolSize);
             final CountDownLatch latch = new CountDownLatch(1);
             zookeeper.getChildren(poolNode, event -> latch.countDown());
             latch.await();
@@ -231,12 +241,8 @@ public class ResourceClaim implements ZooKeeperConnectionObserver, Closeable {
                 String node;
                 try {
                     logger.debug("Trying to claim seemingly available resource {}.", resourcePath);
-                    node = zookeeper.create(
-                            poolNode + "/" + resourcePath,
-                            new byte[0],
-                            ZooDefs.Ids.OPEN_ACL_UNSAFE,
-                            CreateMode.EPHEMERAL
-                    );
+                    node = zookeeper.create(poolNode + "/" + resourcePath, new byte[0],
+                        ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
                 } catch (KeeperException e) {
                     if (e.code() == KeeperException.Code.NODEEXISTS) {
                         continue;
@@ -277,7 +283,9 @@ public class ResourceClaim implements ZooKeeperConnectionObserver, Closeable {
 
     @Override
     public void disconnected() {
-        logger.debug("Disconnected from ZooKeeper quorum, this invalidates the claim to resource {}.", resource);
+        logger.debug(
+            "Disconnected from ZooKeeper quorum, this invalidates the claim to resource {}.",
+            resource);
         state = State.CLAIM_RELINQUISHED;
         zooKeeperConnection.deregisterObserver(this);
     }
@@ -288,8 +296,6 @@ public class ResourceClaim implements ZooKeeperConnectionObserver, Closeable {
     }
 
     public enum State {
-        UNCLAIMED,
-        HAS_CLAIM,
-        CLAIM_RELINQUISHED
+                       UNCLAIMED, HAS_CLAIM, CLAIM_RELINQUISHED
     }
 }

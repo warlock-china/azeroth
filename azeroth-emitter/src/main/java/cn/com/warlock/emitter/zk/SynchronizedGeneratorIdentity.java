@@ -10,42 +10,38 @@ import cn.com.warlock.emitter.bytes.Blueprint;
 import cn.com.warlock.emitter.zk.connection.ZooKeeperConnection;
 
 public class SynchronizedGeneratorIdentity implements GeneratorIdentityHolder {
-    final int clusterId;
-    final Supplier<Duration> claimDurationSupplier;
-    final String zNode;
+    final int                 clusterId;
+    final Supplier<Duration>  claimDurationSupplier;
+    final String              zNode;
     final ZooKeeperConnection zooKeeperConnection;
 
-    ResourceClaim resourceClaim = null;
+    ResourceClaim             resourceClaim = null;
 
-    public SynchronizedGeneratorIdentity(ZooKeeperConnection zooKeeperConnection,
-                                         String zNode,
-                                         int clusterId,
-                                         Supplier<Duration> claimDurationSupplier) {
+    public SynchronizedGeneratorIdentity(ZooKeeperConnection zooKeeperConnection, String zNode,
+                                         int clusterId, Supplier<Duration> claimDurationSupplier) {
         this.zooKeeperConnection = zooKeeperConnection;
         this.zNode = zNode;
         this.clusterId = clusterId;
         this.claimDurationSupplier = claimDurationSupplier;
     }
 
-    public static SynchronizedGeneratorIdentity basedOn(String quorum,
-                                                        String znode,
-                                                        Supplier<Duration> claimDurationSupplier)
-            throws IOException {
+    public static SynchronizedGeneratorIdentity basedOn(String quorum, String znode,
+                                                        Supplier<Duration> claimDurationSupplier) throws IOException {
         ZooKeeperConnection zooKeeperConnection = new ZooKeeperConnection(quorum);
         int clusterId = ClusterID.get(zooKeeperConnection.get(), znode);
 
-        return new SynchronizedGeneratorIdentity(zooKeeperConnection, znode, clusterId, claimDurationSupplier);
+        return new SynchronizedGeneratorIdentity(zooKeeperConnection, znode, clusterId,
+            claimDurationSupplier);
     }
 
-    public static SynchronizedGeneratorIdentity basedOn(String quorum,
-                                                        String znode,
-                                                        Long claimDuration)
-            throws IOException {
+    public static SynchronizedGeneratorIdentity basedOn(String quorum, String znode,
+                                                        Long claimDuration) throws IOException {
         ZooKeeperConnection zooKeeperConnection = new ZooKeeperConnection(quorum);
         int clusterId = ClusterID.get(zooKeeperConnection.get(), znode);
         Supplier<Duration> durationSupplier = () -> Duration.ofMillis(claimDuration);
 
-        return new SynchronizedGeneratorIdentity(zooKeeperConnection, znode, clusterId, durationSupplier);
+        return new SynchronizedGeneratorIdentity(zooKeeperConnection, znode, clusterId,
+            durationSupplier);
     }
 
     @Override
@@ -80,12 +76,8 @@ public class SynchronizedGeneratorIdentity implements GeneratorIdentityHolder {
     private ResourceClaim acquireResourceClaim() throws GeneratorException {
         Long claimDuration = getDurationInMillis(claimDurationSupplier);
         try {
-            return ExpiringResourceClaim.claimExpiring(
-                    zooKeeperConnection,
-                    Blueprint.MAX_GENERATOR_ID + 1,
-                    zNode,
-                    claimDuration
-            );
+            return ExpiringResourceClaim.claimExpiring(zooKeeperConnection,
+                Blueprint.MAX_GENERATOR_ID + 1, zNode, claimDuration);
         } catch (IOException e) {
             throw new GeneratorException(e);
         }
@@ -99,9 +91,11 @@ public class SynchronizedGeneratorIdentity implements GeneratorIdentityHolder {
     }
 
     static Long getDurationInMillis(Supplier<Duration> durationSupplier) {
-        if (durationSupplier == null) return null;
+        if (durationSupplier == null)
+            return null;
         Duration duration = durationSupplier.get();
-        if (duration == null) return null;
+        if (duration == null)
+            return null;
         return duration.toMillis();
     }
 }

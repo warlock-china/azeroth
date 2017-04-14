@@ -8,11 +8,11 @@ import java.util.NoSuchElementException;
 
 public class AutoRefillStack implements IDGenerator {
 
-    static final int DEFAULT_BATCH_SIZE = 500;
+    static final int    DEFAULT_BATCH_SIZE = 500;
 
-    final int batchSize;
-    final IDGenerator generator;
-    final Deque<byte[]> idStack = new ArrayDeque<>();
+    final int           batchSize;
+    final IDGenerator   generator;
+    final Deque<byte[]> idStack            = new ArrayDeque<>();
 
     protected AutoRefillStack(IDGenerator generator, int batchSize) {
         this.batchSize = batchSize;

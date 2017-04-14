@@ -7,9 +7,10 @@ import org.apache.kafka.common.serialization.Deserializer;
 import cn.com.warlock.common.serializer.SerializeUtils;
 
 public class KyroMessageDeserializer implements Deserializer<Object> {
-    
+
     @Override
-    public void configure(Map<String, ?> configs, boolean isKey) {}
+    public void configure(Map<String, ?> configs, boolean isKey) {
+    }
 
     @Override
     public Object deserialize(String topic, byte[] data) {

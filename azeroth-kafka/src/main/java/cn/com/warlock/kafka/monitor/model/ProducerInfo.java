@@ -5,31 +5,31 @@ import java.util.List;
 
 public class ProducerInfo {
 
-	private String name;
-	
-	private List<ProducerTopicInfo> producerTopics;
-	
-	public ProducerInfo() {}
+    private String                  name;
 
-	public ProducerInfo(String name) {
-		this.name = name;
-	}
-	
-	public String getName() {
-		return name;
-	}
+    private List<ProducerTopicInfo> producerTopics;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public ProducerInfo() {
+    }
 
-	public List<ProducerTopicInfo> getProducerTopics() {
-		return producerTopics == null ? (producerTopics = new ArrayList<>()) : producerTopics;
-	}
+    public ProducerInfo(String name) {
+        this.name = name;
+    }
 
-	public void setProducerTopics(List<ProducerTopicInfo> producerTopics) {
-		this.producerTopics = producerTopics;
-	}
-	
-	
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<ProducerTopicInfo> getProducerTopics() {
+        return producerTopics == null ? (producerTopics = new ArrayList<>()) : producerTopics;
+    }
+
+    public void setProducerTopics(List<ProducerTopicInfo> producerTopics) {
+        this.producerTopics = producerTopics;
+    }
+
 }

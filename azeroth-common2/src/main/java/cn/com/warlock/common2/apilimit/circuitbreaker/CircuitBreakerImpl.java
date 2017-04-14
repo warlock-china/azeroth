@@ -7,15 +7,15 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class CircuitBreakerImpl implements CircuitBreaker {
 
-    private final int threshold;
+    private final int                                  threshold;
 
-    private final int timeout;
+    private final int                                  timeout;
 
-    private final AtomicLong tripCount;
+    private final AtomicLong                           tripCount;
 
     private final AtomicReference<CircuitBreakerState> state;
 
-    private final List<CircuitBreakerListener> listeners;
+    private final List<CircuitBreakerListener>         listeners;
 
     public CircuitBreakerImpl(int threshold, int timeout) {
         this.threshold = threshold;
@@ -101,26 +101,26 @@ public class CircuitBreakerImpl implements CircuitBreaker {
 
     private static enum Notifications implements NotifyListener {
 
-        ATTEMPT_RESET() {
-            public void notifyListener(CircuitBreakerListener listener) {
-                listener.attemptReset();
-            }
-        },
+                                                                 ATTEMPT_RESET() {
+                                                                     public void notifyListener(CircuitBreakerListener listener) {
+                                                                         listener.attemptReset();
+                                                                     }
+                                                                 },
 
-        RESET() {
-            public void notifyListener(CircuitBreakerListener listener) {
-                listener.reset();
-            }
-        },
+                                                                 RESET() {
+                                                                     public void notifyListener(CircuitBreakerListener listener) {
+                                                                         listener.reset();
+                                                                     }
+                                                                 },
 
-        TRIPPED() {
-            public void notifyListener(CircuitBreakerListener listener) {
-                listener.tripped();
-            }
-        };
+                                                                 TRIPPED() {
+                                                                     public void notifyListener(CircuitBreakerListener listener) {
+                                                                         listener.tripped();
+                                                                     }
+                                                                 };
 
         public abstract void notifyListener(CircuitBreakerListener listener);
-        
+
     }
 
 }

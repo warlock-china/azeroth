@@ -7,7 +7,8 @@ import java.io.IOException;
  */
 public class SerializeUtils {
 
-	static KryoPoolSerializer serializer = new KryoPoolSerializer();
+    static KryoPoolSerializer serializer = new KryoPoolSerializer();
+
     /**
      * 序列化
      *
@@ -15,11 +16,11 @@ public class SerializeUtils {
      * @return
      */
     public static byte[] serialize(Object object) {
-    	try {
-			return serializer.serialize(object);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+        try {
+            return serializer.serialize(object);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -29,10 +30,10 @@ public class SerializeUtils {
      * @return
      */
     public static Object deserialize(byte[] bytes) {
-    	try {
-			return serializer.deserialize(bytes);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+        try {
+            return serializer.deserialize(bytes);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -6,10 +6,10 @@ import org.apache.kafka.clients.producer.RecordMetadata;
 
 import cn.com.warlock.kafka.message.DefaultMessage;
 
-public interface ProducerEventHandler extends Closeable{
+public interface ProducerEventHandler extends Closeable {
 
-	public void onSuccessed(String topicName, RecordMetadata metadata);
+    public void onSuccessed(String topicName, RecordMetadata metadata);
 
-	public void onError(String topicName, DefaultMessage message,boolean isAsynSend);
+    public void onError(String topicName, DefaultMessage message, boolean isAsynSend);
 
 }

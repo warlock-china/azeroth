@@ -17,128 +17,138 @@ import org.slf4j.LoggerFactory;
 import cn.com.warlock.kafka.message.DefaultMessage;
 import cn.com.warlock.kafka.thread.StandardThreadExecutor.StandardThreadFactory;
 
-public class SendErrorDelayRetryHandler implements ProducerEventHandler{
+public class SendErrorDelayRetryHandler implements ProducerEventHandler {
 
-	private static final Logger logger = LoggerFactory.getLogger(SendErrorDelayRetryHandler.class);
+    private static final Logger                       logger            = LoggerFactory
+        .getLogger(SendErrorDelayRetryHandler.class);
 
-   private final PriorityBlockingQueue<PriorityTask> taskQueue = new PriorityBlockingQueue<PriorityTask>(1000);  
-   
-   private List<String> messageIdsInQueue = new Vector<>();
-	
-	private ExecutorService executor;
-	
-	private KafkaProducer<String, Object> topicProducer;
-	
-	private int retries = 0; //重试次数
-	
-	public SendErrorDelayRetryHandler(String producerGroup,KafkaProducer<String, Object> topicProducer,int retries) {
-		this.topicProducer = topicProducer;
-		this.retries = retries;
-		executor = Executors.newFixedThreadPool(1, new StandardThreadFactory("ErrorMessageProcessor"));
-		executor.submit(new Runnable() {
-			@Override
-			public void run() {
-				long currentTimeMillis = System.currentTimeMillis();
-				while(true){
-					try {
-						PriorityTask task = taskQueue.take();
-						//空任务跳出循环
-						if(task.message == null)break;
-						if(task.nextFireTime < currentTimeMillis){
-							//重新放回去
-							taskQueue.add(task);
-							TimeUnit.MILLISECONDS.sleep(100);
-							continue;
-						}
-						task.run();
-					} catch (Exception e) {}
-				}
-			}
-		});
-	}
-	
-	@Override
-	public void onSuccessed(String topicName, RecordMetadata metadata) {}
+    private final PriorityBlockingQueue<PriorityTask> taskQueue         = new PriorityBlockingQueue<PriorityTask>(
+        1000);
 
-	@Override
-	public void onError(String topicName, DefaultMessage message, boolean isAsynSend) {
-		if(isAsynSend == false){
-			return;
-		}
-		//在重试队列不处理
-		if(messageIdsInQueue.contains(message.getMsgId()))return;
-		//
-		taskQueue.add(new PriorityTask(topicName,message));
-		messageIdsInQueue.add(message.getMsgId());
-	}
-	
-	@Override
-	public void close() throws IOException {
-		// taskQueue里面没有任务会一直阻塞，所以先add一个新任务保证执行
-		taskQueue.add(new PriorityTask(null, null));
-		try {
-			Thread.sleep(1000);
-		} catch (Exception e) {
-		}
-		executor.shutdown();
-		logger.info("KAFKA producer SendErrorDelayRetryHandler closed");
-	}
-	
-	class PriorityTask implements Runnable,Comparable<PriorityTask>{
+    private List<String>                              messageIdsInQueue = new Vector<>();
 
-		final String topicName;
-		final DefaultMessage message;
-		
-		int retryCount = 0;
-	    long nextFireTime;
-		
-	    public PriorityTask(String topicName,DefaultMessage message) {
-	    	this(topicName,message, System.currentTimeMillis());
-	    }
-	    
-		public PriorityTask(String topicName,DefaultMessage message,long nextFireTime) {
-			super();
-			this.topicName = topicName;
-			this.message = message;
-			this.nextFireTime = nextFireTime;
-		}
+    private ExecutorService                           executor;
 
-		@Override
-		public void run() {
-			try {	
-				logger.debug("begin re process message:"+this.toString());
-				Object sendContent = message.isSendBodyOnly() ? message.getBody() : message;
-				topicProducer.send(new ProducerRecord<String, Object>(topicName, message.getMsgId(),sendContent));
-				//处理成功移除
-				messageIdsInQueue.remove(message.getMsgId());
-			} catch (Exception e) {
-				logger.warn("retry mssageId[{}] error",message.getMsgId(),e);
-				retry();
-			}
-		}
-		
-		private void retry(){
-			if(retryCount == retries){
-				return;
-			}
-			nextFireTime = nextFireTime + retryCount * 30 * 1000;
-			//重新放入任务队列
-			taskQueue.add(this);
-			logger.debug("re submit mssageId[{}] task to queue,next fireTime:",this.message.getMsgId(),nextFireTime);
-			retryCount++;
-		}
+    private KafkaProducer<String, Object>             topicProducer;
 
-		@Override
-		public int compareTo(PriorityTask o) {
-			return (int) (this.nextFireTime - o.nextFireTime);
-		}
+    private int                                       retries           = 0;                                      //重试次数
 
-		@Override
-		public String toString() {
-			return "PriorityTask [message=" + message.getMsgId() + ", retryCount="
-					+ retryCount + ", nextFireTime=" + nextFireTime + "]";
-		}
-		
-	}
+    public SendErrorDelayRetryHandler(String producerGroup,
+                                      KafkaProducer<String, Object> topicProducer, int retries) {
+        this.topicProducer = topicProducer;
+        this.retries = retries;
+        executor = Executors.newFixedThreadPool(1,
+            new StandardThreadFactory("ErrorMessageProcessor"));
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                long currentTimeMillis = System.currentTimeMillis();
+                while (true) {
+                    try {
+                        PriorityTask task = taskQueue.take();
+                        //空任务跳出循环
+                        if (task.message == null)
+                            break;
+                        if (task.nextFireTime < currentTimeMillis) {
+                            //重新放回去
+                            taskQueue.add(task);
+                            TimeUnit.MILLISECONDS.sleep(100);
+                            continue;
+                        }
+                        task.run();
+                    } catch (Exception e) {
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onSuccessed(String topicName, RecordMetadata metadata) {
+    }
+
+    @Override
+    public void onError(String topicName, DefaultMessage message, boolean isAsynSend) {
+        if (isAsynSend == false) {
+            return;
+        }
+        //在重试队列不处理
+        if (messageIdsInQueue.contains(message.getMsgId()))
+            return;
+        //
+        taskQueue.add(new PriorityTask(topicName, message));
+        messageIdsInQueue.add(message.getMsgId());
+    }
+
+    @Override
+    public void close() throws IOException {
+        // taskQueue里面没有任务会一直阻塞，所以先add一个新任务保证执行
+        taskQueue.add(new PriorityTask(null, null));
+        try {
+            Thread.sleep(1000);
+        } catch (Exception e) {
+        }
+        executor.shutdown();
+        logger.info("KAFKA producer SendErrorDelayRetryHandler closed");
+    }
+
+    class PriorityTask implements Runnable, Comparable<PriorityTask> {
+
+        final String         topicName;
+        final DefaultMessage message;
+
+        int                  retryCount = 0;
+        long                 nextFireTime;
+
+        public PriorityTask(String topicName, DefaultMessage message) {
+            this(topicName, message, System.currentTimeMillis());
+        }
+
+        public PriorityTask(String topicName, DefaultMessage message, long nextFireTime) {
+            super();
+            this.topicName = topicName;
+            this.message = message;
+            this.nextFireTime = nextFireTime;
+        }
+
+        @Override
+        public void run() {
+            try {
+                logger.debug("begin re process message:" + this.toString());
+                Object sendContent = message.isSendBodyOnly() ? message.getBody() : message;
+                topicProducer.send(
+                    new ProducerRecord<String, Object>(topicName, message.getMsgId(), sendContent));
+                //处理成功移除
+                messageIdsInQueue.remove(message.getMsgId());
+            } catch (Exception e) {
+                logger.warn("retry mssageId[{}] error", message.getMsgId(), e);
+                retry();
+            }
+        }
+
+        private void retry() {
+            if (retryCount == retries) {
+                return;
+            }
+            nextFireTime = nextFireTime + retryCount * 30 * 1000;
+            //重新放入任务队列
+            taskQueue.add(this);
+            logger.debug("re submit mssageId[{}] task to queue,next fireTime:",
+                this.message.getMsgId(), nextFireTime);
+            retryCount++;
+        }
+
+        @Override
+        public int compareTo(PriorityTask o) {
+            return (int) (this.nextFireTime - o.nextFireTime);
+        }
+
+        @Override
+        public String toString() {
+            return "PriorityTask [message=" + message.getMsgId() + ", retryCount=" + retryCount
+                   + ", nextFireTime=" + nextFireTime + "]";
+        }
+
+    }
 
 }

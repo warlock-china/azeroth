@@ -12,22 +12,22 @@ import java.io.Closeable;
  * @version 
  * @since JDK 1.8
  */
-public interface CacheProvider extends Closeable{
+public interface CacheProvider extends Closeable {
 
-	<T> T get(String key);
-	
-	String getStr(String key);
-	
-	boolean set(String key,Object value,long expired);
-	
-	boolean remove(String key);
-	
-	void putGroup(String cacheGroupKey,String key,long expireSeconds);
-	
-	void removeFromGroup(String cacheGroupKey,String key);
-	
-	void clearExpiredGroupKeys(String cacheGroup);
-	
-	void clearGroup(String groupName,boolean containPkCache);
+    <T> T get(String key);
+
+    String getStr(String key);
+
+    boolean set(String key, Object value, long expired);
+
+    boolean remove(String key);
+
+    void putGroup(String cacheGroupKey, String key, long expireSeconds);
+
+    void removeFromGroup(String cacheGroupKey, String key);
+
+    void clearExpiredGroupKeys(String cacheGroup);
+
+    void clearGroup(String groupName, boolean containPkCache);
 
 }

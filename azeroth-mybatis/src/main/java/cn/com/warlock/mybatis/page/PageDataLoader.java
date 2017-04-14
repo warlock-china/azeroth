@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface PageDataLoader<T> {
 
-	List<T> load();
+    List<T> load();
 }

@@ -29,19 +29,17 @@ import org.slf4j.LoggerFactory;
 
 import cn.com.warlock.common2.excel.annotation.TitleCell;
 
-
-
 public final class ExcelReader implements Closeable {
 
-    private static final Logger     LOG    = LoggerFactory.getLogger(ExcelReader.class);
+    private static final Logger LOG    = LoggerFactory.getLogger(ExcelReader.class);
     /**
      * 时日类型的数据默认格式化方式
      */
-    private              DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private       int      startRow;
-    private       String   sheetName;
-    private final String   excelFilePath;
-    private final Workbook workbook;
+    private DateFormat          format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private int                 startRow;
+    private String              sheetName;
+    private final String        excelFilePath;
+    private final Workbook      workbook;
 
     /**
      * 构造方法，传入需要操作的excel文件路径
@@ -79,7 +77,8 @@ public final class ExcelReader implements Closeable {
      * @throws IOException            IO流异常
      * @throws InvalidFormatException 非法的格式异常
      */
-    public ExcelReader(InputStream inputStream, String outFilePath) throws IOException, InvalidFormatException {
+    public ExcelReader(InputStream inputStream, String outFilePath) throws IOException,
+                                                                    InvalidFormatException {
         this.startRow = 0;
         this.sheetName = "Sheet1";
         this.excelFilePath = outFilePath;
@@ -104,10 +103,10 @@ public final class ExcelReader implements Closeable {
      * @param sheetName 需要读取的Sheet名字
      */
     public void setSheetName(String sheetName) {
-//        Sheet sheet = this.workbook.getSheet(sheetName);
-//        if (null == sheet) {
-//            throw new RuntimeException("sheetName:" + sheetName + " is not exist");
-//        }
+        //        Sheet sheet = this.workbook.getSheet(sheetName);
+        //        if (null == sheet) {
+        //            throw new RuntimeException("sheetName:" + sheetName + " is not exist");
+        //        }
         this.sheetName = sheetName;
     }
 
@@ -149,7 +148,8 @@ public final class ExcelReader implements Closeable {
 
                 for (Cell title : row) {
                     CellReference cellRef = new CellReference(title);
-                    titleMap.put(cellRef.getCellRefParts()[2], title.getRichStringCellValue().getString());
+                    titleMap.put(cellRef.getCellRefParts()[2],
+                        title.getRichStringCellValue().getString());
                 }
 
                 for (int i = this.startRow + 1; i <= sheet.getLastRowNum(); i++) {
@@ -182,9 +182,10 @@ public final class ExcelReader implements Closeable {
         return resultList;
     }
 
-
-    private void getCellValue(Cell cell, Object o, Field field) throws IllegalAccessException, ParseException {
-        LOG.debug("cell:{}, field:{}, type:{}", cell.getCellTypeEnum(), field.getName(), field.getType().getName());
+    private void getCellValue(Cell cell, Object o, Field field) throws IllegalAccessException,
+                                                                ParseException {
+        LOG.debug("cell:{}, field:{}, type:{}", cell.getCellTypeEnum(), field.getName(),
+            field.getType().getName());
         switch (cell.getCellTypeEnum()) {
             case BLANK:
                 break;
@@ -205,15 +206,20 @@ public final class ExcelReader implements Closeable {
                         field.set(o, format.format(cell.getDateCellValue()));
                     }
                 } else {
-                    if (field.getType().isAssignableFrom(Integer.class) || field.getType().getName().equals("int")) {
+                    if (field.getType().isAssignableFrom(Integer.class)
+                        || field.getType().getName().equals("int")) {
                         field.setInt(o, (int) cell.getNumericCellValue());
-                    } else if (field.getType().isAssignableFrom(Short.class) || field.getType().getName().equals("short")) {
+                    } else if (field.getType().isAssignableFrom(Short.class)
+                               || field.getType().getName().equals("short")) {
                         field.setShort(o, (short) cell.getNumericCellValue());
-                    } else if (field.getType().isAssignableFrom(Float.class) || field.getType().getName().equals("float")) {
+                    } else if (field.getType().isAssignableFrom(Float.class)
+                               || field.getType().getName().equals("float")) {
                         field.setFloat(o, (float) cell.getNumericCellValue());
-                    } else if (field.getType().isAssignableFrom(Byte.class) || field.getType().getName().equals("byte")) {
+                    } else if (field.getType().isAssignableFrom(Byte.class)
+                               || field.getType().getName().equals("byte")) {
                         field.setByte(o, (byte) cell.getNumericCellValue());
-                    } else if (field.getType().isAssignableFrom(Double.class) || field.getType().getName().equals("double")) {
+                    } else if (field.getType().isAssignableFrom(Double.class)
+                               || field.getType().getName().equals("double")) {
                         field.setDouble(o, cell.getNumericCellValue());
                     } else if (field.getType().isAssignableFrom(String.class)) {
                         String s = String.valueOf(cell.getNumericCellValue());
@@ -258,7 +264,6 @@ public final class ExcelReader implements Closeable {
         }
         return workbook;
     }
-
 
     /**
      * 获取指定单元格的值

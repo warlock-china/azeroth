@@ -17,13 +17,14 @@ import static cn.com.warlock.filesystem.sdk.fdfs.FastdfsUtils.readString;
  */
 public enum FileIdDecoder implements Replier.Decoder<FileId> {
 
-    INSTANCE;
+                                                              INSTANCE;
 
     @Override
     public FileId decode(ByteBuf in) {
         int length = in.readableBytes();
         if (length <= FDFS_GROUP_LEN) {
-            throw new FastdfsException("body length : " + length + ", is lte required group name length 16.");
+            throw new FastdfsException(
+                "body length : " + length + ", is lte required group name length 16.");
         }
         String group = readString(in, FDFS_GROUP_LEN);
         String path = readString(in);

@@ -80,9 +80,8 @@ public abstract class FixedBucketTests {
 
         final CountDownLatch endGate = new CountDownLatch(clientCount);
 
-        
         for (int i = 0, n = isUsable.length; i < n; ++i) {
-            final int j = i; 
+            final int j = i;
             clients[j] = new Runnable() {
 
                 public void run() {
@@ -101,15 +100,15 @@ public abstract class FixedBucketTests {
         }
 
         ExecutorService executor = Executors.newFixedThreadPool(clientCount);
-        
+
         for (Runnable runnable : clients) {
             executor.execute(runnable);
         }
-        
+
         startGate.countDown();
-        
+
         endGate.await();
-        
+
         for (boolean b : isUsable) {
             assertTrue("验证Token 可用", b);
         }

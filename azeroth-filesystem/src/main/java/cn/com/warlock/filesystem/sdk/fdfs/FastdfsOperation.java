@@ -12,12 +12,13 @@ import java.util.concurrent.CompletableFuture;
  */
 final class FastdfsOperation<T> {
 
-    private final Channel channel;
-    private final Requestor requestor;
-    private final Replier<T> replier;
+    private final Channel              channel;
+    private final Requestor            requestor;
+    private final Replier<T>           replier;
     private final CompletableFuture<T> promise;
 
-    FastdfsOperation(Channel channel, Requestor requestor, Replier<T> replier, CompletableFuture<T> promise) {
+    FastdfsOperation(Channel channel, Requestor requestor, Replier<T> replier,
+                     CompletableFuture<T> promise) {
         this.channel = channel;
         this.requestor = requestor;
         this.replier = replier;
@@ -54,10 +55,7 @@ final class FastdfsOperation<T> {
 
     @Override
     public String toString() {
-        return "FastdfsOperation{" +
-                "channel=" + channel +
-                ", replier=" + replier +
-                ", requestor=" + requestor +
-                '}';
+        return "FastdfsOperation{" + "channel=" + channel + ", replier=" + replier + ", requestor="
+               + requestor + '}';
     }
 }

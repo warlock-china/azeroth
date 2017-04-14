@@ -9,27 +9,27 @@ public class Blueprint {
     /**
      * 最大时间戳在2109年
      */
-    public final static long MAX_TIMESTAMP = 0x3FFFFFFFFFFL;
+    public final static long MAX_TIMESTAMP        = 0x3FFFFFFFFFFL;
 
     /**
      * 使用时间戳补码限制64个
      */
-    public final static int MAX_SEQUENCE_COUNTER = 63;
+    public final static int  MAX_SEQUENCE_COUNTER = 63;
 
     /**
      * 最大发射器站台
      */
-    public final static int MAX_GENERATOR_ID = 255;
+    public final static int  MAX_GENERATOR_ID     = 255;
 
     /**
      * 最大集群节点
      */
-    public final static int MAX_CLUSTER_ID = 15;
+    public final static int  MAX_CLUSTER_ID       = 15;
 
-    final long timestamp;
-    final int sequence;
-    final int generatorId;
-    final int clusterId;
+    final long               timestamp;
+    final int                sequence;
+    final int                generatorId;
+    final int                clusterId;
 
     /**
      * @param timestamp   Milliseconds since the Unix epoch.
@@ -70,8 +70,7 @@ public class Blueprint {
     @Override
     public String toString() {
         return String.format(
-                "{\n  timestamp: %d,\n  sequence: %d,\n  generator: %d,\n  cluster: %d\n}",
-                timestamp, sequence, generatorId, clusterId
-        );
+            "{\n  timestamp: %d,\n  sequence: %d,\n  generator: %d,\n  cluster: %d\n}", timestamp,
+            sequence, generatorId, clusterId);
     }
 }

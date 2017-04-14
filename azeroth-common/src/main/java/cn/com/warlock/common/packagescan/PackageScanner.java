@@ -9,41 +9,39 @@ import java.util.Set;
  * Scans the classpath for packages and tries to determine their versions
  */
 public class PackageScanner {
-    private Patterns packagePatterns;
-    private Patterns jarPatterns;
-    private ClassLoader classLoader;
+    private Patterns       packagePatterns;
+    private Patterns       jarPatterns;
+    private ClassLoader    classLoader;
     private PatternFactory patternFactory;
 
-    public Collection<String> scanMatchPackages(String ...packagePatterns){
-    	Patterns ppatterns = new Patterns(packagePatterns, new String[]{});
-    	String[] clonePatterns = packagePatterns.clone();
-    	for (int i = 0; i < clonePatterns.length; i++) {
-    		clonePatterns[i] = clonePatterns[i].replace(".", "/");
-		}
-    	return this.selectPackages(ppatterns)//
-    	           .scan();//
+    public Collection<String> scanMatchPackages(String... packagePatterns) {
+        Patterns ppatterns = new Patterns(packagePatterns, new String[] {});
+        String[] clonePatterns = packagePatterns.clone();
+        for (int i = 0; i < clonePatterns.length; i++) {
+            clonePatterns[i] = clonePatterns[i].replace(".", "/");
+        }
+        return this.selectPackages(ppatterns)//
+            .scan();//
     }
 
     /**
      * Constructor
      */
     public PackageScanner() {
-        packagePatterns = new Patterns(new String[]{"com.*","net.*","org.*"}, new String[]{});
-        jarPatterns = new Patterns(new String[]{"*.jar"}, new String[]{});
+        packagePatterns = new Patterns(new String[] { "com.*", "net.*", "org.*" }, new String[] {});
+        jarPatterns = new Patterns(new String[] { "*.jar" }, new String[] {});
         patternFactory = new SimpleWildcardPatternFactory();
     }
-
 
     public PackageScanner selectJars(Patterns jars) {
         this.jarPatterns = jars;
         return this;
     }
-    
+
     public PackageScanner selectPackages(Patterns packages) {
         this.packagePatterns = packages;
         return this;
     }
-    
 
     /**
      * Scans the classloader as configured.
@@ -58,14 +56,13 @@ public class PackageScanner {
         InternalScanner scanner = new InternalScanner(getClassLoader());
 
         // Kick off the scanning
-        Set<String> exports = scanner.findInPackages(new PatternTest(), roots.toArray(new String[roots.size()]));
+        Set<String> exports = scanner.findInPackages(new PatternTest(),
+            roots.toArray(new String[roots.size()]));
 
         return exports;
     }
 
-
-    private void initPatterns()
-    {
+    private void initPatterns() {
         this.jarPatterns.setPatternFactory(patternFactory);
         this.packagePatterns.setPatternFactory(patternFactory);
     }
@@ -80,7 +77,6 @@ public class PackageScanner {
         return this;
     }
 
-
     /**
      * Sets the pattern factory to use
      * @param factory The pattern factory
@@ -89,7 +85,6 @@ public class PackageScanner {
         this.patternFactory = factory;
         return this;
     }
-
 
     /**
      * Sets what patterns to include
@@ -121,7 +116,7 @@ public class PackageScanner {
      * @param includes The patterns to include
      */
     public static Patterns jars(String[] includes) {
-        return new Patterns(includes, new String[]{});
+        return new Patterns(includes, new String[] {});
     }
 
     /**
@@ -138,26 +133,24 @@ public class PackageScanner {
      * @param includes The patterns to include
      */
     public static Patterns packages(String[] includes) {
-    	return new Patterns(includes, new String[]{});
+        return new Patterns(includes, new String[] {});
     }
 
     ClassLoader getClassLoader() {
         return classLoader == null ? Thread.currentThread().getContextClassLoader() : classLoader;
     }
 
-
-
     /**
      * The patterns to include and exclude
      */
     public static class Patterns {
 
-        private String[] origIncludes;
-        private String[] origExcludes;
+        private String[]              origIncludes;
+        private String[]              origExcludes;
 
         private List<CompiledPattern> includes;
         private List<CompiledPattern> excludes;
-        private PatternFactory factory;
+        private PatternFactory        factory;
 
         /**
          * Constructs a set of patterns

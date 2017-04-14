@@ -24,91 +24,89 @@ import cn.com.warlock.common.util.DateUtils;
  * @since JDK 1.8
  */
 public class MapCacheProvider {
-	
-	
-	static Map<String, 	Object> cache = new ConcurrentHashMap<>();
-	static Map<String, 	Date> cacheExpire = new HashMap<>();
-	
-	private Lock lock = new ReentrantLock();// 锁 
-	private AtomicBoolean runing = new AtomicBoolean();
-	
-	public MapCacheProvider() {
-		this(5);
-	}
-	
-	/**
-	 * @param period 检查过期间隔（秒）
-	 */
-	public MapCacheProvider(final long period) {
-		runing.set(true);
-		//缓存过期维护线程
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while(runing.get()){					
-					Date now = Calendar.getInstance().getTime();
-					
-					lock.lock();
-					try {
-						Iterator<Map.Entry<String, 	Date>> it = cacheExpire.entrySet().iterator();  
-						while(it.hasNext()){  
-							Map.Entry<String, Date> entry=it.next();  
-							//过期的移除
-							if(entry.getValue().compareTo(now)<=0){
-								cache.remove(entry.getKey());
-								it.remove(); 
-							}  
-						}  
-						try {Thread.sleep(TimeUnit.SECONDS.toMillis(period));} catch (Exception e) {}
-					} finally {
-						lock.unlock();
-					}
-				}
-			}
-		}).start();
-	}
 
-	
-	/**
-	 * 
-	 * @param key
-	 * @param value
-	 * @param timeout 单位：秒
-	 * @return
-	 */
-	public boolean set(String key, Object value, int timeout) {
-		Date expireAt = timeout > -1 ? DateUtils.add(new Date(), Calendar.SECOND, timeout) : null;
-		return set(key, value, expireAt);
-	}
+    static Map<String, Object> cache       = new ConcurrentHashMap<>();
+    static Map<String, Date>   cacheExpire = new HashMap<>();
 
-	
-	public boolean set(String key, Object value, Date expireAt) {
-		cache.put(key, value);
-		if(expireAt != null){
-			cacheExpire.put(key, expireAt);
-		}
-		return true;
-	}
+    private Lock               lock        = new ReentrantLock();      // 锁 
+    private AtomicBoolean      runing      = new AtomicBoolean();
 
-	
-	@SuppressWarnings("unchecked")
-	public <T> T get(String key) {
-		return (T)cache.get(key);
-	}
+    public MapCacheProvider() {
+        this(5);
+    }
 
-	
-	public boolean remove(String key) {
-		cache.remove(key);
-		cacheExpire.remove(key);
-		return true;
-	}
+    /**
+     * @param period 检查过期间隔（秒）
+     */
+    public MapCacheProvider(final long period) {
+        runing.set(true);
+        //缓存过期维护线程
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (runing.get()) {
+                    Date now = Calendar.getInstance().getTime();
 
-	public boolean exists(String key) {
-		return cache.containsKey(key);
-	}
-	
-	public void close(){
-		runing.set(false);
-	}
+                    lock.lock();
+                    try {
+                        Iterator<Map.Entry<String, Date>> it = cacheExpire.entrySet().iterator();
+                        while (it.hasNext()) {
+                            Map.Entry<String, Date> entry = it.next();
+                            //过期的移除
+                            if (entry.getValue().compareTo(now) <= 0) {
+                                cache.remove(entry.getKey());
+                                it.remove();
+                            }
+                        }
+                        try {
+                            Thread.sleep(TimeUnit.SECONDS.toMillis(period));
+                        } catch (Exception e) {
+                        }
+                    } finally {
+                        lock.unlock();
+                    }
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * 
+     * @param key
+     * @param value
+     * @param timeout 单位：秒
+     * @return
+     */
+    public boolean set(String key, Object value, int timeout) {
+        Date expireAt = timeout > -1 ? DateUtils.add(new Date(), Calendar.SECOND, timeout) : null;
+        return set(key, value, expireAt);
+    }
+
+    public boolean set(String key, Object value, Date expireAt) {
+        cache.put(key, value);
+        if (expireAt != null) {
+            cacheExpire.put(key, expireAt);
+        }
+        return true;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T get(String key) {
+        return (T) cache.get(key);
+    }
+
+    public boolean remove(String key) {
+        cache.remove(key);
+        cacheExpire.remove(key);
+        return true;
+    }
+
+    public boolean exists(String key) {
+        return cache.containsKey(key);
+    }
+
+    public void close() {
+        runing.set(false);
+    }
 
 }

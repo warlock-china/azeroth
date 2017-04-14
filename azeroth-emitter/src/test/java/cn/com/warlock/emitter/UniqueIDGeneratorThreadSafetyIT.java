@@ -54,10 +54,8 @@ public class UniqueIDGeneratorThreadSafetyIT {
     @Test
     public void moreThanOneGeneratorClusterIDTest() throws InterruptedException {
         final Set<String> ids = Collections.synchronizedSet(new HashSet<String>());
-        final int[][] profiles = {
-                {0, 0}, {1, 1}, {1, 2}, {1, 3}, {1, 15},
-                {2, 0}, {3, 0}, {4, 0}, {5, 0}, {63, 0}
-        };
+        final int[][] profiles = { { 0, 0 }, { 1, 1 }, { 1, 2 }, { 1, 3 }, { 1, 15 }, { 2, 0 },
+                                   { 3, 0 }, { 4, 0 }, { 5, 0 }, { 63, 0 } };
         final int iterationCount = 10000;
         final CountDownLatch latch = new CountDownLatch(profiles.length);
 
@@ -65,7 +63,8 @@ public class UniqueIDGeneratorThreadSafetyIT {
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    IDGenerator generator = LocalUniqueIDGeneratorFactory.generatorFor(profile[0], profile[1]);
+                    IDGenerator generator = LocalUniqueIDGeneratorFactory.generatorFor(profile[0],
+                        profile[1]);
                     try {
                         for (int i = 0; i < iterationCount; i++) {
                             byte[] id = generator.generate();

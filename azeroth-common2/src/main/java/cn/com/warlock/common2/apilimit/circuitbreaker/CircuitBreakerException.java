@@ -1,7 +1,7 @@
 package cn.com.warlock.common2.apilimit.circuitbreaker;
 
 public class CircuitBreakerException extends Exception {
-    
+
     private static final long serialVersionUID = -2000914426184917307L;
 
     public CircuitBreakerException() {

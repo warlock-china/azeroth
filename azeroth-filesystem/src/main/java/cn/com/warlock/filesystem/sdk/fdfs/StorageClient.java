@@ -10,7 +10,6 @@ import cn.com.warlock.filesystem.sdk.fdfs.exchange.StreamReplier;
 import java.io.File;
 import java.util.concurrent.CompletableFuture;
 
-
 final class StorageClient {
 
     private final FastdfsExecutor executor;
@@ -27,11 +26,8 @@ final class StorageClient {
      * @return
      */
     CompletableFuture<FileId> upload(StorageServer server, File file) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileUploadEncoder(file, server.pathIdx()),
-                FileIdDecoder.INSTANCE
-        );
+        return executor.execute(server.toInetAddress(),
+            new FileUploadEncoder(file, server.pathIdx()), FileIdDecoder.INSTANCE);
     }
 
     /**
@@ -49,12 +45,11 @@ final class StorageClient {
      * @param filename 扩展名
      * @param size     内容长度
      */
-    CompletableFuture<FileId> upload(StorageServer server, Object content, String filename, long size) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileUploadEncoder(content, filename, size, server.pathIdx()),
-                FileIdDecoder.INSTANCE
-        );
+    CompletableFuture<FileId> upload(StorageServer server, Object content, String filename,
+                                     long size) {
+        return executor.execute(server.toInetAddress(),
+            new FileUploadEncoder(content, filename, size, server.pathIdx()),
+            FileIdDecoder.INSTANCE);
     }
 
     /**
@@ -64,11 +59,8 @@ final class StorageClient {
      * @param file   文件
      */
     CompletableFuture<FileId> uploadAppender(StorageServer server, File file) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileUploadAppenderEncoder(file, server.pathIdx()),
-                FileIdDecoder.INSTANCE
-        );
+        return executor.execute(server.toInetAddress(),
+            new FileUploadAppenderEncoder(file, server.pathIdx()), FileIdDecoder.INSTANCE);
     }
 
     /**
@@ -86,12 +78,11 @@ final class StorageClient {
      * @param size     内容长度
      * @param filename 扩展名
      */
-    CompletableFuture<FileId> uploadAppender(StorageServer server, Object content, String filename, long size) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileUploadAppenderEncoder(content, filename, size, server.pathIdx()),
-                FileIdDecoder.INSTANCE
-        );
+    CompletableFuture<FileId> uploadAppender(StorageServer server, Object content, String filename,
+                                             long size) {
+        return executor.execute(server.toInetAddress(),
+            new FileUploadAppenderEncoder(content, filename, size, server.pathIdx()),
+            FileIdDecoder.INSTANCE);
     }
 
     /**
@@ -101,11 +92,8 @@ final class StorageClient {
      * @return
      */
     CompletableFuture<Void> append(StorageServer server, FileId fileId, File file) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileAppendEncoder(fileId, file),
-                Replier.NOPDecoder.INSTANCE
-        );
+        return executor.execute(server.toInetAddress(), new FileAppendEncoder(fileId, file),
+            Replier.NOPDecoder.INSTANCE);
     }
 
     /**
@@ -117,11 +105,8 @@ final class StorageClient {
      * @return
      */
     CompletableFuture<Void> append(StorageServer server, FileId fileId, byte[] bytes) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileAppendEncoder(fileId, bytes, bytes.length),
-                Replier.NOPDecoder.INSTANCE
-        );
+        return executor.execute(server.toInetAddress(),
+            new FileAppendEncoder(fileId, bytes, bytes.length), Replier.NOPDecoder.INSTANCE);
     }
 
     /**
@@ -132,11 +117,8 @@ final class StorageClient {
      * @return
      */
     CompletableFuture<Void> append(StorageServer server, FileId fileId, Object content, long size) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileAppendEncoder(fileId, content, size),
-                Replier.NOPDecoder.INSTANCE
-        );
+        return executor.execute(server.toInetAddress(),
+            new FileAppendEncoder(fileId, content, size), Replier.NOPDecoder.INSTANCE);
     }
 
     /**
@@ -147,11 +129,8 @@ final class StorageClient {
      * @return
      */
     CompletableFuture<Void> modify(StorageServer server, FileId fileId, File file, long offset) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileModifyEncoder(fileId, file, offset),
-                Replier.NOPDecoder.INSTANCE
-        );
+        return executor.execute(server.toInetAddress(), new FileModifyEncoder(fileId, file, offset),
+            Replier.NOPDecoder.INSTANCE);
     }
 
     /**
@@ -164,11 +143,9 @@ final class StorageClient {
      * @return
      */
     CompletableFuture<Void> modify(StorageServer server, FileId fileId, byte[] bytes, long offset) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileModifyEncoder(fileId, bytes, bytes.length, offset),
-                Replier.NOPDecoder.INSTANCE
-        );
+        return executor.execute(server.toInetAddress(),
+            new FileModifyEncoder(fileId, bytes, bytes.length, offset),
+            Replier.NOPDecoder.INSTANCE);
     }
 
     /**
@@ -179,12 +156,10 @@ final class StorageClient {
      * @param offset
      * @return
      */
-    CompletableFuture<Void> modify(StorageServer server, FileId fileId, Object content, long size, long offset) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileModifyEncoder(fileId, content, size, offset),
-                Replier.NOPDecoder.INSTANCE
-        );
+    CompletableFuture<Void> modify(StorageServer server, FileId fileId, Object content, long size,
+                                   long offset) {
+        return executor.execute(server.toInetAddress(),
+            new FileModifyEncoder(fileId, content, size, offset), Replier.NOPDecoder.INSTANCE);
     }
 
     /**
@@ -194,11 +169,8 @@ final class StorageClient {
      * @param fileId 服务器存储路径
      */
     CompletableFuture<Void> delete(StorageServer server, FileId fileId) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileDeleteEncoder(fileId),
-                Replier.NOPDecoder.INSTANCE
-        );
+        return executor.execute(server.toInetAddress(), new FileDeleteEncoder(fileId),
+            Replier.NOPDecoder.INSTANCE);
     }
 
     /**
@@ -219,11 +191,8 @@ final class StorageClient {
      * @param truncatedSize 截取文件大小
      */
     CompletableFuture<Void> truncate(StorageServer server, FileId fileId, long truncatedSize) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileTruncateEncoder(fileId, truncatedSize),
-                Replier.NOPDecoder.INSTANCE
-        );
+        return executor.execute(server.toInetAddress(),
+            new FileTruncateEncoder(fileId, truncatedSize), Replier.NOPDecoder.INSTANCE);
     }
 
     /**
@@ -240,11 +209,8 @@ final class StorageClient {
      * @return 下载进度
      */
     CompletableFuture<Void> download(StorageServer server, FileId fileId, Object output) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileDownloadEncoder(fileId),
-                StreamReplier.stream(output)
-        );
+        return executor.execute(server.toInetAddress(), new FileDownloadEncoder(fileId),
+            StreamReplier.stream(output));
     }
 
     /**
@@ -257,12 +223,10 @@ final class StorageClient {
      * @param output 输出流
      * @return 下载进度
      */
-    CompletableFuture<Void> download(StorageServer server, FileId fileId, Object output, long offset, long size) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileDownloadEncoder(fileId, offset, size),
-                StreamReplier.stream(output)
-        );
+    CompletableFuture<Void> download(StorageServer server, FileId fileId, Object output,
+                                     long offset, long size) {
+        return executor.execute(server.toInetAddress(),
+            new FileDownloadEncoder(fileId, offset, size), StreamReplier.stream(output));
     }
 
     /**
@@ -274,12 +238,10 @@ final class StorageClient {
      * @param flag     设置标识
      * @return
      */
-    CompletableFuture<Void> setMetadata(StorageServer server, FileId fileId, FileMetadata metadata, byte flag) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileMetadataSetEncoder(fileId, metadata, flag),
-                Replier.NOPDecoder.INSTANCE
-        );
+    CompletableFuture<Void> setMetadata(StorageServer server, FileId fileId, FileMetadata metadata,
+                                        byte flag) {
+        return executor.execute(server.toInetAddress(),
+            new FileMetadataSetEncoder(fileId, metadata, flag), Replier.NOPDecoder.INSTANCE);
     }
 
     /**
@@ -290,11 +252,8 @@ final class StorageClient {
      * @return
      */
     CompletableFuture<FileMetadata> getMetadata(StorageServer server, FileId fileId) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileMetadataGetEncoder(fileId),
-                FileMetadataDecoder.INSTANCE
-        );
+        return executor.execute(server.toInetAddress(), new FileMetadataGetEncoder(fileId),
+            FileMetadataDecoder.INSTANCE);
     }
 
     /**
@@ -303,10 +262,7 @@ final class StorageClient {
      * @return
      */
     CompletableFuture<FileInfo> getInfo(StorageServer server, FileId fileId) {
-        return executor.execute(
-                server.toInetAddress(),
-                new FileInfoGetEncoder(fileId),
-                FileInfoDecoder.INSTANCE
-        );
+        return executor.execute(server.toInetAddress(), new FileInfoGetEncoder(fileId),
+            FileInfoDecoder.INSTANCE);
     }
 }

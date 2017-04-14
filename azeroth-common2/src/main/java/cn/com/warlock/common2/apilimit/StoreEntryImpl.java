@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 class StoreEntryImpl implements StoreEntry {
 
-    private final long expiry;
+    private final long          expiry;
 
     private final AtomicInteger counter;
 

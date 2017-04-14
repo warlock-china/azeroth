@@ -1,6 +1,5 @@
 package cn.com.warlock.emitter.zk.connection;
 
-
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
@@ -16,14 +15,15 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class ZooKeeperConnection {
 
-    final static Logger logger = LoggerFactory.getLogger(ZooKeeperConnection.class);
+    final static Logger                      logger             = LoggerFactory
+        .getLogger(ZooKeeperConnection.class);
 
-    final static int CONNECTION_TIMEOUT = 10;
+    final static int                         CONNECTION_TIMEOUT = 10;
 
-    final Queue<ZooKeeperConnectionObserver> observers = new ConcurrentLinkedQueue<>();
-    final String quorumAddresses;
+    final Queue<ZooKeeperConnectionObserver> observers          = new ConcurrentLinkedQueue<>();
+    final String                             quorumAddresses;
 
-    ZooKeeper zookeeper = null;
+    ZooKeeper                                zookeeper          = null;
 
     public ZooKeeperConnection(String quorumAddresses) throws IOException {
         this.zookeeper = connect(quorumAddresses);
@@ -39,7 +39,8 @@ public class ZooKeeperConnection {
     }
 
     public void shutdown() {
-        if (zookeeper == null) return;
+        if (zookeeper == null)
+            return;
 
         try {
             zookeeper.close();
@@ -68,7 +69,7 @@ public class ZooKeeperConnection {
         }
         if (!successfullyConnected) {
             throw new IOException(String.format(
-                    "Connection to ZooKeeper quorum timed out after %d seconds.", CONNECTION_TIMEOUT));
+                "Connection to ZooKeeper quorum timed out after %d seconds.", CONNECTION_TIMEOUT));
         }
 
         return zookeeper;
@@ -99,7 +100,8 @@ public class ZooKeeperConnection {
             switch (event.getState()) {
                 case Disconnected:
                     logger.warn("Disconnected from ZooKeeper quorum.");
-                    zooKeeperConnection.observers.forEach(ZooKeeperConnectionObserver::disconnected);
+                    zooKeeperConnection.observers
+                        .forEach(ZooKeeperConnectionObserver::disconnected);
                     break;
                 case Expired:
                     zooKeeperConnection.reset();
@@ -111,8 +113,8 @@ public class ZooKeeperConnection {
                 case ConnectedReadOnly:
                 case SaslAuthenticated:
                     break;
-				default:
-					break;
+                default:
+                    break;
             }
         }
     }

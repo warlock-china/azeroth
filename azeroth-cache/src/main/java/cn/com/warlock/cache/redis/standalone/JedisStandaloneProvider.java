@@ -16,76 +16,77 @@ import redis.clients.jedis.exceptions.JedisException;
 /**
  * 标准（单服务器）redis服务提供者
  */
-public class JedisStandaloneProvider implements JedisProvider<Jedis,BinaryJedis>{
-	
-	protected static final Logger logger = LoggerFactory.getLogger(JedisStandaloneProvider.class);
+public class JedisStandaloneProvider implements JedisProvider<Jedis, BinaryJedis> {
 
-	
-	public static final String MODE = "standalone";
+    protected static final Logger logger  = LoggerFactory.getLogger(JedisStandaloneProvider.class);
 
-	private ThreadLocal<Jedis> context = new ThreadLocal<>();
-	
-	private JedisPool jedisPool;
-	
-	private String groupName;
-	
+    public static final String    MODE    = "standalone";
 
-	public JedisStandaloneProvider(String groupName,JedisPoolConfig jedisPoolConfig, String[] servers, int timeout, String password, int database, String clientName) {
-		super();
-		this.groupName = groupName;
-		String[] addrs = servers[0].split(":");
-		jedisPool = new JedisPool(jedisPoolConfig, addrs[0], Integer.parseInt(addrs[1].trim()), timeout, password, database, clientName);
-	}
+    private ThreadLocal<Jedis>    context = new ThreadLocal<>();
 
-	public Jedis get() throws JedisException {
+    private JedisPool             jedisPool;
+
+    private String                groupName;
+
+    public JedisStandaloneProvider(String groupName, JedisPoolConfig jedisPoolConfig,
+                                   String[] servers, int timeout, String password, int database,
+                                   String clientName) {
+        super();
+        this.groupName = groupName;
+        String[] addrs = servers[0].split(":");
+        jedisPool = new JedisPool(jedisPoolConfig, addrs[0], Integer.parseInt(addrs[1].trim()),
+            timeout, password, database, clientName);
+    }
+
+    public Jedis get() throws JedisException {
         Jedis jedis = context.get();
-        if(jedis != null)return jedis;
+        if (jedis != null)
+            return jedis;
         try {
             jedis = jedisPool.getResource();
         } catch (JedisException e) {
-            if(jedis!=null){
-            	jedis.close();
+            if (jedis != null) {
+                jedis.close();
             }
             throw e;
         }
         context.set(jedis);
-        if(logger.isTraceEnabled()){
-        	logger.trace(">>get a redis conn[{}],Host:{}",jedis.toString(),jedis.getClient().getHost());
+        if (logger.isTraceEnabled()) {
+            logger.trace(">>get a redis conn[{}],Host:{}", jedis.toString(),
+                jedis.getClient().getHost());
         }
         return jedis;
     }
- 
-	@Override
-	public BinaryJedis getBinary() {	
-		return get();
-	}
-	
-	public void release() {
-		Jedis jedis = context.get();
+
+    @Override
+    public BinaryJedis getBinary() {
+        return get();
+    }
+
+    public void release() {
+        Jedis jedis = context.get();
         if (jedis != null) {
-        	context.remove();
-        	jedis.close();
-        	if(logger.isTraceEnabled()){
-            	logger.trace("<<release a redis conn[{}]",jedis.toString());
+            context.remove();
+            jedis.close();
+            if (logger.isTraceEnabled()) {
+                logger.trace("<<release a redis conn[{}]", jedis.toString());
             }
         }
     }
 
-	
-	@Override
-	public void destroy() throws Exception{
-		jedisPool.destroy();
-	}
+    @Override
+    public void destroy() throws Exception {
+        jedisPool.destroy();
+    }
 
+    @Override
+    public String mode() {
+        return MODE;
+    }
 
-	@Override
-	public String mode() {
-		return MODE;
-	}
-
-	@Override
-	public String groupName() {
-		return groupName;
-	}
+    @Override
+    public String groupName() {
+        return groupName;
+    }
 
 }

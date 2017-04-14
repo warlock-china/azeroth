@@ -19,12 +19,8 @@ public class IDBuilderTest {
 
     @Test
     public void buildMostlyOnes() {
-        final byte[] result = IDBuilder.build(new Blueprint(
-                Blueprint.MAX_TIMESTAMP,
-                Blueprint.MAX_SEQUENCE_COUNTER,
-                Blueprint.MAX_GENERATOR_ID,
-                Blueprint.MAX_CLUSTER_ID
-        ));
+        final byte[] result = IDBuilder.build(new Blueprint(Blueprint.MAX_TIMESTAMP,
+            Blueprint.MAX_SEQUENCE_COUNTER, Blueprint.MAX_GENERATOR_ID, Blueprint.MAX_CLUSTER_ID));
         final String expected = "ffffffffffff0fff";
 
         assertThat(Hex.encodeHexString(result), CoreMatchers.is(expected));
@@ -48,7 +44,7 @@ public class IDBuilderTest {
     @Test
     public void buildSequenceCounterOnly() {
         final byte[] result = IDBuilder.build(new Blueprint(0, 0x22, 0, 0));
-        final byte[] sixthByte = new byte[]{result[5]};
+        final byte[] sixthByte = new byte[] { result[5] };
         final String expected = "22";
         assertThat(Hex.encodeHexString(sixthByte), CoreMatchers.is(expected));
     }
@@ -56,7 +52,7 @@ public class IDBuilderTest {
     @Test
     public void buildGeneratorIdOnly() {
         final byte[] result = IDBuilder.build(new Blueprint(0, 0, 0x27, 0));
-        final byte[] lastTwoBytes = new byte[]{result[6], result[7]};
+        final byte[] lastTwoBytes = new byte[] { result[6], result[7] };
         final String expected = "0270";
         assertThat(Hex.encodeHexString(lastTwoBytes), CoreMatchers.is(expected));
     }
@@ -64,7 +60,7 @@ public class IDBuilderTest {
     @Test
     public void buildClusterIdOnly() {
         final byte[] result = IDBuilder.build(new Blueprint(0, 0, 0, 5));
-        final byte[] lastTwoBytes = new byte[]{result[6], result[7]};
+        final byte[] lastTwoBytes = new byte[] { result[6], result[7] };
         final String expected = "0005";
         assertThat(Hex.encodeHexString(lastTwoBytes), CoreMatchers.is(expected));
     }
@@ -99,12 +95,8 @@ public class IDBuilderTest {
         final byte[] resultZerosAgain = IDBuilder.build(blueprintZeros);
         assertThat(resultZeros, CoreMatchers.is(resultZerosAgain));
 
-        final byte[] resultMostlyOnes = IDBuilder.build(new Blueprint(
-                Blueprint.MAX_TIMESTAMP,
-                Blueprint.MAX_SEQUENCE_COUNTER,
-                Blueprint.MAX_GENERATOR_ID,
-                Blueprint.MAX_CLUSTER_ID
-        ));
+        final byte[] resultMostlyOnes = IDBuilder.build(new Blueprint(Blueprint.MAX_TIMESTAMP,
+            Blueprint.MAX_SEQUENCE_COUNTER, Blueprint.MAX_GENERATOR_ID, Blueprint.MAX_CLUSTER_ID));
         final Blueprint blueprintMostlyOnes = IDBuilder.parse(resultMostlyOnes);
         final byte[] resultMostlyOnesAgain = IDBuilder.build(blueprintMostlyOnes);
         assertThat(resultMostlyOnes, CoreMatchers.is(resultMostlyOnesAgain));

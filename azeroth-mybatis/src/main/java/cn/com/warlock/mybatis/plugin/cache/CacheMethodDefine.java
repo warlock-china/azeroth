@@ -5,13 +5,13 @@ package cn.com.warlock.mybatis.plugin.cache;
  */
 public interface CacheMethodDefine {
 
-	String selectName();
-	
-	String insertName();
-	
-	String updateName();
-	
-	String deleteName();
-	
-	String selectAllName();
+    String selectName();
+
+    String insertName();
+
+    String updateName();
+
+    String deleteName();
+
+    String selectAllName();
 }

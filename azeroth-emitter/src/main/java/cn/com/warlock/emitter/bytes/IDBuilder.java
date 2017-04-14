@@ -65,7 +65,6 @@ public class IDBuilder {
         return parseTimestampNoChecks(id);
     }
 
-
     private static int parseSequenceIdNoChecks(byte[] id) {
         return id[5] & 0x3F;
     }

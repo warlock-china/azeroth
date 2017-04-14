@@ -25,9 +25,9 @@ import static io.netty.util.CharsetUtil.UTF_8;
  */
 public class FileMetadataSetEncoder implements Requestor.Encoder {
 
-    private final FileId fileId;
+    private final FileId       fileId;
     private final FileMetadata metadata;
-    private final byte flag;
+    private final byte         flag;
 
     /**
      * @param fileId

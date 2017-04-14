@@ -5,68 +5,67 @@ import java.util.List;
 
 public class TitleCellBean {
 
-	private String title;
-	
-	private int rowIndex;
-	
-	private int columnIndex;
-	
-	private TitleCellBean parent;
-	
-	private List<TitleCellBean> children;
-	
+    private String              title;
 
-	public TitleCellBean(String title, int rowIndex, int columnIndex) {
-		this.title = title;
-		this.rowIndex = rowIndex;
-		this.columnIndex = columnIndex;
-	}
-	
-	public TitleCellBean(String title) {
-		this.title = title;
-	}
+    private int                 rowIndex;
 
-	public String getTitle() {
-		return title;
-	}
+    private int                 columnIndex;
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    private TitleCellBean       parent;
 
-	public int getRowIndex() {
-		return rowIndex;
-	}
+    private List<TitleCellBean> children;
 
-	public void setRowIndex(int rowIndex) {
-		this.rowIndex = rowIndex;
-	}
+    public TitleCellBean(String title, int rowIndex, int columnIndex) {
+        this.title = title;
+        this.rowIndex = rowIndex;
+        this.columnIndex = columnIndex;
+    }
 
-	public int getColumnIndex() {
-		return columnIndex;
-	}
+    public TitleCellBean(String title) {
+        this.title = title;
+    }
 
-	public void setColumnIndex(int columnIndex) {
-		this.columnIndex = columnIndex;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public TitleCellBean getParent() {
-		return parent;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public List<TitleCellBean> getChildren() {
-		return children == null ? (children = new ArrayList<TitleCellBean>()) : children;
-	}
+    public int getRowIndex() {
+        return rowIndex;
+    }
 
-	public void addChildren(TitleCellBean child) {
-		getChildren().add(child);
-		child.parent = this;
-	}
+    public void setRowIndex(int rowIndex) {
+        this.rowIndex = rowIndex;
+    }
 
-	@Override
-	public String toString() {
-		return "TitleCellBean [title=" + title + ", rowIndex=" + rowIndex + ", columnIndex=" + columnIndex + "]";
-	}
-	
-	
+    public int getColumnIndex() {
+        return columnIndex;
+    }
+
+    public void setColumnIndex(int columnIndex) {
+        this.columnIndex = columnIndex;
+    }
+
+    public TitleCellBean getParent() {
+        return parent;
+    }
+
+    public List<TitleCellBean> getChildren() {
+        return children == null ? (children = new ArrayList<TitleCellBean>()) : children;
+    }
+
+    public void addChildren(TitleCellBean child) {
+        getChildren().add(child);
+        child.parent = this;
+    }
+
+    @Override
+    public String toString() {
+        return "TitleCellBean [title=" + title + ", rowIndex=" + rowIndex + ", columnIndex="
+               + columnIndex + "]";
+    }
+
 }

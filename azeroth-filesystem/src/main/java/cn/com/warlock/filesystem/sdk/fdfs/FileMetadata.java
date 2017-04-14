@@ -11,11 +11,10 @@ import java.util.Map;
 import static cn.com.warlock.filesystem.sdk.fdfs.FastdfsConstants.FDFS_FIELD_SEPERATOR;
 import static cn.com.warlock.filesystem.sdk.fdfs.FastdfsConstants.FDFS_RECORD_SEPERATOR;
 
-
 public class FileMetadata {
 
-    public static byte OVERWRITE_FLAG = 'O';
-    public static byte MERGE_FLAG = 'M';
+    public static byte                OVERWRITE_FLAG = 'O';
+    public static byte                MERGE_FLAG     = 'M';
 
     private final Map<String, String> values;
 
@@ -42,9 +41,7 @@ public class FileMetadata {
 
     @Override
     public String toString() {
-        return "FileMetadata{" +
-                "values=" + values +
-                '}';
+        return "FileMetadata{" + "values=" + values + '}';
     }
 
     /**

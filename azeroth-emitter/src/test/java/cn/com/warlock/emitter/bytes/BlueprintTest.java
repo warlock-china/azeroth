@@ -12,8 +12,7 @@ import static org.junit.Assert.assertThat;
 public class BlueprintTest {
     @Test
     public void toStringTest() {
-        Blueprint blueprint =
-                new Blueprint(System.currentTimeMillis(), 0, 0, 0);
+        Blueprint blueprint = new Blueprint(System.currentTimeMillis(), 0, 0, 0);
         assertThat(blueprint.toString(), is(notNullValue()));
         assertThat(blueprint.toString().length(), is(not(0)));
     }

@@ -17,9 +17,9 @@ import cn.com.warlock.mybatis.core.BaseEntity;
 @Inherited
 @Documented
 public @interface CacheEvictCascade {
-	/**
-	 * 级联更新其他的实体组
-	 * @return
-	 */
-	Class<? extends BaseEntity>[] cascadeEntities() default {};
+    /**
+     * 级联更新其他的实体组
+     * @return
+     */
+    Class<? extends BaseEntity>[] cascadeEntities() default {};
 }

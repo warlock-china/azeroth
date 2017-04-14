@@ -6,9 +6,10 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.kafka.common.serialization.Deserializer;
 
 public class JdkMessageDeserializer implements Deserializer<Object> {
-    
+
     @Override
-    public void configure(Map<String, ?> configs, boolean isKey) {}
+    public void configure(Map<String, ?> configs, boolean isKey) {
+    }
 
     @Override
     public Object deserialize(String topic, byte[] data) {

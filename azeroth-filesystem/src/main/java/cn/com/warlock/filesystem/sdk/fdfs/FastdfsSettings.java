@@ -3,7 +3,6 @@
  */
 package cn.com.warlock.filesystem.sdk.fdfs;
 
-
 /**
  * 连接设置
  *
@@ -15,13 +14,10 @@ final class FastdfsSettings {
     private long readTimeout;
     private long idleTimeout;
 
-    private int maxThreads;
-    private int maxConnPerHost;
+    private int  maxThreads;
+    private int  maxConnPerHost;
 
-    FastdfsSettings(long connectTimeout,
-                    long readTimeout,
-                    long idleTimeout,
-                    int maxThreads,
+    FastdfsSettings(long connectTimeout, long readTimeout, long idleTimeout, int maxThreads,
                     int maxConnPerHost) {
 
         this.connectTimeout = connectTimeout;

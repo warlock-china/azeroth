@@ -5,72 +5,72 @@ import java.util.List;
 
 public class TopicInfo {
 
-	private String topicName;
+    private String           topicName;
 
-	List<TopicPartitionInfo> partitions;
-	
-	private boolean overLatThreshold;
-	
-	private long totalLogSize;
-	
-	private long totalOffset;
-	
-	public TopicInfo() {}
+    List<TopicPartitionInfo> partitions;
 
-	public TopicInfo(String topicName) {
-		super();
-		this.topicName = topicName;
-	}
+    private boolean          overLatThreshold;
 
+    private long             totalLogSize;
 
+    private long             totalOffset;
 
-	public String getTopicName() {
-		return topicName;
-	}
+    public TopicInfo() {
+    }
 
-	public void setTopicName(String topicName) {
-		this.topicName = topicName;
-	}
+    public TopicInfo(String topicName) {
+        super();
+        this.topicName = topicName;
+    }
 
-	public int getPartitionNums() {
-		return partitions.size();
-	}
+    public String getTopicName() {
+        return topicName;
+    }
 
-	public List<TopicPartitionInfo> getPartitions() {
-		return partitions == null ? (partitions = new ArrayList<>()) : partitions;
-	}
+    public void setTopicName(String topicName) {
+        this.topicName = topicName;
+    }
 
-	public void setPartitions(List<TopicPartitionInfo> partitions) {
-		this.partitions = partitions;
-	}
+    public int getPartitionNums() {
+        return partitions.size();
+    }
 
-	public boolean isOverLatThreshold() {
-		return overLatThreshold;
-	}
+    public List<TopicPartitionInfo> getPartitions() {
+        return partitions == null ? (partitions = new ArrayList<>()) : partitions;
+    }
 
-	public void setOverLatThreshold(boolean overLatThreshold) {
-		this.overLatThreshold = overLatThreshold;
-	}
-	
-	
-	public long getTotalLogSize() {
-		if(totalLogSize > 0 || partitions == null)return totalLogSize;
-		for (TopicPartitionInfo tp : partitions) {
-			totalLogSize+=tp.getLogSize();
-		}
-		return totalLogSize;
-	}
+    public void setPartitions(List<TopicPartitionInfo> partitions) {
+        this.partitions = partitions;
+    }
 
-	public long getTotalOffset() {
-		if(totalOffset > 0 || partitions == null)return totalOffset;
-		for (TopicPartitionInfo tp : partitions) {
-			totalOffset+=tp.getOffset();
-		}
-		return totalOffset;
-	}
-	
-	public long getTotalLat(){
-		return getTotalLogSize() - getTotalOffset();
-	}
-	
+    public boolean isOverLatThreshold() {
+        return overLatThreshold;
+    }
+
+    public void setOverLatThreshold(boolean overLatThreshold) {
+        this.overLatThreshold = overLatThreshold;
+    }
+
+    public long getTotalLogSize() {
+        if (totalLogSize > 0 || partitions == null)
+            return totalLogSize;
+        for (TopicPartitionInfo tp : partitions) {
+            totalLogSize += tp.getLogSize();
+        }
+        return totalLogSize;
+    }
+
+    public long getTotalOffset() {
+        if (totalOffset > 0 || partitions == null)
+            return totalOffset;
+        for (TopicPartitionInfo tp : partitions) {
+            totalOffset += tp.getOffset();
+        }
+        return totalOffset;
+    }
+
+    public long getTotalLat() {
+        return getTotalLogSize() - getTotalOffset();
+    }
+
 }
