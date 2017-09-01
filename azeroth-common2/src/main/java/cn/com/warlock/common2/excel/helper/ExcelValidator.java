@@ -10,19 +10,19 @@ import org.apache.poi.openxml4j.opc.PackageAccess;
 
 public class ExcelValidator {
 
-    public static final String XLS_SIFFIX   = "xls";
-    public static final String XLSX_SIFFIX  = "xlsx";
+    public static final String XLS_SIFFIX  = "xls";
+    public static final String XLSX_SIFFIX = "xlsx";
 
-    public static final String FIELD_SPLIT  = ",";
-    public final static String QUOTE        = "\"";
+    public static final String FIELD_SPLIT = ":";
 
-    public final static String BLANK        = "";
+    public final static String BLANK = "";
 
-    private static Pattern     blankPattern = Pattern.compile("^[,|\"]+$");
+    public final static String SHEET_NAME_PREFIX = "{sheet}:";
+
+    private static Pattern blankPattern = Pattern.compile("^[" + FIELD_SPLIT + "|\"]+$");
 
     public static boolean isBlankCSVRow(String line) {
-        if (StringUtils.isBlank(line))
-            return true;
+        if (StringUtils.isBlank(line)) { return true; }
         return blankPattern.matcher(line).matches();
     }
 
@@ -36,10 +36,7 @@ public class ExcelValidator {
         } catch (Exception e) {
             return false;
         } finally {
-            try {
-                p.close();
-            } catch (IOException e) {
-            }
+            try {p.close();} catch (IOException e) {}
         }
     }
 }

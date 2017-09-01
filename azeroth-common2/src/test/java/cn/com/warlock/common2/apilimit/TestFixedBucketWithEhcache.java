@@ -14,7 +14,7 @@ public class TestFixedBucketWithEhcache extends FixedBucketTests {
 
     private CacheManager cacheManager;
 
-    private Ehcache      cache;
+    private Ehcache cache;
 
     @Before
     public void setup() {

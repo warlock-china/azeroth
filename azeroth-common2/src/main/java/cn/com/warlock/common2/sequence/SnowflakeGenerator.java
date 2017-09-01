@@ -7,32 +7,30 @@ public class SnowflakeGenerator implements IdGenerator {
 
     private long workerId;
     private long datacenterId;
-    private long sequence           = 0L;
+    private long sequence = 0L;
 
-    private long twepoch            = 1288834974657L;
+    private long twepoch = 1288834974657L;
 
-    private long workerIdBits       = 5L;
-    private long datacenterIdBits   = 5L;
-    private long maxWorkerId        = -1L ^ (-1L << workerIdBits);
-    private long maxDatacenterId    = -1L ^ (-1L << datacenterIdBits);
-    private long sequenceBits       = 12L;
+    private long workerIdBits     = 5L;
+    private long datacenterIdBits = 5L;
+    private long maxWorkerId      = -1L ^ (-1L << workerIdBits);
+    private long maxDatacenterId  = -1L ^ (-1L << datacenterIdBits);
+    private long sequenceBits     = 12L;
 
     private long workerIdShift      = sequenceBits;
     private long datacenterIdShift  = sequenceBits + workerIdBits;
     private long timestampLeftShift = sequenceBits + workerIdBits + datacenterIdBits;
     private long sequenceMask       = -1L ^ (-1L << sequenceBits);
 
-    private long lastTimestamp      = -1L;
+    private long lastTimestamp = -1L;
 
     public SnowflakeGenerator(long workerId, long datacenterId) {
         // sanity check for workerId
         if (workerId > maxWorkerId || workerId < 0) {
-            throw new IllegalArgumentException(
-                String.format("worker Id can't be greater than %d or less than 0", maxWorkerId));
+            throw new IllegalArgumentException(String.format("worker Id can't be greater than %d or less than 0", maxWorkerId));
         }
         if (datacenterId > maxDatacenterId || datacenterId < 0) {
-            throw new IllegalArgumentException(String
-                .format("datacenter Id can't be greater than %d or less than 0", maxDatacenterId));
+            throw new IllegalArgumentException(String.format("datacenter Id can't be greater than %d or less than 0", maxDatacenterId));
         }
         this.workerId = workerId;
         this.datacenterId = datacenterId;
@@ -43,8 +41,7 @@ public class SnowflakeGenerator implements IdGenerator {
 
         if (timestamp < lastTimestamp) {
             throw new RuntimeException(
-                String.format("Clock moved backwards.  Refusing to generate id for %d milliseconds",
-                    lastTimestamp - timestamp));
+                    String.format("Clock moved backwards.  Refusing to generate id for %d milliseconds", lastTimestamp - timestamp));
         }
 
         if (lastTimestamp == timestamp) {
@@ -58,8 +55,7 @@ public class SnowflakeGenerator implements IdGenerator {
 
         lastTimestamp = timestamp;
 
-        return ((timestamp - twepoch) << timestampLeftShift) | (datacenterId << datacenterIdShift)
-               | (workerId << workerIdShift) | sequence;
+        return ((timestamp - twepoch) << timestampLeftShift) | (datacenterId << datacenterIdShift) | (workerId << workerIdShift) | sequence;
     }
 
     protected long tilNextMillis(long lastTimestamp) {

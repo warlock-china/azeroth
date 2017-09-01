@@ -3,25 +3,27 @@ package cn.com.warlock.common2.excel.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TitleCellBean {
+public class TitleMeta {
 
-    private String              title;
+    private String title;
 
-    private int                 rowIndex;
+    private int rowIndex = 1;
 
-    private int                 columnIndex;
+    private int columnIndex;
 
-    private TitleCellBean       parent;
+    private Class<?> valueType;
 
-    private List<TitleCellBean> children;
+    private TitleMeta parent;
 
-    public TitleCellBean(String title, int rowIndex, int columnIndex) {
+    private List<TitleMeta> children;
+
+    public TitleMeta(String title, int rowIndex, int columnIndex) {
         this.title = title;
         this.rowIndex = rowIndex;
         this.columnIndex = columnIndex;
     }
 
-    public TitleCellBean(String title) {
+    public TitleMeta(String title) {
         this.title = title;
     }
 
@@ -49,23 +51,30 @@ public class TitleCellBean {
         this.columnIndex = columnIndex;
     }
 
-    public TitleCellBean getParent() {
+    public TitleMeta getParent() {
         return parent;
     }
 
-    public List<TitleCellBean> getChildren() {
-        return children == null ? (children = new ArrayList<TitleCellBean>()) : children;
+    public List<TitleMeta> getChildren() {
+        return children == null ? (children = new ArrayList<TitleMeta>()) : children;
     }
 
-    public void addChildren(TitleCellBean child) {
+    public Class<?> getValueType() {
+        return valueType;
+    }
+
+    public void setValueType(Class<?> valueType) {
+        this.valueType = valueType;
+    }
+
+    public void addChildren(TitleMeta child) {
         getChildren().add(child);
         child.parent = this;
     }
 
     @Override
     public String toString() {
-        return "TitleCellBean [title=" + title + ", rowIndex=" + rowIndex + ", columnIndex="
-               + columnIndex + "]";
+        return "TitleCellBean [title=" + title + ", rowIndex=" + rowIndex + ", columnIndex=" + columnIndex + "]";
     }
 
 }

@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="false" monitoring="autodetect" dynamicConfig="true">
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="false"
+         monitoring="autodetect" dynamicConfig="true">
 
-	<diskStore path="java.io.tmpdir" />
-	
-	<defaultCache maxElementsInMemory="10000" eternal="false" timeToIdleSeconds="1200" timeToLiveSeconds="120" overflowToDisk="false" maxElementsOnDisk="10000000" diskPersistent="false" diskExpiryThreadIntervalSeconds="120" memoryStoreEvictionPolicy="LRU" />
+    <diskStore path="java.io.tmpdir"/>
+
+    <defaultCache maxElementsInMemory="10000" eternal="false" timeToIdleSeconds="1200" timeToLiveSeconds="120" overflowToDisk="false"
+                  maxElementsOnDisk="10000000" diskPersistent="false" diskExpiryThreadIntervalSeconds="120"
+                  memoryStoreEvictionPolicy="LRU"/>
 
     <cache name="level1Cache"
            maxElementsInMemory="10000"
@@ -13,6 +16,6 @@
            overflowToDisk="true"
            diskPersistent="true"
            diskExpiryThreadIntervalSeconds="600"
-           memoryStoreEvictionPolicy="LRU" />
+           memoryStoreEvictionPolicy="LRU"/>
 
 </ehcache>
