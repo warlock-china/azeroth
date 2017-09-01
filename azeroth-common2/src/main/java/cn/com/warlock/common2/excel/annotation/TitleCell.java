@@ -15,11 +15,13 @@ public @interface TitleCell {
     String name();
 
     /**
-     * 在excel中列的顺序，从小到大排
+     * 列序列 
      *
      * @return 顺序
      */
-    int index() default 0;
+    int column();
+
+    int row() default 1;
 
     boolean notNull() default false;
 
@@ -30,10 +32,7 @@ public @interface TitleCell {
     /**
      * 嵌套父级列名称
      */
-    int parentIndex() default 0;
-
-    /**
-     * 嵌套父级列名称
-     */
     String parentName() default "";
+
+    Class<?> type() default String.class;
 }

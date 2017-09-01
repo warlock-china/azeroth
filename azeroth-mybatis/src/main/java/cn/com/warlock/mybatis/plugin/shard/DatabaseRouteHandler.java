@@ -16,36 +16,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.com.warlock.mybatis.core.InterceptorHandler;
-import cn.com.warlock.mybatis.core.InterceptorType;
 import cn.com.warlock.mybatis.datasource.DataSourceContextHolder;
 import cn.com.warlock.mybatis.kit.ReflectUtils;
 import cn.com.warlock.mybatis.parser.EntityInfo;
 import cn.com.warlock.mybatis.parser.MybatisMapperParser;
-import cn.com.warlock.mybatis.plugin.MybatisPluginContext;
+import cn.com.warlock.mybatis.plugin.MybatisInterceptor;
 
 /**
  * 分库自动路由处理
  */
 public class DatabaseRouteHandler implements InterceptorHandler {
 
-    protected static final Logger logger                      = LoggerFactory
-        .getLogger(DatabaseRouteHandler.class);
+    protected static final Logger logger = LoggerFactory
+            .getLogger(DatabaseRouteHandler.class);
 
-    private static final String   SPIT_POINT                  = ".";
-    private static final String   REGEX_BLANK                 = "\\n+\\s+";
+    public static final String NAME = "dbShard";
+
+    private static final String SPIT_POINT  = ".";
+    private static final String REGEX_BLANK = "\\n+\\s+";
 
     //分库策略
-    private ShardStrategy<?>      shardStrategy;
+    private ShardStrategy<?> shardStrategy;
 
-    private Pattern               shardFieldAfterWherePattern;
+    private Pattern shardFieldAfterWherePattern;
 
     //忽略分库列表<mapperNameSpace>
-    private List<String>          ignoreTablesMapperNameSpace = new ArrayList<>();
+    private List<String> ignoreTablesMapperNameSpace = new ArrayList<>();
 
-    private List<String>          ignoreMappedStatementIds    = new ArrayList<>();
+    private List<String> ignoreMappedStatementIds = new ArrayList<>();
 
     //xml定义sql分库字段对应的参数名<mappedStatementId,paramName>
-    private Map<String, String>   shardFieldRalateParamNames  = new HashMap<>();
+    private Map<String, String> shardFieldRalateParamNames = new HashMap<>();
 
     public void setShardStrategy(ShardStrategy<?> shardStrategy) {
         this.shardStrategy = shardStrategy;
@@ -77,7 +78,7 @@ public class DatabaseRouteHandler implements InterceptorHandler {
 
         //是否需要分库
         boolean requiredShard = isRequiredShard(boundSql.getSql(), ms.getSqlCommandType(),
-            namespace);
+                namespace);
 
         if (requiredShard) {
             //先检查是否已经设置
@@ -98,11 +99,6 @@ public class DatabaseRouteHandler implements InterceptorHandler {
 
     }
 
-    @Override
-    public InterceptorType getInterceptorType() {
-        return InterceptorType.before;
-    }
-
     /**
      * 判断该条sql是否需要分库
      * @param sql
@@ -111,7 +107,7 @@ public class DatabaseRouteHandler implements InterceptorHandler {
      */
     private boolean isRequiredShard(String sql, SqlCommandType cmdType, String namespace) {
         boolean isRequired = MybatisMapperParser.tableHasColumn(namespace,
-            shardStrategy.shardDbField());
+                shardStrategy.shardDbField());
         //select方法 检查查询条件
         if (!isRequired && SqlCommandType.SELECT.equals(cmdType)) {
             sql = sql.replaceAll(REGEX_BLANK, "").toLowerCase();
@@ -136,8 +132,8 @@ public class DatabaseRouteHandler implements InterceptorHandler {
             if (parameterObject instanceof Map) {
                 Map<String, Object> map = (Map<String, Object>) parameterObject;
                 String paramsName = shardFieldRalateParamNames.containsKey(mappedStatementId)
-                    ? shardFieldRalateParamNames.get(mappedStatementId)
-                    : shardStrategy.shardEntityField();
+                        ? shardFieldRalateParamNames.get(mappedStatementId)
+                        : shardStrategy.shardEntityField();
                 return map.get(paramsName);
             }
 
@@ -157,7 +153,7 @@ public class DatabaseRouteHandler implements InterceptorHandler {
     }
 
     @Override
-    public void start(MybatisPluginContext context) {
+    public void start(MybatisInterceptor context) {
 
         List<EntityInfo> entityInfos = MybatisMapperParser.getEntityInfos();
 
@@ -167,8 +163,8 @@ public class DatabaseRouteHandler implements InterceptorHandler {
         }
 
         shardFieldAfterWherePattern = Pattern
-            .compile("^.*[WHERE|where|and|AND|ON|on]\\s+.*"
-                     + shardStrategy.shardDbField().toLowerCase() + ".*$");
+                .compile("^.*[WHERE|where|and|AND|ON|on]\\s+.*"
+                        + shardStrategy.shardDbField().toLowerCase() + ".*$");
 
         //忽略分库表
         if (shardStrategy.ignoreTables() != null) {
@@ -178,8 +174,7 @@ public class DatabaseRouteHandler implements InterceptorHandler {
                 ignoreTablesTmp.add(table.toLowerCase());
             }
             for (EntityInfo entityInfo : entityInfos) {
-                if (!ignoreTablesTmp.contains(entityInfo.getTableName().toLowerCase()))
-                    continue;
+                if (!ignoreTablesTmp.contains(entityInfo.getTableName().toLowerCase())) { continue; }
                 ignoreTablesMapperNameSpace.add(entityInfo.getMapperClass().getName());
             }
         }
@@ -189,13 +184,13 @@ public class DatabaseRouteHandler implements InterceptorHandler {
             Map<String, String> mapperSqls = entityInfo.getMapperSqls();
             for (String id : mapperSqls.keySet()) {
                 String sql = mapperSqls.get(id).replaceAll("\\n+\\s+", "")
-                    .replaceAll("(<\\!\\[CDATA\\[)|(\\]\\]>)", "");
+                        .replaceAll("(<\\!\\[CDATA\\[)|(\\]\\]>)", "");
                 if (shardFieldAfterWherePattern.matcher(sql).matches()) {
                     //?TODO 解析非where
                     String[] split = sql.split("[WHERE|where|and|AND|ON|on]\\s+.*"
-                                               + shardStrategy.shardDbField().toLowerCase());
+                            + shardStrategy.shardDbField().toLowerCase());
                     String paramName = (split[split.length - 1]).trim()
-                        .replaceAll("=|#|\\s+|\\{|\\}|<|>", "").split(REGEX_BLANK)[0];
+                            .replaceAll("=|#|\\s+|\\{|\\}|<|>", "").split(REGEX_BLANK)[0];
                     shardFieldRalateParamNames.put(id, paramName.trim());
                 } else {
 
@@ -218,6 +213,11 @@ public class DatabaseRouteHandler implements InterceptorHandler {
     @Override
     public void close() {
 
+    }
+
+    @Override
+    public int interceptorOrder() {
+        return 2;
     }
 
 }

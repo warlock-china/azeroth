@@ -39,39 +39,39 @@ import cn.com.warlock.common2.excel.helper.ExcelValidator;
  * @author Nick Burch
  */
 public class XLS2CSV implements HSSFListener {
-    private int                           minColumns;
-    private POIFSFileSystem               fs;
+    private int             minColumns;
+    private POIFSFileSystem fs;
 
-    private int                           lastRowNumber;
-    private int                           lastColumnNumber;
+    private int lastRowNumber;
+    private int lastColumnNumber;
 
     /** Should we output the formula, or the value it has? */
-    private boolean                       outputFormulaValues = true;
+    private boolean outputFormulaValues = true;
 
     /** For parsing Formulas */
     private SheetRecordCollectingListener workbookBuildingListener;
     private HSSFWorkbook                  stubWorkbook;
 
     // Records we pick up as we process
-    private SSTRecord                     sstRecord;
-    private FormatTrackingHSSFListener    formatListener;
+    private SSTRecord                  sstRecord;
+    private FormatTrackingHSSFListener formatListener;
 
     /** So we known which sheet we're on */
-    private int                           sheetIndex          = -1;
-    private BoundSheetRecord[]            orderedBSRs;
-    private List<BoundSheetRecord>        boundSheetRecords   = new ArrayList<BoundSheetRecord>();
+    private int sheetIndex = -1;
+    private BoundSheetRecord[] orderedBSRs;
+    private List<BoundSheetRecord> boundSheetRecords = new ArrayList<BoundSheetRecord>();
 
     // For handling formulas with string results
-    private int                           nextRow;
-    private int                           nextColumn;
-    private boolean                       outputNextStringRecord;
+    private int     nextRow;
+    private int     nextColumn;
+    private boolean outputNextStringRecord;
 
-    private List<String>                  results             = new ArrayList<>();
+    private List<String> results = new ArrayList<>();
 
-    private StringBuilder                 _resultRowTmp       = new StringBuilder();
+    private StringBuilder _resultRowTmp = new StringBuilder();
 
     //出现空白的行数
-    private int                           blankRowNum         = 0;
+    private int blankRowNum = 0;
 
     /**
      * Creates a new XLS -> CSV converter
@@ -92,7 +92,9 @@ public class XLS2CSV implements HSSFListener {
      * @throws FileNotFoundException
      */
     public XLS2CSV(String filename, int minColumns) throws IOException, FileNotFoundException {
-        this(new POIFSFileSystem(new FileInputStream(filename)), minColumns);
+        this(
+                new POIFSFileSystem(new FileInputStream(filename)), minColumns
+        );
     }
 
     /**
@@ -124,8 +126,7 @@ public class XLS2CSV implements HSSFListener {
     public void processRecord(Record record) {
 
         //超过10行空白就不处理了
-        if (blankRowNum == 10)
-            return;
+        if (blankRowNum == 10) { return; }
 
         int thisRow = -1;
         int thisColumn = -1;
@@ -153,6 +154,8 @@ public class XLS2CSV implements HSSFListener {
                     }
                     //sheetName
                     //System.out.println(orderedBSRs[sheetIndex].getSheetname() + " [" + (sheetIndex+1) + "]:" );
+                    String sheetname = orderedBSRs[sheetIndex].getSheetname();
+                    results.add(ExcelValidator.SHEET_NAME_PREFIX + sheetname);
                 }
                 break;
 
@@ -192,8 +195,7 @@ public class XLS2CSV implements HSSFListener {
                         thisStr = formatListener.formatNumberDateCell(frec);
                     }
                 } else {
-                    thisStr = ExcelValidator.QUOTE + HSSFFormulaParser.toFormulaString(stubWorkbook,
-                        frec.getParsedExpression()) + ExcelValidator.QUOTE;
+                    thisStr = HSSFFormulaParser.toFormulaString(stubWorkbook, frec.getParsedExpression());
                 }
                 break;
             case StringRecord.sid:
@@ -212,7 +214,7 @@ public class XLS2CSV implements HSSFListener {
 
                 thisRow = lrec.getRow();
                 thisColumn = lrec.getColumn();
-                thisStr = ExcelValidator.QUOTE + lrec.getValue() + ExcelValidator.QUOTE;
+                thisStr = lrec.getValue();
                 break;
             case LabelSSTRecord.sid:
                 LabelSSTRecord lsrec = (LabelSSTRecord) record;
@@ -220,12 +222,9 @@ public class XLS2CSV implements HSSFListener {
                 thisRow = lsrec.getRow();
                 thisColumn = lsrec.getColumn();
                 if (sstRecord == null) {
-                    thisStr = ExcelValidator.QUOTE + "(No SST Record, can't identify string)"
-                              + ExcelValidator.QUOTE;
+                    thisStr = "(No SST Record, can't identify string)";
                 } else {
-                    thisStr = ExcelValidator.QUOTE
-                              + sstRecord.getString(lsrec.getSSTIndex()).toString()
-                              + ExcelValidator.QUOTE;
+                    thisStr = sstRecord.getString(lsrec.getSSTIndex()).toString();
                 }
                 break;
             case NoteRecord.sid:
@@ -234,7 +233,7 @@ public class XLS2CSV implements HSSFListener {
                 thisRow = nrec.getRow();
                 thisColumn = nrec.getColumn();
                 // TODO: Find object to match nrec.getShapeId()
-                thisStr = ExcelValidator.QUOTE + "(TODO)" + ExcelValidator.QUOTE;
+                thisStr = "(TODO)";
                 break;
             case NumberRecord.sid:
                 NumberRecord numrec = (NumberRecord) record;
@@ -250,7 +249,7 @@ public class XLS2CSV implements HSSFListener {
 
                 thisRow = rkrec.getRow();
                 thisColumn = rkrec.getColumn();
-                thisStr = ExcelValidator.QUOTE + "(TODO)" + ExcelValidator.QUOTE;
+                thisStr = "(TODO)";
                 break;
             default:
                 break;
@@ -277,19 +276,15 @@ public class XLS2CSV implements HSSFListener {
         }
 
         // Update column and row count
-        if (thisRow > -1)
-            lastRowNumber = thisRow;
-        if (thisColumn > -1)
-            lastColumnNumber = thisColumn;
+        if (thisRow > -1) { lastRowNumber = thisRow; }
+        if (thisColumn > -1) { lastColumnNumber = thisColumn; }
 
         // Handle end of row
         if (record instanceof LastCellOfRowDummyRecord) {
             // Print out any missing commas if needed
             if (minColumns > 0) {
                 // Columns are 0 based
-                if (lastColumnNumber == -1) {
-                    lastColumnNumber = 0;
-                }
+                if (lastColumnNumber == -1) { lastColumnNumber = 0; }
                 for (int i = lastColumnNumber; i < (minColumns); i++) {
                     _resultRowTmp.append(',');
                 }
@@ -306,18 +301,6 @@ public class XLS2CSV implements HSSFListener {
             }
             _resultRowTmp.setLength(0);
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        long start = System.currentTimeMillis();
-
-        XLS2CSV xls2csv = new XLS2CSV("/Users/ayg/Desktop/1.xls", -1);
-        List<String> process = xls2csv.process();
-
-        System.out.println("time:" + (System.currentTimeMillis() - start));
-        System.out.println(process.size());
-
     }
 
 }

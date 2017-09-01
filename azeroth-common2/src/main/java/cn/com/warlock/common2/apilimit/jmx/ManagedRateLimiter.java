@@ -10,13 +10,13 @@ import cn.com.warlock.common2.apilimit.RateLimiter;
 import cn.com.warlock.common2.apilimit.Token;
 
 public class ManagedRateLimiter extends NotificationBroadcasterSupport
-                                implements ManagedRateLimiterMBean {
+        implements ManagedRateLimiterMBean {
 
     private static final String JMX_MONITOR_RATE_LIMIT_SERVICE_TYPE = "jmx.monitor.rate-limit.service";
 
-    private final RateLimiter   delegate;
+    private final RateLimiter delegate;
 
-    private long                sequenceNumber;
+    private long sequenceNumber;
 
     public ManagedRateLimiter(RateLimiter delegate) {
         if (delegate == null) {
@@ -27,11 +27,11 @@ public class ManagedRateLimiter extends NotificationBroadcasterSupport
 
     @Override
     public MBeanNotificationInfo[] getNotificationInfo() {
-        String[] types = new String[] { JMX_MONITOR_RATE_LIMIT_SERVICE_TYPE,
-                                        MonitorNotification.THRESHOLD_VALUE_EXCEEDED };
+        String[] types = new String[] {JMX_MONITOR_RATE_LIMIT_SERVICE_TYPE,
+                MonitorNotification.THRESHOLD_VALUE_EXCEEDED};
         MBeanNotificationInfo info = new MBeanNotificationInfo(types, Notification.class.getName(),
-            "rate-limited request processed");
-        return new MBeanNotificationInfo[] { info };
+                "rate-limited request processed");
+        return new MBeanNotificationInfo[] {info};
     }
 
     public Token getToken(Key key) {
@@ -39,10 +39,10 @@ public class ManagedRateLimiter extends NotificationBroadcasterSupport
 
         if (token.isUsable()) {
             sendNotification(new Notification(JMX_MONITOR_RATE_LIMIT_SERVICE_TYPE, this,
-                getSequenceNumber(), "allowed request " + key));
+                    getSequenceNumber(), "allowed request " + key));
         } else {
             sendNotification(new Notification(MonitorNotification.THRESHOLD_VALUE_EXCEEDED, this,
-                getSequenceNumber(), "denied request " + key));
+                    getSequenceNumber(), "denied request " + key));
         }
 
         return token;

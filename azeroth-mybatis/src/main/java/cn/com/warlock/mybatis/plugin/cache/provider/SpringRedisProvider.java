@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.com.warlock.mybatis.plugin.cache.provider;
 
@@ -26,15 +26,12 @@ public class SpringRedisProvider extends AbstractCacheProvider implements Initia
 
     private RedisTemplate<String, Object> redisTemplate;
     private StringRedisTemplate           stringRedisTemplate;
-    @SuppressWarnings("rawtypes") //
+    @SuppressWarnings("rawtypes")//
     private RedisSerializer               keySerializer;
-    @SuppressWarnings("rawtypes") //
-    private RedisSerializer               valueSerializer;
 
     public void setRedisTemplate(RedisTemplate<String, Object> redisTemplate) {
         this.redisTemplate = redisTemplate;
         this.keySerializer = redisTemplate.getKeySerializer();
-        this.valueSerializer = redisTemplate.getValueSerializer();
     }
 
     public void setStringRedisTemplate(StringRedisTemplate stringRedisTemplate) {
@@ -42,8 +39,7 @@ public class SpringRedisProvider extends AbstractCacheProvider implements Initia
     }
 
     @Override
-    public void close() throws IOException {
-    }
+    public void close() throws IOException {}
 
     @Override
     public <T> T get(String key) {
@@ -56,14 +52,16 @@ public class SpringRedisProvider extends AbstractCacheProvider implements Initia
     }
 
     @Override
-    public boolean set(String key, Object value, long expired) {
-        if (value == null)
-            return false;
-        if (value instanceof String) {
-            stringRedisTemplate.opsForValue().set(key, value.toString(), expired, TimeUnit.SECONDS);
-        } else {
-            redisTemplate.opsForValue().set(key, value, expired, TimeUnit.SECONDS);
-        }
+    public boolean set(String key, Object value, long expireSeconds) {
+        if (value == null) { return false; }
+        redisTemplate.opsForValue().set(key, value, expireSeconds, TimeUnit.SECONDS);
+        return true;
+    }
+
+    @Override
+    public boolean setStr(String key, Object value, long expireSeconds) {
+        if (value == null) { return false; }
+        stringRedisTemplate.opsForValue().set(key, value.toString(), expireSeconds, TimeUnit.SECONDS);
         return true;
     }
 
@@ -91,8 +89,7 @@ public class SpringRedisProvider extends AbstractCacheProvider implements Initia
         String cacheGroupKey = groupName + CacheHandler.GROUPKEY_SUFFIX;
 
         Set<String> keys = stringRedisTemplate.opsForZSet().range(cacheGroupKey, 0, -1);
-        if (keys.isEmpty())
-            return;
+        if (keys.isEmpty()) { return; }
         final Object[] keysToArray = keys.toArray(new String[0]);
 
         redisTemplate.execute(new RedisCallback<Void>() {
@@ -105,8 +102,7 @@ public class SpringRedisProvider extends AbstractCacheProvider implements Initia
                     keyArray[i] = keySerializer.serialize(keysToArray[i]);
                 }
                 connection.del(keyArray);
-                logger.debug("cascade remove cache keyPattern:{},size:{}", cacheGroupKey,
-                    keysToArray.length);
+                logger.debug("cascade remove cache keyPattern:{},size:{}", cacheGroupKey, keysToArray.length);
 
                 if (containPkCache) {
                     //删除ID的缓存
@@ -114,8 +110,7 @@ public class SpringRedisProvider extends AbstractCacheProvider implements Initia
                     Set<byte[]> idKeys = connection.keys(idKeyPattern.getBytes());
                     if (idKeys.size() > 0) {
                         connection.del(idKeys.toArray(new byte[0][0]));
-                        logger.debug("cascade remove cache keyPattern:{},size:{}", idKeyPattern,
-                            idKeys.size());
+                        logger.debug("cascade remove cache keyPattern:{},size:{}", idKeyPattern, idKeys.size());
                     }
                 }
                 return null;
@@ -129,8 +124,7 @@ public class SpringRedisProvider extends AbstractCacheProvider implements Initia
     public void clearExpiredGroupKeys(String cacheGroup) {
         long maxScore = System.currentTimeMillis() / 1000 - this.baseScoreInRegionKeysSet;
         stringRedisTemplate.opsForZSet().removeRangeByScore(cacheGroup, 0, maxScore);
-        logger.debug("ClearExpiredRegionKeysTimer runing:cacheName:{} , score range:0~{}",
-            cacheGroup, maxScore);
+        logger.debug("ClearExpiredRegionKeysTimer runing:cacheName:{} , score range:0~{}", cacheGroup, maxScore);
     }
 
     @Override

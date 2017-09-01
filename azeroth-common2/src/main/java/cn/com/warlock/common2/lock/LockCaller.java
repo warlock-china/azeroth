@@ -1,6 +1,3 @@
-/**
- * 
- */
 package cn.com.warlock.common2.lock;
 
 public interface LockCaller<T> {

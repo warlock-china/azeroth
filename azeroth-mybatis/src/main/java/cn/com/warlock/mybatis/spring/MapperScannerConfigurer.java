@@ -27,7 +27,7 @@ public class MapperScannerConfigurer extends org.mybatis.spring.mapper.MapperSca
     public void afterPropertiesSet() throws Exception {
         super.afterPropertiesSet();
         SqlSessionFactory sqlSessionFactory = context.getBean(sqlSessionFactoryName,
-            SqlSessionFactory.class);
+                SqlSessionFactory.class);
         Configuration configuration = sqlSessionFactory.getConfiguration();
         //
         new GeneralSqlGenerator(configuration).generate();

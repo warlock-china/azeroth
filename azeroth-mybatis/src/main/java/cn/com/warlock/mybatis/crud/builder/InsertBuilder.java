@@ -24,8 +24,7 @@ public class InsertBuilder {
      * @param configuration
      * @param entity
      */
-    public static void build(Configuration configuration, LanguageDriver languageDriver,
-                             EntityInfo entity) {
+    public static void build(Configuration configuration, LanguageDriver languageDriver, EntityInfo entity) {
 
         String[] names = GeneralSqlGenerator.methodDefines.insertName().split(",");
         for (String name : names) {
@@ -36,17 +35,14 @@ public class InsertBuilder {
             // 生成sql
             String sql = buildInsertSql(entityMapper, name.endsWith("Selective"));
 
-            SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql,
-                entity.getEntityClass());
+            SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql, entity.getEntityClass());
 
-            MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration,
-                msId, sqlSource, SqlCommandType.INSERT);
+            MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, msId, sqlSource, SqlCommandType.INSERT);
 
-            KeyGenerator keyGenerator = entityMapper.autoId() ? new Jdbc3KeyGenerator()
-                : new NoKeyGenerator();
+            KeyGenerator keyGenerator = entityMapper.autoId() ? new Jdbc3KeyGenerator() : new NoKeyGenerator();
             statementBuilder.keyGenerator(keyGenerator)//
-                .keyProperty(entityMapper.getIdColumn().getProperty())//
-                .keyColumn(entityMapper.getIdColumn().getColumn());
+                    .keyProperty(entityMapper.getIdColumn().getProperty())//
+                    .keyColumn(entityMapper.getIdColumn().getColumn());
 
             MappedStatement statement = statementBuilder.build();
 
@@ -66,17 +62,14 @@ public class InsertBuilder {
         if (!entityMapper.autoId()) {
             /* 用户输入自定义ID */
             fieldBuilder.append(entityMapper.getIdColumn().getColumn()).append(",");
-            prppertyBuilder.append("#{").append(entityMapper.getIdColumn().getProperty())
-                .append("},");
+            prppertyBuilder.append("#{").append(entityMapper.getIdColumn().getProperty()).append("},");
         }
         for (ColumnMapper column : columns) {
             if (column.isId() || !column.isInsertable()) {
                 continue;
             }
-            String fieldExpr = SqlTemplate.wrapIfTag(column.getProperty(), column.getColumn(),
-                !selective);
-            String propertyExpr = SqlTemplate.wrapIfTag(column.getProperty(),
-                "#{" + column.getProperty() + "}", !selective);
+            String fieldExpr = SqlTemplate.wrapIfTag(column.getProperty(), column.getColumn(), !selective);
+            String propertyExpr = SqlTemplate.wrapIfTag(column.getProperty(), "#{" + column.getProperty() + "}", !selective);
             fieldBuilder.append(fieldExpr);
             fieldBuilder.append(selective ? "\n" : ",");
             prppertyBuilder.append(propertyExpr);
@@ -88,13 +81,13 @@ public class InsertBuilder {
         }
         fieldBuilder.append(SqlTemplate.TRIM_SUFFIX);
         prppertyBuilder.append(SqlTemplate.TRIM_SUFFIX);
-        String sql = String.format(SqlTemplate.INSERT, table.getName(), fieldBuilder.toString(),
-            prppertyBuilder.toString());
+        String sql = String.format(SqlTemplate.INSERT, table.getName(), fieldBuilder.toString(), prppertyBuilder.toString());
         return String.format(SqlTemplate.SCRIPT_TEMAPLATE, sql);
     }
 
     public static void main(String[] args) {
-        String str = "<if test=\"password != null\">password</if>, <if test=\"type != null\">type</if>, <if test=\"email != null\">email</if>";
+        String str
+                = "<if test=\"password != null\">password</if>, <if test=\"type != null\">type</if>, <if test=\"email != null\">email</if>";
         System.out.println(str.replaceAll(">,", ">"));
     }
 

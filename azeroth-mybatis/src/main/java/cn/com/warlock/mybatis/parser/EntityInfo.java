@@ -1,6 +1,7 @@
 package cn.com.warlock.mybatis.parser;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
@@ -10,23 +11,26 @@ import javax.persistence.Column;
 import javax.persistence.Table;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 public class EntityInfo {
 
-    private String              tableName;
+    private String tableName;
 
-    private Class<?>            entityClass;
+    private Class<?> entityClass;
 
-    private Class<?>            mapperClass;
+    private Class<?> mapperClass;
 
     private Map<String, String> mapperSqls = new HashMap<>();
 
-    private String              errorMsg;
+    private String errorMsg;
 
-    private Class<?>            idType;
-    private String              idProperty;
+    private Class<?> idType;
+    private String   idProperty;
 
-    private String              idColumn;
+    private String idColumn;
 
     public String getErrorMsg() {
         return errorMsg;
@@ -34,8 +38,7 @@ public class EntityInfo {
 
     public EntityInfo(String mapperClassName, String entityClassName) {
         try {
-            if (StringUtils.isNotBlank(entityClassName))
-                entityClass = Class.forName(entityClassName);
+            if (StringUtils.isNotBlank(entityClassName)) { entityClass = Class.forName(entityClassName); }
             if (entityClass.isAnnotationPresent(Table.class)) {
                 this.tableName = entityClass.getAnnotation(Table.class).name();
 
@@ -58,21 +61,35 @@ public class EntityInfo {
                 return;
             }
             mapperClass = Class.forName(mapperClassName);
+            //
+            Method[] methods = mapperClass.getDeclaredMethods();
+            String sql = null;
+            for (Method method : methods) {
+                sql = null;
+                if (method.isAnnotationPresent(Select.class)) {
+                    sql = method.getAnnotation(Select.class).value()[0];
+                } else if (method.isAnnotationPresent(Update.class)) {
+                    sql = method.getAnnotation(Update.class).value()[0];
+                } else if (method.isAnnotationPresent(Delete.class)) {
+                    sql = method.getAnnotation(Delete.class).value()[0];
+                }
+                if (sql != null) {
+                    String key = mapperClass.getName() + "." + method.getName();
+                    mapperSqls.put(key, sql);
+                }
+            }
         } catch (ClassNotFoundException e) {
             errorMsg = e.getMessage();
         } catch (Exception e) {
-            errorMsg = String.format("parse error,please check class[{}] and [{}]", entityClassName,
-                mapperClassName);
+            errorMsg = String.format("parse error,please check class[{}] and [{}]", entityClassName, mapperClassName);
         }
     }
 
     public EntityInfo(String mapperClassName, String entityClassName, String tableName) {
         this.tableName = tableName;
         try {
-            if (StringUtils.isNotBlank(entityClassName))
-                entityClass = Class.forName(entityClassName);
-            if (StringUtils.isBlank(this.tableName))
-                this.tableName = entityClass.getAnnotation(Table.class).name();
+            if (StringUtils.isNotBlank(entityClassName)) { entityClass = Class.forName(entityClassName); }
+            if (StringUtils.isBlank(this.tableName)) { this.tableName = entityClass.getAnnotation(Table.class).name(); }
             mapperClass = Class.forName(mapperClassName);
         } catch (Exception e) {
             try {
@@ -83,8 +100,7 @@ public class EntityInfo {
                 if (clazz != null) {
                     entityClass = clazz;
                 }
-            } catch (Exception e1) {
-            }
+            } catch (Exception e1) {}
         }
     }
 

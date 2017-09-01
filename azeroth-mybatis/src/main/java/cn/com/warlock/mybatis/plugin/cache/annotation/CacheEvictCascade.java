@@ -12,7 +12,7 @@ import cn.com.warlock.mybatis.core.BaseEntity;
 /**
  * 缓存关联更新
  */
-@Target({ ElementType.METHOD })
+@Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented

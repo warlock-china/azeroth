@@ -10,7 +10,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.DataFormatter;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellReference;
@@ -49,12 +48,12 @@ import cn.com.warlock.common2.excel.helper.ExcelValidator;
  */
 public class XLSX2CSV {
 
-    private List<String>  results       = new ArrayList<>();
+    private List<String> results = new ArrayList<>();
 
     private StringBuilder _resultRowTmp = new StringBuilder();
 
     // 出现空白的行数
-    private int           blankRowNum   = 0;
+    private int blankRowNum = 0;
 
     /**
      * Uses the XSSF Event SAX helpers to do most of the work of parsing the
@@ -121,8 +120,7 @@ public class XLSX2CSV {
                 Double.parseDouble(formattedValue);
                 _resultRowTmp.append(formattedValue);
             } catch (NumberFormatException e) {
-                _resultRowTmp.append(ExcelValidator.QUOTE).append(formattedValue)
-                    .append(ExcelValidator.QUOTE);
+                _resultRowTmp.append(formattedValue);
             }
         }
 
@@ -138,7 +136,7 @@ public class XLSX2CSV {
     /**
      * Number of columns to read starting with leftmost
      */
-    private final int        minColumns;
+    private final int minColumns;
 
     /**
      * Creates a new XLSX -> CSV converter
@@ -163,17 +161,13 @@ public class XLSX2CSV {
      * @param strings
      * @param sheetInputStream
      */
-    public void processSheet(StylesTable styles, ReadOnlySharedStringsTable strings,
-                             SheetContentsHandler sheetHandler,
-                             InputStream sheetInputStream) throws IOException,
-                                                           ParserConfigurationException,
-                                                           SAXException {
+    public void processSheet(StylesTable styles, ReadOnlySharedStringsTable strings, SheetContentsHandler sheetHandler,
+                             InputStream sheetInputStream) throws IOException, ParserConfigurationException, SAXException {
         DataFormatter formatter = new DataFormatter();
         InputSource sheetSource = new InputSource(sheetInputStream);
         try {
             XMLReader sheetParser = SAXHelper.newXMLReader();
-            ContentHandler handler = new XSSFSheetXMLHandler(styles, null, strings, sheetHandler,
-                formatter, false);
+            ContentHandler handler = new XSSFSheetXMLHandler(styles, null, strings, sheetHandler, formatter, false);
             sheetParser.setContentHandler(handler);
             sheetParser.parse(sheetSource);
         } catch (ParserConfigurationException e) {
@@ -189,19 +183,17 @@ public class XLSX2CSV {
      * @throws ParserConfigurationException
      * @throws SAXException
      */
-    public List<String> process() throws IOException, OpenXML4JException,
-                                  ParserConfigurationException, SAXException {
+    public List<String> process() throws IOException, OpenXML4JException, ParserConfigurationException, SAXException {
         ReadOnlySharedStringsTable strings = new ReadOnlySharedStringsTable(this.xlsxPackage);
         XSSFReader xssfReader = new XSSFReader(this.xlsxPackage);
         StylesTable styles = xssfReader.getStylesTable();
         XSSFReader.SheetIterator iter = (XSSFReader.SheetIterator) xssfReader.getSheetsData();
         int index = 0;
         while (iter.hasNext()) {
-            if (blankRowNum == 10)
-                break;
+            if (blankRowNum == 10) { break; }
             InputStream stream = iter.next();
-            //String sheetName = iter.getSheetName();
-            //System.out.println(sheetName + " [index=" + index + "]:");
+            String sheetName = iter.getSheetName();
+            results.add(ExcelValidator.SHEET_NAME_PREFIX + sheetName);
             processSheet(styles, strings, new SheetToCSV(), stream);
             stream.close();
             ++index;
@@ -210,28 +202,4 @@ public class XLSX2CSV {
         return results;
     }
 
-    public static void main(String[] args) throws Exception {
-
-        long start = System.currentTimeMillis();
-        int minColumns = -1;
-
-        try {
-            // The package open is instantaneous, as it should be.
-            OPCPackage p = OPCPackage.open("/Users/ayg/Desktop/testdata/insUserList1x.xlsx",
-                PackageAccess.READ);
-            XLSX2CSV xlsx2csv = new XLSX2CSV(p, System.out, minColumns);
-            List<String> process = xlsx2csv.process();
-            p.close();
-
-            for (String string : process) {
-
-                System.out.println(string);
-            }
-
-            System.out.println("time:" + (System.currentTimeMillis() - start));
-            System.out.println(process.size());
-        } catch (Exception e) {
-            System.out.println(e.getClass().getName());
-        }
-    }
 }

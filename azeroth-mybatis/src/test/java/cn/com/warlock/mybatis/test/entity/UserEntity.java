@@ -12,23 +12,23 @@ public class UserEntity extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String  name;
+    private String name;
 
-    private String  password;
+    private String password;
 
-    private String  mobile;
+    private String mobile;
 
-    private String  email;
+    private String email;
 
-    private Short   type;
+    private Short type;
 
-    private Short   status;
+    private Short status;
 
     @Column(name = "created_at")
-    private Date    createdAt;
+    private Date createdAt;
 
     @Column(name = "updated_at")
-    private Date    updatedAt;
+    private Date updatedAt;
 
     /**
      * @return id
@@ -41,6 +41,7 @@ public class UserEntity extends BaseEntity {
      * @param id
      */
     public void setId(Integer id) {
+        if (this.id != null && id != null) { return; }
         this.id = id;
     }
 

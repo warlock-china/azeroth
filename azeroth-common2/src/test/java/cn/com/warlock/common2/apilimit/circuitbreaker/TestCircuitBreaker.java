@@ -111,7 +111,7 @@ public class TestCircuitBreaker {
         });
 
         assertEquals("当模拟一次成功的操作后，再次变成关闭状态了,这次不用sleep了发现没？", "CLOSED",
-            circuitBreaker.getCurrentState());
+                circuitBreaker.getCurrentState());
 
     }
 

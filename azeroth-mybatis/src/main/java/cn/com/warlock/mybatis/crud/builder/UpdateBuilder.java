@@ -32,10 +32,10 @@ public class UpdateBuilder {
             String sql = buildUpdateSql(entityMapper, name.endsWith("Selective"));
 
             SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql,
-                entity.getEntityClass());
+                    entity.getEntityClass());
 
             MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration,
-                msId, sqlSource, SqlCommandType.UPDATE);
+                    msId, sqlSource, SqlCommandType.UPDATE);
 
             MappedStatement statement = statementBuilder.build();
 
@@ -62,17 +62,15 @@ public class UpdateBuilder {
                 idProperty = column.getProperty();
             }
             String expr = SqlTemplate.wrapIfTag(column.getProperty(),
-                column.getColumn() + "=#{" + column.getProperty() + "}", !selective);
+                    column.getColumn() + "=#{" + column.getProperty() + "}", !selective);
             set.append(expr);
-            if (!selective)
-                set.append(",");
+            if (!selective) { set.append(","); }
         }
-        if (!selective)
-            set.deleteCharAt(set.length() - 1);
+        if (!selective) { set.deleteCharAt(set.length() - 1); }
         set.append("</trim>");
 
         String sql = String.format(SqlTemplate.UPDATE_BY_KEY, tableMapper.getName(), set.toString(),
-            idColumn, idProperty);
+                idColumn, idProperty);
 
         return String.format(SqlTemplate.SCRIPT_TEMAPLATE, sql);
     }

@@ -53,15 +53,14 @@ public class CacheKeyUtils {
     }
 
     public static String toString(Object obj) {
-        if (obj == null)
-            return "_";
+        if (obj == null) { return "_"; }
         if (isSimpleDataType(obj)) {
             return obj.toString();
         } else if (obj instanceof Collection) {
-            return obj.toString().replaceAll("\\s{0,}", "");
+            String toString = obj.toString().replaceAll("\\s{0,}", "");
+            return toString.length() > 32 ? md5(toString) : toString;
         } else {
-            String toString = ToStringBuilder.reflectionToString(obj,
-                ToStringStyle.SHORT_PREFIX_STYLE);
+            String toString = ToStringBuilder.reflectionToString(obj, ToStringStyle.SHORT_PREFIX_STYLE);
 
             return toString.length() > 32 ? md5(toString) : toString;
         }
@@ -74,8 +73,7 @@ public class CacheKeyUtils {
      * @return
      */
     public static String generate(String prefix, Object... args) {
-        if (args == null || args.length == 0)
-            return prefix;
+        if (args == null || args.length == 0) { return prefix; }
         StringBuilder keyBuilder = new StringBuilder(prefix);
 
         String keyString = null;
@@ -90,11 +88,9 @@ public class CacheKeyUtils {
                 } else if (args[i] instanceof Collection) {
                     argsBuilder.append(args[i].toString().replaceAll("\\s{0,}", ""));
                 } else {
-                    argsBuilder.append(ToStringBuilder.reflectionToString(args[i],
-                        ToStringStyle.SHORT_PREFIX_STYLE));
+                    argsBuilder.append(ToStringBuilder.reflectionToString(args[i], ToStringStyle.SHORT_PREFIX_STYLE));
                 }
-                if (i < args.length - 1)
-                    argsBuilder.append("_");
+                if (i < args.length - 1) { argsBuilder.append("_"); }
             }
             keyString = argsBuilder.length() > 32 ? md5(argsBuilder) : argsBuilder.toString();
             keyBuilder.append(keyString);
@@ -104,12 +100,21 @@ public class CacheKeyUtils {
 
     private static boolean isSimpleDataType(Object o) {
         Class<? extends Object> clazz = o.getClass();
-        return (clazz.equals(String.class) || clazz.equals(Integer.class)
-                || clazz.equals(Byte.class) || clazz.equals(Long.class)
-                || clazz.equals(Double.class) || clazz.equals(Float.class)
-                || clazz.equals(Character.class) || clazz.equals(Short.class)
-                || clazz.equals(BigDecimal.class) || clazz.equals(Boolean.class)
-                || clazz.equals(Date.class) || clazz.isPrimitive());
+        return
+                (
+                        clazz.equals(String.class) ||
+                                clazz.equals(Integer.class) ||
+                                clazz.equals(Byte.class) ||
+                                clazz.equals(Long.class) ||
+                                clazz.equals(Double.class) ||
+                                clazz.equals(Float.class) ||
+                                clazz.equals(Character.class) ||
+                                clazz.equals(Short.class) ||
+                                clazz.equals(BigDecimal.class) ||
+                                clazz.equals(Boolean.class) ||
+                                clazz.equals(Date.class) ||
+                                clazz.isPrimitive()
+                );
     }
 
     public static void main(String[] args) {
@@ -121,7 +126,7 @@ public class CacheKeyUtils {
         System.out.println(generate("demo_", ids));
         System.out.println(generate("demo_", ids));
 
-        String[] arr = new String[] { "1", "b" };
+        String[] arr = new String[] {"1", "b"};
         System.out.println(generate("demo_", arr));
     }
 }

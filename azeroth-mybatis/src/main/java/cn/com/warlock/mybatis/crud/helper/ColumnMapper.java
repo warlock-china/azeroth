@@ -10,9 +10,9 @@ public class ColumnMapper {
     private Class<?>                        javaType;
     private JdbcType                        jdbcType;
     private Class<? extends TypeHandler<?>> typeHandler;
-    private boolean                         id         = false;
-    private boolean                         insertable = true;
-    private boolean                         updatable  = true;
+    private boolean id         = false;
+    private boolean insertable = true;
+    private boolean updatable  = true;
 
     public String getProperty() {
         return property;

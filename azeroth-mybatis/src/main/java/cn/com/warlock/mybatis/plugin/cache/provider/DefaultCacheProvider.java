@@ -28,14 +28,15 @@ public class DefaultCacheProvider extends AbstractCacheProvider {
     }
 
     @Override
-    public boolean set(String key, Object value, long expired) {
-        if (value == null)
-            return false;
-        if (value instanceof String) {
-            return new RedisString(key).set(value.toString(), expired);
-        } else {
-            return new RedisObject(key).set(value, expired);
-        }
+    public boolean set(String key, Object value, long expireSeconds) {
+        if (value == null) { return false; }
+        return new RedisObject(key).set(value, expireSeconds);
+    }
+
+    @Override
+    public boolean setStr(String key, Object value, long expireSeconds) {
+        if (value == null) { return false; }
+        return new RedisString(key).set(value.toString(), expireSeconds);
     }
 
     @Override
@@ -102,12 +103,10 @@ public class DefaultCacheProvider extends AbstractCacheProvider {
         } finally {
             JedisProviderFactory.getJedisProvider(null).release();
         }
-        logger.debug("clearExpiredGroupKeys runing:cacheName:{} , score range:0~{}", cacheGroup,
-            maxScore);
+        logger.debug("clearExpiredGroupKeys runing:cacheName:{} , score range:0~{}", cacheGroup, maxScore);
     }
 
     @Override
-    public void close() throws IOException {
-    }
+    public void close() throws IOException {}
 
 }

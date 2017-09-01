@@ -35,20 +35,16 @@ public class GetByPrimaryKeyBuilder {
      * @param configuration
      * @param entity
      */
-    public static void build(Configuration configuration, LanguageDriver languageDriver,
-                             EntityInfo entity) {
-        String msId = entity.getMapperClass().getName() + "."
-                      + GeneralSqlGenerator.methodDefines.selectName();
+    public static void build(Configuration configuration, LanguageDriver languageDriver, EntityInfo entity) {
+        String msId = entity.getMapperClass().getName() + "." + GeneralSqlGenerator.methodDefines.selectName();
 
         EntityMapper entityMapper = EntityHelper.getEntityMapper(entity.getEntityClass());
 
         String sql = buildGetByIdSql(entityMapper);
 
-        SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql,
-            entity.getEntityClass());
+        SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql, entity.getEntityClass());
 
-        MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, msId,
-            sqlSource, SqlCommandType.SELECT);
+        MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, msId, sqlSource, SqlCommandType.SELECT);
 
         // 将返回值修改为实体类型
         MappedStatement statement = statementBuilder.build();
@@ -83,8 +79,7 @@ public class GetByPrimaryKeyBuilder {
      * @param ms
      * @param entityClass
      */
-    private static void setResultType(Configuration configuration, MappedStatement ms,
-                                      Class<?> entityClass) {
+    private static void setResultType(Configuration configuration, MappedStatement ms, Class<?> entityClass) {
         List<ResultMap> resultMaps = new ArrayList<ResultMap>();
         resultMaps.add(getResultMap(configuration, entityClass));
         MetaObject metaObject = SystemMetaObject.forObject(ms);
@@ -100,11 +95,10 @@ public class GetByPrimaryKeyBuilder {
     public static ResultMap getResultMap(Configuration configuration, Class<?> entityClass) {
         List<ResultMapping> resultMappings = new ArrayList<ResultMapping>();
 
-        Set<ColumnMapper> entityClassColumns = EntityHelper.getEntityMapper(entityClass)
-            .getColumnsMapper();
+        Set<ColumnMapper> entityClassColumns = EntityHelper.getEntityMapper(entityClass).getColumnsMapper();
         for (ColumnMapper entityColumn : entityClassColumns) {
-            ResultMapping.Builder builder = new ResultMapping.Builder(configuration,
-                entityColumn.getProperty(), entityColumn.getColumn(), entityColumn.getJavaType());
+            ResultMapping.Builder builder = new ResultMapping.Builder(configuration, entityColumn.getProperty(), entityColumn.getColumn(),
+                    entityColumn.getJavaType());
             if (entityColumn.getJdbcType() != null) {
                 builder.jdbcType(entityColumn.getJdbcType());
             }
@@ -117,8 +111,7 @@ public class GetByPrimaryKeyBuilder {
             builder.lazy(false);
             resultMappings.add(builder.build());
         }
-        ResultMap.Builder builder = new ResultMap.Builder(configuration, "BaseResultMap",
-            entityClass, resultMappings, true);
+        ResultMap.Builder builder = new ResultMap.Builder(configuration, "BaseResultMap", entityClass, resultMappings, true);
         return builder.build();
     }
 }

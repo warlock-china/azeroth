@@ -4,8 +4,7 @@ public class ExcelOperBaseException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public ExcelOperBaseException() {
-    }
+    public ExcelOperBaseException() {}
 
     public ExcelOperBaseException(String message) {
         super(message);

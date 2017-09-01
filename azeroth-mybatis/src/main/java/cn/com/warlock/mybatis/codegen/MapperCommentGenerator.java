@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.com.warlock.mybatis.codegen;
 
@@ -100,8 +100,7 @@ public class MapperCommentGenerator implements CommentGenerator {
      * @param introspectedTable
      * @param introspectedColumn
      */
-    public void addFieldComment(Field field, IntrospectedTable introspectedTable,
-                                IntrospectedColumn introspectedColumn) {
+    public void addFieldComment(Field field, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn) {
         if (StringUtility.stringHasValue(introspectedColumn.getRemarks())) {
             field.addJavaDocLine("/**");
             StringBuilder sb = new StringBuilder();
@@ -122,31 +121,26 @@ public class MapperCommentGenerator implements CommentGenerator {
             }
         }
         String column = introspectedColumn.getActualColumnName();
-        if (StringUtility.stringContainsSpace(column)
-            || introspectedTable.getTableConfiguration().isAllColumnDelimitingEnabled()) {
-            column = introspectedColumn.getContext().getBeginningDelimiter() + column
-                     + introspectedColumn.getContext().getEndingDelimiter();
+        if (StringUtility.stringContainsSpace(column) || introspectedTable.getTableConfiguration().isAllColumnDelimitingEnabled()) {
+            column = introspectedColumn.getContext().getBeginningDelimiter()
+                    + column
+                    + introspectedColumn.getContext().getEndingDelimiter();
         }
         if (!column.equals(introspectedColumn.getJavaProperty())) {
             //@Column
             field.addAnnotation("@Column(name = \"" + getDelimiterName(column) + "\")");
-        } else if (StringUtility.stringHasValue(beginningDelimiter)
-                   || StringUtility.stringHasValue(endingDelimiter)) {
+        } else if (StringUtility.stringHasValue(beginningDelimiter) || StringUtility.stringHasValue(endingDelimiter)) {
             field.addAnnotation("@Column(name = \"" + getDelimiterName(column) + "\")");
         }
         if (introspectedColumn.isIdentity()) {
-            if (introspectedTable.getTableConfiguration().getGeneratedKey().getRuntimeSqlStatement()
-                .equals("JDBC")) {
+            if (introspectedTable.getTableConfiguration().getGeneratedKey().getRuntimeSqlStatement().equals("JDBC")) {
                 field.addAnnotation("@GeneratedValue(generator = \"JDBC\")");
             } else {
                 field.addAnnotation("@GeneratedValue(strategy = GenerationType.IDENTITY)");
             }
         } else if (introspectedColumn.isSequenceColumn()) {
-            field
-                .addAnnotation(
-                    "@SequenceGenerator(name=\"\",sequenceName=\"" + introspectedTable
-                        .getTableConfiguration().getGeneratedKey().getRuntimeSqlStatement()
-                               + "\")");
+            field.addAnnotation("@SequenceGenerator(name=\"\",sequenceName=\"" + introspectedTable.getTableConfiguration().getGeneratedKey()
+                    .getRuntimeSqlStatement() + "\")");
         }
     }
 
@@ -159,8 +153,7 @@ public class MapperCommentGenerator implements CommentGenerator {
     public void addFieldComment(Field field, IntrospectedTable introspectedTable) {
     }
 
-    public void addModelClassComment(TopLevelClass topLevelClass,
-                                     IntrospectedTable introspectedTable) {
+    public void addModelClassComment(TopLevelClass topLevelClass, IntrospectedTable introspectedTable) {
 
     }
 
@@ -178,8 +171,7 @@ public class MapperCommentGenerator implements CommentGenerator {
      * @param introspectedTable
      * @param introspectedColumn
      */
-    public void addGetterComment(Method method, IntrospectedTable introspectedTable,
-                                 IntrospectedColumn introspectedColumn) {
+    public void addGetterComment(Method method, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn) {
         StringBuilder sb = new StringBuilder();
         method.addJavaDocLine("/**");
         if (StringUtility.stringHasValue(introspectedColumn.getRemarks())) {
@@ -206,8 +198,7 @@ public class MapperCommentGenerator implements CommentGenerator {
      * @param introspectedTable
      * @param introspectedColumn
      */
-    public void addSetterComment(Method method, IntrospectedTable introspectedTable,
-                                 IntrospectedColumn introspectedColumn) {
+    public void addSetterComment(Method method, IntrospectedTable introspectedTable, IntrospectedColumn introspectedColumn) {
         StringBuilder sb = new StringBuilder();
         method.addJavaDocLine("/**");
         if (StringUtility.stringHasValue(introspectedColumn.getRemarks())) {
@@ -235,7 +226,6 @@ public class MapperCommentGenerator implements CommentGenerator {
      * @param introspectedTable
      * @param markAsDoNotDelete
      */
-    public void addClassComment(InnerClass innerClass, IntrospectedTable introspectedTable,
-                                boolean markAsDoNotDelete) {
+    public void addClassComment(InnerClass innerClass, IntrospectedTable introspectedTable, boolean markAsDoNotDelete) {
     }
 }

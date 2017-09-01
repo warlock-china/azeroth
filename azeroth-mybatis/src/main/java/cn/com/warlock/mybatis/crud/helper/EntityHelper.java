@@ -30,7 +30,7 @@ public class EntityHelper {
 
     /**
      * 由传入的实体的class构建TableMapper对象，构建好的对象存入缓存中，以后使用时直接从缓存中获取
-     * 
+     *
      * @param entityClass
      * @return TableMapper
      */
@@ -168,7 +168,7 @@ public class EntityHelper {
         final int size;
         final char[] chars;
         final StringBuilder sb = new StringBuilder(
-            (size = (chars = str.toCharArray()).length) * 3 / 2 + 1);
+                (size = (chars = str.toCharArray()).length) * 3 / 2 + 1);
         char c;
         for (int i = 0; i < size; i++) {
             c = chars[i];
@@ -195,7 +195,7 @@ public class EntityHelper {
 
     /**
      * 获取全部的Field
-     * 
+     *
      * @param entityClass
      * @param fieldList
      * @return
@@ -227,7 +227,7 @@ public class EntityHelper {
         }
         Class<?> superClass = entityClass.getSuperclass();
         if (superClass != null && !superClass.equals(Object.class)
-            && (!Map.class.isAssignableFrom(superClass)
+                && (!Map.class.isAssignableFrom(superClass)
                 && !Collection.class.isAssignableFrom(superClass))) {
             return getAllField(entityClass.getSuperclass(), fieldList);
         }

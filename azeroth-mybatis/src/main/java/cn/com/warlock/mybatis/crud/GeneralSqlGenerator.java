@@ -17,8 +17,8 @@ public class GeneralSqlGenerator {
 
     public static DefaultCacheMethodDefine methodDefines = new DefaultCacheMethodDefine();
 
-    private LanguageDriver                 languageDriver;
-    private Configuration                  configuration;
+    private LanguageDriver languageDriver;
+    private Configuration  configuration;
 
     public GeneralSqlGenerator(Configuration configuration) {
         this.configuration = configuration;
@@ -26,8 +26,7 @@ public class GeneralSqlGenerator {
     }
 
     public void generate() {
-        if (languageDriver == null)
-            languageDriver = configuration.getDefaultScriptingLanuageInstance();
+        if (languageDriver == null) { languageDriver = configuration.getDefaultScriptingLanuageInstance(); }
         List<EntityInfo> entityInfos = MybatisMapperParser.getEntityInfos();
         for (EntityInfo entity : entityInfos) {
             GetByPrimaryKeyBuilder.build(configuration, languageDriver, entity);

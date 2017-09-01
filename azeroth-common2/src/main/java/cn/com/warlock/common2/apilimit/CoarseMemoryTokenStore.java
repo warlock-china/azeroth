@@ -9,7 +9,7 @@ public class CoarseMemoryTokenStore implements TokenStore {
 
     private final Map<Key, StoreEntry> cache;
 
-    private final Lock                 lock;
+    private final Lock lock;
 
     public CoarseMemoryTokenStore() {
         this.cache = new HashMap<Key, StoreEntry>();

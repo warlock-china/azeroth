@@ -13,13 +13,13 @@ public abstract interface BaseMapper<T extends BaseEntity, ID extends Serializab
     public void insertSelective(T entity);
 
     /**
-      * @param entity
-    */
+     * @param entity
+     */
     public void updateByKey(T entity);
 
     /**
-      * @param entity
-    */
+     * @param entity
+     */
     public void updateByKeySelective(T entity);
 
     /**

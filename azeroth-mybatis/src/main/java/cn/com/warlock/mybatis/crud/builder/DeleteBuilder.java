@@ -26,21 +26,17 @@ public class DeleteBuilder {
      * @param configuration
      * @param entity
      */
-    public static void build(Configuration configuration, LanguageDriver languageDriver,
-                             EntityInfo entity) {
-        String msId = entity.getMapperClass().getName() + "."
-                      + GeneralSqlGenerator.methodDefines.deleteName();
+    public static void build(Configuration configuration, LanguageDriver languageDriver, EntityInfo entity) {
+        String msId = entity.getMapperClass().getName() + "." + GeneralSqlGenerator.methodDefines.deleteName();
 
         // 从参数对象里提取注解信息
         EntityMapper entityMapper = EntityHelper.getEntityMapper(entity.getEntityClass());
         // 生成sql
         String sql = buildDeleteSql(entityMapper);
 
-        SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql,
-            entity.getEntityClass());
+        SqlSource sqlSource = languageDriver.createSqlSource(configuration, sql, entity.getEntityClass());
 
-        MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, msId,
-            sqlSource, SqlCommandType.DELETE);
+        MappedStatement.Builder statementBuilder = new MappedStatement.Builder(configuration, msId, sqlSource, SqlCommandType.DELETE);
 
         MappedStatement statement = statementBuilder.build();
         configuration.addMappedStatement(statement);

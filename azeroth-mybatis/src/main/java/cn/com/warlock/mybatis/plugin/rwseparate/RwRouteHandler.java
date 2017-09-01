@@ -8,9 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import cn.com.warlock.mybatis.core.InterceptorHandler;
-import cn.com.warlock.mybatis.core.InterceptorType;
 import cn.com.warlock.mybatis.datasource.DataSourceContextHolder;
-import cn.com.warlock.mybatis.plugin.MybatisPluginContext;
+import cn.com.warlock.mybatis.plugin.MybatisInterceptor;
 
 /**
  * 读写分离自动路由处理
@@ -18,6 +17,8 @@ import cn.com.warlock.mybatis.plugin.MybatisPluginContext;
 public class RwRouteHandler implements InterceptorHandler {
 
     protected static final Logger logger = LoggerFactory.getLogger(RwRouteHandler.class);
+
+    public static final String NAME = "rwRoute";
 
     @Override
     public Object onInterceptor(Invocation invocation) throws Throwable {
@@ -50,15 +51,15 @@ public class RwRouteHandler implements InterceptorHandler {
     }
 
     @Override
-    public InterceptorType getInterceptorType() {
-        return InterceptorType.before;
-    }
-
-    @Override
-    public void start(MybatisPluginContext context) {
+    public void start(MybatisInterceptor context) {
     }
 
     @Override
     public void close() {
+    }
+
+    @Override
+    public int interceptorOrder() {
+        return 1;
     }
 }

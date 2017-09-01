@@ -1,6 +1,9 @@
 package cn.com.warlock.mybatis.plugin;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -22,9 +25,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.util.StringUtils;
 
 import cn.com.warlock.mybatis.core.InterceptorHandler;
-import cn.com.warlock.mybatis.core.InterceptorType;
 import cn.com.warlock.mybatis.parser.MybatisMapperParser;
 import cn.com.warlock.mybatis.plugin.cache.CacheHandler;
+import cn.com.warlock.mybatis.plugin.pagination.PaginationHandler;
 import cn.com.warlock.mybatis.plugin.rwseparate.RwRouteHandler;
 import cn.com.warlock.mybatis.plugin.shard.DatabaseRouteHandler;
 import cn.com.warlock.spring.InstanceFactory;
@@ -32,79 +35,75 @@ import cn.com.warlock.spring.SpringInstanceProvider;
 
 /**
  * mybatis 插件入口
- */
-@Intercepts({ @Signature(type = Executor.class, method = "update", args = { MappedStatement.class,
-                                                                            Object.class }),
-              @Signature(type = Executor.class, method = "query", args = { MappedStatement.class,
-                                                                           Object.class,
-                                                                           RowBounds.class,
-                                                                           ResultHandler.class }) })
-public class MybatisPluginContext implements Interceptor, InitializingBean, DisposableBean,
-                                  ApplicationContextAware {
 
+ */
+@Intercepts({
+        @Signature(type = Executor.class, method = "update", args = {
+                MappedStatement.class, Object.class}),
+        @Signature(type = Executor.class, method = "query", args = {
+                MappedStatement.class, Object.class, RowBounds.class,
+                ResultHandler.class})})
+public class MybatisInterceptor implements Interceptor, InitializingBean, DisposableBean, ApplicationContextAware {
+
+    private Properties properties;
     //CRUD框架驱动 default，mapper3
-    private String                   crudDriver          = "default";
     private List<InterceptorHandler> interceptorHandlers = new ArrayList<>();
 
-    private static boolean           cacheEnabled, rwRouteEnabled, dbShardEnabled;
+    private static boolean cacheEnabled, rwRouteEnabled, dbShardEnabled;
 
     //cache,rwRoute,dbShard
     public void setInterceptorHandlers(String interceptorHandlers) {
         String[] handlerNames = StringUtils.tokenizeToStringArray(interceptorHandlers,
-            ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
+                ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
 
         for (String name : handlerNames) {
-            if ("cache".equals(name)) {
+            if (CacheHandler.NAME.equals(name)) {
                 this.interceptorHandlers.add(new CacheHandler());
                 cacheEnabled = true;
-            } else if ("rwRoute".equals(name)) {
+            } else if (RwRouteHandler.NAME.equals(name)) {
                 this.interceptorHandlers.add(new RwRouteHandler());
                 rwRouteEnabled = true;
-            } else if ("dbShard".equals(name)) {
+            } else if (DatabaseRouteHandler.NAME.equals(name)) {
                 this.interceptorHandlers.add(new DatabaseRouteHandler());
                 dbShardEnabled = true;
+            } else if (PaginationHandler.NAME.equals(name)) {
+                this.interceptorHandlers.add(new PaginationHandler());
             }
         }
+        //排序
+        Collections.sort(this.interceptorHandlers, new Comparator<InterceptorHandler>() {
+            @Override
+            public int compare(InterceptorHandler o1, InterceptorHandler o2) {
+                return Integer.compare(o1.interceptorOrder(), o2.interceptorOrder());
+            }
+        });
+
     }
 
     public void setMapperLocations(String mapperLocations) {
         MybatisMapperParser.setMapperLocations(mapperLocations);
     }
 
-    public void setCrudDriver(String crudDriver) {
-        this.crudDriver = crudDriver;
-    }
-
-    public String getCrudDriver() {
-        return crudDriver;
-    }
-
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
 
-        boolean proceed = false;
         Object result = null;
-        try {
-            for (InterceptorHandler handler : interceptorHandlers) {
-                Object object = handler.onInterceptor(invocation);
-                if (handler.getInterceptorType().equals(InterceptorType.around)) {
-                    result = object;
-                    //查询缓存命中，则不执行分库和读写分离的处理器
-                    if (result != null && handler instanceof CacheHandler) {
-                        break;
-                    }
-                }
-            }
-            if (result == null) {
-                result = invocation.proceed();
-                proceed = true;
-            }
-            return result;
-        } finally {
-            for (InterceptorHandler handler : interceptorHandlers) {
-                handler.onFinished(invocation, proceed ? result : null);
-            }
+        boolean proceed = false;
+        for (InterceptorHandler handler : interceptorHandlers) {
+            result = handler.onInterceptor(invocation);
+            if (result != null) { break; }
         }
+
+        if (result == null) {
+            result = invocation.proceed();
+            proceed = true;
+        }
+
+        for (InterceptorHandler handler : interceptorHandlers) {
+            handler.onFinished(invocation, proceed ? result : null);
+        }
+
+        return result;
     }
 
     @Override
@@ -119,11 +118,14 @@ public class MybatisPluginContext implements Interceptor, InitializingBean, Disp
 
     @Override
     public void setProperties(Properties properties) {
+        this.properties = properties;
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        for (InterceptorHandler handler : interceptorHandlers) {
+        Iterator<InterceptorHandler> it = interceptorHandlers.iterator();
+        while (it.hasNext()) {
+            InterceptorHandler handler = it.next();
             handler.start(this);
         }
     }
@@ -133,6 +135,15 @@ public class MybatisPluginContext implements Interceptor, InitializingBean, Disp
         for (InterceptorHandler handler : interceptorHandlers) {
             handler.close();
         }
+    }
+
+    public String getProperty(String key) {
+        return properties == null ? null : properties.getProperty(key);
+    }
+
+    public String getProperty(String key, String defaultVal) {
+        String property = getProperty(key);
+        return property == null ? defaultVal : property;
     }
 
     public static boolean isCacheEnabled() {

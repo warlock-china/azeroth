@@ -9,8 +9,7 @@ public class MapResultItem {
     private String  type;
     private boolean primaryKey;
 
-    public MapResultItem() {
-    }
+    public MapResultItem() {}
 
     public MapResultItem(String propertyName, String columnName, String type) {
         super();
@@ -68,15 +67,13 @@ public class MapResultItem {
     }
 
     public boolean isNumberType() {
-        return "INTEGER|SMALLINT|DECIMAL|FLOAT|TINYINT|BIGINT|NUMERIC"
-            .contains(getType().toUpperCase());
+        return "INTEGER|SMALLINT|DECIMAL|FLOAT|TINYINT|BIGINT|NUMERIC".contains(getType().toUpperCase());
     }
 
     @Override
     public String toString() {
-        return "MapResultItem [tableName=" + tableName + ", entityName=" + entityName
-               + ", propertyName=" + propertyName + ", columnName=" + columnName + ", type=" + type
-               + ", primaryKey=" + primaryKey + "]";
+        return "MapResultItem [tableName=" + tableName + ", entityName=" + entityName + ", propertyName=" + propertyName
+                + ", columnName=" + columnName + ", type=" + type + ", primaryKey=" + primaryKey + "]";
     }
 
 }

@@ -11,15 +11,14 @@ public class ReflectUtils {
     private static final String TYPE_CLASS_NAME_PREFIX     = "class ";
     private static final String TYPE_INTERFACE_NAME_PREFIX = "interface ";
 
-    private ReflectUtils() {
-    }
+    private ReflectUtils() {}
 
     /**
      * 获取指定某个对象指定属性的值
      * @param target
      * @param propertyName
-     * @throws SecurityException 
-     * @throws NoSuchFieldException 
+     * @throws SecurityException
+     * @throws NoSuchFieldException
      */
     public static Object getObjectValue(Object target, String propertyName) {
         try {
@@ -44,7 +43,8 @@ public class ReflectUtils {
         return className;
     }
 
-    public static Class<?> getClass(Type type) throws ClassNotFoundException {
+    public static Class<?> getClass(Type type)
+            throws ClassNotFoundException {
         String className = getClassName(type);
         if (className == null || className.isEmpty()) {
             return null;
@@ -52,8 +52,8 @@ public class ReflectUtils {
         return Class.forName(className);
     }
 
-    public static Object newInstance(Type type) throws ClassNotFoundException,
-                                                InstantiationException, IllegalAccessException {
+    public static Object newInstance(Type type)
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Class<?> clazz = getClass(type);
         if (clazz == null) {
             return null;
@@ -118,7 +118,7 @@ public class ReflectUtils {
         return returnType;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     public static Object getEnumConstant(Class<?> clazz, String name) {
         if (clazz == null || name == null || name.isEmpty()) {
             return null;

@@ -9,7 +9,7 @@ import java.io.Closeable;
  * date: Jan 18, 2017 10:10:23 AM <br/>
  *
  * @author warlock
- * @version 
+ * @version
  * @since JDK 1.8
  */
 public interface CacheProvider extends Closeable {
@@ -18,7 +18,9 @@ public interface CacheProvider extends Closeable {
 
     String getStr(String key);
 
-    boolean set(String key, Object value, long expired);
+    boolean set(String key, Object value, long expireSeconds);
+
+    boolean setStr(String key, Object value, long expireSeconds);
 
     boolean remove(String key);
 

@@ -6,8 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import cn.com.warlock.mybatis.core.InterceptorHandler;
-import cn.com.warlock.mybatis.core.InterceptorType;
-import cn.com.warlock.mybatis.plugin.MybatisPluginContext;
+import cn.com.warlock.mybatis.plugin.MybatisInterceptor;
 
 /**
  * 分库自动路由处理
@@ -35,13 +34,7 @@ public class TableRouteHandler implements InterceptorHandler, InitializingBean {
     }
 
     @Override
-    public InterceptorType getInterceptorType() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void start(MybatisPluginContext context) {
+    public void start(MybatisInterceptor context) {
         // TODO Auto-generated method stub
 
     }
@@ -50,5 +43,11 @@ public class TableRouteHandler implements InterceptorHandler, InitializingBean {
     public void close() {
         // TODO Auto-generated method stub
 
+    }
+
+    @Override
+    public int interceptorOrder() {
+        // TODO Auto-generated method stub
+        return 0;
     }
 }

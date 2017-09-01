@@ -12,13 +12,13 @@ public class MemoryTokenStore implements TokenStore {
 
     private final Cache<Key, StoreEntry> cache;
 
-    private final Lock                   r;
+    private final Lock r;
 
-    private final Lock                   w;
+    private final Lock w;
 
     public MemoryTokenStore() {
         this.cache = CacheBuilder.newBuilder().softValues().expireAfterAccess(120, TimeUnit.SECONDS)
-            .build();
+                .build();
         ReadWriteLock lock = new ReentrantReadWriteLock();
         this.r = lock.readLock();
         this.w = lock.writeLock();
@@ -33,8 +33,7 @@ public class MemoryTokenStore implements TokenStore {
             r.unlock();
         }
 
-        if (!(result == null || result.isExpired()))
-            return result;
+        if (!(result == null || result.isExpired())) { return result; }
 
         w.lock();
 

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.com.warlock.mybatis.codegen;
 
