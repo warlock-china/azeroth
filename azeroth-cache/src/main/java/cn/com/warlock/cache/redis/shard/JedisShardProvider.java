@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package cn.com.warlock.cache.redis.shard;
 
@@ -22,15 +22,15 @@ import redis.clients.jedis.exceptions.JedisException;
  */
 public class JedisShardProvider implements JedisProvider<ShardedJedis, BinaryShardedJedis> {
 
-    protected static final Logger     logger  = LoggerFactory.getLogger(JedisShardProvider.class);
+    protected static final Logger logger = LoggerFactory.getLogger(JedisShardProvider.class);
 
-    public static final String        MODE    = "standard";
+    public static final String MODE = "standard";
 
     private ThreadLocal<ShardedJedis> context = new ThreadLocal<>();
 
-    private ShardedJedisPool          jedisPool;
+    private ShardedJedisPool jedisPool;
 
-    private String                    groupName;
+    private String groupName;
 
     public JedisShardProvider(String groupName, JedisPoolConfig jedisPoolConfig, String[] servers,
                               int timeout) {
@@ -45,7 +45,7 @@ public class JedisShardProvider implements JedisProvider<ShardedJedis, BinarySha
         for (String server : servers) {
             String[] addrs = server.split(":");
             JedisShardInfo info = new JedisShardInfo(addrs[0], Integer.parseInt(addrs[1].trim()),
-                timeout);
+                    timeout);
             infos.add(info);
         }
 
@@ -54,8 +54,7 @@ public class JedisShardProvider implements JedisProvider<ShardedJedis, BinarySha
 
     public ShardedJedis get() throws JedisException {
         ShardedJedis jedis = context.get();
-        if (jedis != null)
-            return jedis;
+        if (jedis != null) { return jedis; }
         try {
             jedis = jedisPool.getResource();
         } catch (JedisException e) {

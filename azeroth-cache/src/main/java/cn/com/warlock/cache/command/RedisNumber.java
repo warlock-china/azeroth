@@ -57,7 +57,7 @@ public class RedisNumber extends RedisString {
     }
 
     /**
-     * 
+     *
      * @param scale 小数点位数
      * @return
      */

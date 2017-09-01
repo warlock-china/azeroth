@@ -11,22 +11,22 @@ public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Integer           id;
+    private Integer id;
 
-    private String            name;
+    private String name;
 
-    private String            password         = DigestUtils
-        .md5(RandomStringUtils.random(8, true, true));
+    private String password = DigestUtils
+            .md5(RandomStringUtils.random(8, true, true));
 
-    private String            mobile           = "13800138000";
+    private String mobile = "13800138000";
 
-    private String            email;
+    private String email;
 
-    private Short             type             = 1;
+    private Short type = 1;
 
-    private Short             status           = 1;
+    private Short status = 1;
 
-    private Date              createdAt;
+    private Date createdAt;
 
     public User() {
     }
@@ -114,30 +114,23 @@ public class User implements Serializable {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) { return true; }
+        if (obj == null) { return false; }
+        if (getClass() != obj.getClass()) { return false; }
         User other = (User) obj;
         if (id == null) {
-            if (other.id != null)
-                return false;
-        } else if (!id.equals(other.id))
-            return false;
+            if (other.id != null) { return false; }
+        } else if (!id.equals(other.id)) { return false; }
         if (mobile == null) {
-            if (other.mobile != null)
-                return false;
-        } else if (!mobile.equals(other.mobile))
-            return false;
+            if (other.mobile != null) { return false; }
+        } else if (!mobile.equals(other.mobile)) { return false; }
         return true;
     }
 
     @Override
     public String toString() {
         return "User [id=" + id + ", name=" + name + ", mobile=" + mobile + ", email=" + email
-               + "]";
+                + "]";
     }
 
 }

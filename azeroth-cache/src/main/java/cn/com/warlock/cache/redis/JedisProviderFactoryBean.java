@@ -27,39 +27,38 @@ import redis.clients.jedis.Protocol;
  */
 public class JedisProviderFactoryBean implements ApplicationContextAware, InitializingBean {
 
-    protected static final Logger logger                = LoggerFactory
-        .getLogger(JedisProviderFactoryBean.class);
+    protected static final Logger logger             = LoggerFactory
+            .getLogger(JedisProviderFactoryBean.class);
     /**
-     * 
+     *
      */
-    public static final String    DEFAULT_GROUP_NAME    = "default";
+    public static final    String DEFAULT_GROUP_NAME = "default";
 
-    private static final String   REDIS_PROVIDER_SUFFIX = "RedisProvider";
+    private static final String REDIS_PROVIDER_SUFFIX = "RedisProvider";
 
-    private Pattern               pattern               = Pattern.compile("^.+[:]\\d{1,5}\\s*$");
+    private Pattern pattern = Pattern.compile("^.+[:]\\d{1,5}\\s*$");
 
-    private String                mode                  = JedisStandaloneProvider.MODE;          //
+    private String mode = JedisStandaloneProvider.MODE;          //
 
-    private JedisPoolConfig       jedisPoolConfig;
+    private JedisPoolConfig jedisPoolConfig;
 
     //用来区分不同组的缓存
-    private String                group;
-    private String                servers;
-    private Integer               timeout               = 3000;                                  //单位：毫秒
-    private String                password;
-    private int                   database              = Protocol.DEFAULT_DATABASE;
-    private String                masterName;
-    private String                clientName;
+    private String group;
+    private String servers;
+    private Integer timeout = 3000;                                  //单位：毫秒
+    private String password;
+    private int database = Protocol.DEFAULT_DATABASE;
+    private String masterName;
+    private String clientName;
 
-    private ApplicationContext    context;
+    private ApplicationContext context;
 
     public void setGroup(String group) {
         this.group = group;
     }
 
     public String getGroup() {
-        if (group == null)
-            group = DEFAULT_GROUP_NAME;
+        if (group == null) { group = DEFAULT_GROUP_NAME; }
         return group;
     }
 
@@ -104,8 +103,7 @@ public class JedisProviderFactoryBean implements ApplicationContextAware, Initia
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (jedisPoolConfig == null)
-            throw new Exception("jedisPoolConfig Not config ??");
+        if (jedisPoolConfig == null) { throw new Exception("jedisPoolConfig Not config ??"); }
         if (org.apache.commons.lang3.StringUtils.isAnyBlank(mode, servers)) {
             throw new Exception("type or servers is empty??");
         }
@@ -113,7 +111,7 @@ public class JedisProviderFactoryBean implements ApplicationContextAware, Initia
     }
 
     /**
-     * 
+     *
      */
     private void registerRedisProvier() {
         String beanName = getGroup() + REDIS_PROVIDER_SUFFIX;
@@ -122,7 +120,7 @@ public class JedisProviderFactoryBean implements ApplicationContextAware, Initia
         }
 
         String[] servers = StringUtils.tokenizeToStringArray(this.servers,
-            ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
+                ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
 
         //检查ip和port格式
         for (String server : servers) {
@@ -145,20 +143,20 @@ public class JedisProviderFactoryBean implements ApplicationContextAware, Initia
         }
 
         DefaultListableBeanFactory acf = (DefaultListableBeanFactory) context
-            .getAutowireCapableBeanFactory();
+                .getAutowireCapableBeanFactory();
         BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder
-            .genericBeanDefinition(beanClass);
+                .genericBeanDefinition(beanClass);
         beanDefinitionBuilder.addConstructorArgValue(getGroup())//
-            .addConstructorArgValue(jedisPoolConfig)//
-            .addConstructorArgValue(servers)//
-            .addConstructorArgValue(timeout);//
+                .addConstructorArgValue(jedisPoolConfig)//
+                .addConstructorArgValue(servers)//
+                .addConstructorArgValue(timeout);//
 
         if (JedisStandaloneProvider.MODE.equalsIgnoreCase(mode)
-            || JedisSentinelProvider.MODE.equalsIgnoreCase(mode)) {
+                || JedisSentinelProvider.MODE.equalsIgnoreCase(mode)) {
             beanDefinitionBuilder
-                .addConstructorArgValue(org.apache.commons.lang3.StringUtils.trimToNull(password))//
-                .addConstructorArgValue(database)//
-                .addConstructorArgValue(clientName);
+                    .addConstructorArgValue(org.apache.commons.lang3.StringUtils.trimToNull(password))//
+                    .addConstructorArgValue(database)//
+                    .addConstructorArgValue(clientName);
         }
 
         if (JedisSentinelProvider.MODE.equalsIgnoreCase(mode)) {
@@ -168,6 +166,6 @@ public class JedisProviderFactoryBean implements ApplicationContextAware, Initia
         acf.registerBeanDefinition(beanName, beanDefinitionBuilder.getRawBeanDefinition());
         //
         logger.info("register JedisProvider OK,Class:{},beanName:{}", beanClass.getSimpleName(),
-            beanName);
+                beanName);
     }
 }

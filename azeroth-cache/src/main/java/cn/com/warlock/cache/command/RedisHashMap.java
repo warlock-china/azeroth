@@ -14,7 +14,7 @@ import java.util.Set;
 import redis.clients.util.SafeEncoder;
 
 /**
- * 
+ *
  * @author warlock
  * @version $Id: RedisHashMap.java, v 0.1 Apr 13, 2017 5:45:15 PM warlock Exp $
  */
@@ -34,7 +34,7 @@ public class RedisHashMap extends RedisCollection {
 
     /**
      * 指定组名
-     * 
+     *
      * @param key
      * @param groupName
      */
@@ -43,7 +43,7 @@ public class RedisHashMap extends RedisCollection {
     }
 
     /**
-     * 
+     *
      * @param key
      * @param groupName 分组名
      * @param expireTime 超时时间(秒) 小于等于0 为永久缓存
@@ -54,18 +54,16 @@ public class RedisHashMap extends RedisCollection {
 
     /**
      * 设置hash缓存
-     * 
+     *
      * @param datas
      * @return
      */
     public <T> boolean set(Map<String, T> datas) {
-        if (datas == null || datas.isEmpty())
-            return false;
+        if (datas == null || datas.isEmpty()) { return false; }
         Map<byte[], byte[]> newDatas = new HashMap<>();
         Set<String> keySet = datas.keySet();
         for (String key : keySet) {
-            if (datas.get(key) == null)
-                continue;
+            if (datas.get(key) == null) { continue; }
             newDatas.put(SafeEncoder.encode(key), valueSerialize(datas.get(key)));
         }
 
@@ -73,13 +71,12 @@ public class RedisHashMap extends RedisCollection {
         try {
             if (isCluster(groupName)) {
                 result = getBinaryJedisClusterCommands(groupName).hmset(key, newDatas)
-                    .equals(RESP_OK);
+                        .equals(RESP_OK);
             } else {
                 result = getBinaryJedisCommands(groupName).hmset(key, newDatas).equals(RESP_OK);
             }
             //设置超时时间
-            if (result)
-                setExpireIfNot(expireTime);
+            if (result) { setExpireIfNot(expireTime); }
             return result;
         } finally {
             getJedisProvider(groupName).release();
@@ -89,7 +86,7 @@ public class RedisHashMap extends RedisCollection {
 
     /**
      * 获取所有值
-     * 
+     *
      * @return
      */
     public <T> Map<String, T> getAll() {
@@ -106,7 +103,7 @@ public class RedisHashMap extends RedisCollection {
             while (it.hasNext()) {
                 Map.Entry<byte[], byte[]> entry = it.next();
                 result.put(SafeEncoder.encode(entry.getKey()),
-                    (T) valueDerialize(entry.getValue()));
+                        (T) valueDerialize(entry.getValue()));
             }
             return result;
         } finally {
@@ -117,7 +114,7 @@ public class RedisHashMap extends RedisCollection {
 
     /**
      * 查看缓存hash是否包含某个key
-     * 
+     *
      * @param field
      * @return
      */
@@ -125,7 +122,7 @@ public class RedisHashMap extends RedisCollection {
         try {
             if (isCluster(groupName)) {
                 return getBinaryJedisClusterCommands(groupName).hexists(key,
-                    SafeEncoder.encode(field));
+                        SafeEncoder.encode(field));
             } else {
                 return getBinaryJedisCommands(groupName).hexists(key, SafeEncoder.encode(field));
             }
@@ -136,27 +133,25 @@ public class RedisHashMap extends RedisCollection {
 
     /**
      * 设置ç
-     * 
+     *
      * @param field
      * @param value
      * @return
      */
     public boolean set(String field, Object value) {
         boolean result = false;
-        if (value == null)
-            return false;
+        if (value == null) { return false; }
         //返回值（1:新字段被设置,0:已经存在值被更新）
         try {
             if (isCluster(groupName)) {
                 result = getBinaryJedisClusterCommands(groupName).hset(key,
-                    SafeEncoder.encode(field), valueSerialize(value)) >= 0;
+                        SafeEncoder.encode(field), valueSerialize(value)) >= 0;
             } else {
                 result = getBinaryJedisCommands(groupName).hset(key, SafeEncoder.encode(field),
-                    valueSerialize(value)) >= 0;
+                        valueSerialize(value)) >= 0;
             }
             //设置超时时间
-            if (result)
-                setExpireIfNot(expireTime);
+            if (result) { setExpireIfNot(expireTime); }
             return result;
         } finally {
             getJedisProvider(groupName).release();
@@ -165,7 +160,7 @@ public class RedisHashMap extends RedisCollection {
 
     /**
      * 移除hash缓存中的指定值
-     * 
+     *
      * @param field
      * @return
      */
@@ -173,10 +168,10 @@ public class RedisHashMap extends RedisCollection {
         try {
             if (isCluster(groupName)) {
                 return getBinaryJedisClusterCommands(groupName).hdel(key, SafeEncoder.encode(field))
-                    .equals(RESP_OK);
+                        .equals(RESP_OK);
             } else {
                 return getBinaryJedisCommands(groupName).hdel(key, SafeEncoder.encode(field))
-                    .equals(RESP_OK);
+                        .equals(RESP_OK);
             }
         } finally {
             getJedisProvider(groupName).release();
@@ -185,7 +180,7 @@ public class RedisHashMap extends RedisCollection {
 
     /**
      * 返回长度
-     * 
+     *
      * @return
      */
     public long length() {
@@ -202,7 +197,7 @@ public class RedisHashMap extends RedisCollection {
 
     /**
      * 获取一个值
-     * 
+     *
      * @param field
      * @return
      */
@@ -213,7 +208,7 @@ public class RedisHashMap extends RedisCollection {
 
     /**
      * 获取多个key的值
-     * 
+     *
      * @param fields
      * @return
      */

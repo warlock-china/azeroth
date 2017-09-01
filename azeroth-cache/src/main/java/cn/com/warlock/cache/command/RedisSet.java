@@ -8,6 +8,10 @@ import static cn.com.warlock.cache.redis.JedisProviderFactory.isCluster;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * @author warlock
+ * 添加少量优化
+ */
 public class RedisSet extends RedisCollection {
 
     public RedisSet(String key) {
@@ -32,7 +36,7 @@ public class RedisSet extends RedisCollection {
     }
 
     /**
-     * 
+     *
      * @param key
      * @param groupName 分组名
      * @param expireTime 超时时间(秒) 小于等于0 为永久缓存
@@ -41,18 +45,17 @@ public class RedisSet extends RedisCollection {
         super(key, groupName, expireTime);
     }
 
-    public boolean add(Object... objects) {
+    public long add(Object... objects) {
         try {
-            boolean result = false;
+            long result = 0;
             byte[][] datas = valuesSerialize(objects);
             if (isCluster(groupName)) {
-                result = getBinaryJedisClusterCommands(groupName).sadd(key, datas) >= 1;
+                result = getBinaryJedisClusterCommands(groupName).sadd(key, datas);
             } else {
-                result = getBinaryJedisCommands(groupName).sadd(key, datas) >= 1;
+                result = getBinaryJedisCommands(groupName).sadd(key, datas);
             }
             //设置超时时间
-            if (result)
-                setExpireIfNot(expireTime);
+            if (result > 0) { setExpireIfNot(expireTime); }
             return result;
         } finally {
             getJedisProvider(groupName).release();
@@ -102,7 +105,7 @@ public class RedisSet extends RedisCollection {
         try {
             if (isCluster(groupName)) {
                 return getBinaryJedisClusterCommands(groupName).sismember(key,
-                    valueSerialize(object));
+                        valueSerialize(object));
             } else {
                 return getBinaryJedisCommands(groupName).sismember(key, valueSerialize(object));
             }
@@ -113,8 +116,7 @@ public class RedisSet extends RedisCollection {
 
     protected <T> Set<T> toObjectSet(Set<byte[]> datas) {
         Set<T> result = new HashSet<>();
-        if (datas == null)
-            return result;
+        if (datas == null) { return result; }
         for (byte[] data : datas) {
             result.add((T) valueDerialize(data));
         }

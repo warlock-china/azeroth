@@ -14,10 +14,10 @@ import com.google.common.cache.CacheBuilder;
 
 public class GuavaLevel1CacheProvider implements Level1CacheProvider {
 
-    private static final String                _NULL             = "NULL";
+    private static final String _NULL = "NULL";
 
-    private static final Logger                logger            = LoggerFactory
-        .getLogger(GuavaLevel1CacheProvider.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(GuavaLevel1CacheProvider.class);
 
     private Map<String, Cache<String, Object>> caches            = new ConcurrentHashMap<String, Cache<String, Object>>();
     private int                                maxSize           = 10000;
@@ -37,8 +37,7 @@ public class GuavaLevel1CacheProvider implements Level1CacheProvider {
     }
 
     public boolean set(String cacheName, String key, Object value) {
-        if (value == null)
-            return true;
+        if (value == null) { return true; }
         Cache<String, Object> cache = getCacheHolder(cacheName);
         if (cache != null) {
             cache.put(key, value);
@@ -80,13 +79,11 @@ public class GuavaLevel1CacheProvider implements Level1CacheProvider {
 
     private Cache<String, Object> getAndNotexistsCreateCache(String cacheName) {
         Cache<String, Object> cache = caches.get(cacheName);
-        if (cache != null)
-            return cache;
+        if (cache != null) { return cache; }
         synchronized (caches) {
-            if ((cache = caches.get(cacheName)) != null)
-                return cache;
+            if ((cache = caches.get(cacheName)) != null) { return cache; }
             cache = CacheBuilder.newBuilder().maximumSize(maxSize)
-                .expireAfterWrite(timeToLiveSeconds, TimeUnit.SECONDS).build();
+                    .expireAfterWrite(timeToLiveSeconds, TimeUnit.SECONDS).build();
             caches.put(cacheName, cache);
         }
         return cache;

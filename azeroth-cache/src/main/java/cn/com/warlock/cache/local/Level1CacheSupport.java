@@ -26,55 +26,50 @@ import redis.clients.jedis.JedisPubSub;
  */
 public class Level1CacheSupport implements InitializingBean, DisposableBean {
 
-    private static final Logger       logger          = LoggerFactory
-        .getLogger(Level1CacheSupport.class);
+    private static final Logger logger = LoggerFactory
+            .getLogger(Level1CacheSupport.class);
 
-    private String                    channelName     = "clearLevel1_";
+    private String channelName = "clearLevel1_";
 
-    private String                    bcastServer;
-    private boolean                   distributedMode = true;          //是否启用分布式模式
+    private String bcastServer;
+    private boolean distributedMode = true;          //是否启用分布式模式
 
-    private String                    password;
+    private String password;
 
-    private List<String>              cacheNames;                      //
-    private Jedis                     subJedisClient;
-    private JedisPool                 pupJedisPool;
+    private List<String> cacheNames;                      //
+    private Jedis        subJedisClient;
+    private JedisPool    pupJedisPool;
 
-    private ScheduledExecutorService  redisCheckTimer;
+    private ScheduledExecutorService redisCheckTimer;
 
-    private Level1CacheProvider       cacheProvider;
+    private Level1CacheProvider cacheProvider;
 
-    private LocalCacheSyncListener    listener;
+    private LocalCacheSyncListener listener;
 
     private static Level1CacheSupport instance;
 
     public static Level1CacheSupport getInstance() {
         if (instance == null) {
             synchronized (Level1CacheSupport.class) {
-                if (instance == null)
-                    instance = InstanceFactory.getInstance(Level1CacheSupport.class);
-                if (instance == null)
-                    instance = new Level1CacheSupport();
+                if (instance == null) { instance = InstanceFactory.getInstance(Level1CacheSupport.class); }
+                if (instance == null) { instance = new Level1CacheSupport(); }
             }
         }
         return instance;
     }
 
     public boolean publishSyncEvent(String key) {
-        if (cacheNames == null)
-            return true;
+        if (cacheNames == null) { return true; }
         String cacheName = key.split("\\.")[0];
-        if (!cacheNames.contains(cacheName))
-            return true;
+        if (!cacheNames.contains(cacheName)) { return true; }
         //删除本地
         cacheProvider.remove(cacheName, key);
         logger.debug("remove local LEVEL1 cache: cacheName:[{}], key:[{}]", cacheName, key);
-        if (!distributedMode)
-            return true;
+        if (!distributedMode) { return true; }
         boolean publish = publish(channelName, new ClearCommand(cacheName, key).serialize());
         if (publish) {
             logger.debug("broadcast <clear-cache> command for key:[{}] by channelName:[{}]", key,
-                channelName);
+                    channelName);
         }
         return publish;
     }
@@ -85,42 +80,33 @@ public class Level1CacheSupport implements InitializingBean, DisposableBean {
             jedis = pupJedisPool.getResource();
             return jedis.publish(channel, message) > 0;
         } finally {
-            if (jedis != null)
-                jedis.close();
+            if (jedis != null) { jedis.close(); }
         }
 
     }
 
     public boolean set(String key, Object value) {
-        if (cacheNames == null)
-            return true;
+        if (cacheNames == null) { return true; }
         String cacheName = key.split("\\.")[0];
-        if (!cacheNames.contains(cacheName))
-            return true;
+        if (!cacheNames.contains(cacheName)) { return true; }
         boolean result = cacheProvider.set(cacheName, key, value);
-        if (logger.isDebugEnabled())
-            logger.debug("set LEVEL1 cache:{}", key);
+        if (logger.isDebugEnabled()) { logger.debug("set LEVEL1 cache:{}", key); }
         return result;
     }
 
     public <T> T get(String key) {
-        if (cacheNames == null)
-            return null;
+        if (cacheNames == null) { return null; }
         String cacheName = key.split("\\.")[0];
-        if (!cacheNames.contains(cacheName))
-            return null;
+        if (!cacheNames.contains(cacheName)) { return null; }
         T object = cacheProvider.get(cacheName, key);
-        if (object != null)
-            logger.debug("get cache:{} from LEVEL1", key);
+        if (object != null) { logger.debug("get cache:{} from LEVEL1", key); }
         return object;
     }
 
     public void remove(String key) {
-        if (cacheNames == null)
-            return;
+        if (cacheNames == null) { return; }
         String cacheName = key.split("\\.")[0];
-        if (!cacheNames.contains(cacheName))
-            return;
+        if (!cacheNames.contains(cacheName)) { return; }
         cacheProvider.remove(cacheName, key);
         logger.debug("remove LEVEL1 cache,cacheName:{},key:{}", cacheName, key);
     }
@@ -128,19 +114,17 @@ public class Level1CacheSupport implements InitializingBean, DisposableBean {
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        if (cacheNames == null)
-            return;
+        if (cacheNames == null) { return; }
         if (cacheProvider == null) {
             cacheProvider = new GuavaLevel1CacheProvider();
         }
         //
         cacheProvider.start();
         //
-        if (!distributedMode)
-            return;
+        if (!distributedMode) { return; }
         Validate.notBlank(bcastServer);
         String[] serverInfos = StringUtils.tokenizeToStringArray(bcastServer,
-            ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS)[0].split(":");
+                ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS)[0].split(":");
 
         final String host = serverInfos[0];
         final int port = Integer.parseInt(serverInfos[1]);
@@ -157,7 +141,7 @@ public class Level1CacheSupport implements InitializingBean, DisposableBean {
                         subJedisClient = new Jedis(host, port);
                         if ("PONG".equals(subJedisClient.ping())) {
                             logger.info("subscribe localCache sync channel.....");
-                            subJedisClient.subscribe(listener, new String[] { channelName });
+                            subJedisClient.subscribe(listener, new String[] {channelName});
                         }
                     } catch (Exception e) {
                         try {
@@ -186,10 +170,8 @@ public class Level1CacheSupport implements InitializingBean, DisposableBean {
 
     @Override
     public void destroy() throws Exception {
-        if (cacheProvider != null)
-            cacheProvider.close();
-        if (redisCheckTimer != null)
-            redisCheckTimer.shutdown();
+        if (cacheProvider != null) { cacheProvider.close(); }
+        if (redisCheckTimer != null) { redisCheckTimer.shutdown(); }
         try {
             listener.unsubscribe();
         } catch (Exception e) {
@@ -228,7 +210,7 @@ public class Level1CacheSupport implements InitializingBean, DisposableBean {
             return;
         }
         String[] tmpcacheNames = StringUtils.tokenizeToStringArray(cacheNames,
-            ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
+                ConfigurableApplicationContext.CONFIG_LOCATION_DELIMITERS);
         this.cacheNames = new ArrayList<>(Arrays.asList(tmpcacheNames));
     }
 

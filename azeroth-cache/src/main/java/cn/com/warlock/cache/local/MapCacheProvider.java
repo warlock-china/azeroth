@@ -1,17 +1,16 @@
 package cn.com.warlock.cache.local;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.io.Closeable;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import cn.com.warlock.common.util.DateUtils;
+import org.apache.commons.lang3.RandomUtils;
 
 /**
  * ClassName: MapCacheProvider <br/>
@@ -20,74 +19,77 @@ import cn.com.warlock.common.util.DateUtils;
  * date: Jan 20, 2017 10:42:09 AM <br/>
  *
  * @author warlock
- * @version 
+ * @version
  * @since JDK 1.8
  */
-public class MapCacheProvider {
+public class MapCacheProvider implements Closeable {
 
-    static Map<String, Object> cache       = new ConcurrentHashMap<>();
-    static Map<String, Date>   cacheExpire = new HashMap<>();
+    private Map<String, Object>             cache     = new ConcurrentHashMap<>();
+    private PriorityBlockingQueue<CacheKey> cacheKeys = new PriorityBlockingQueue<>();
 
-    private Lock               lock        = new ReentrantLock();      // 锁 
-    private AtomicBoolean      runing      = new AtomicBoolean();
+    private ScheduledExecutorService cleanScheduledExecutor = Executors.newScheduledThreadPool(1);
+
+    private int maxSize = 5000;
+
+    private AtomicInteger currentCacheSize = new AtomicInteger(0);
 
     public MapCacheProvider() {
-        this(5);
+        this(1000);
+    }
+
+    public MapCacheProvider(final long period, int maxSize) {
+        this(period);
+        this.maxSize = maxSize;
     }
 
     /**
-     * @param period 检查过期间隔（秒）
+     * @param period
+     *            检查过期间隔（毫秒）
      */
     public MapCacheProvider(final long period) {
-        runing.set(true);
-        //缓存过期维护线程
-        new Thread(new Runnable() {
+
+        cleanScheduledExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                while (runing.get()) {
-                    Date now = Calendar.getInstance().getTime();
-
-                    lock.lock();
-                    try {
-                        Iterator<Map.Entry<String, Date>> it = cacheExpire.entrySet().iterator();
-                        while (it.hasNext()) {
-                            Map.Entry<String, Date> entry = it.next();
-                            //过期的移除
-                            if (entry.getValue().compareTo(now) <= 0) {
-                                cache.remove(entry.getKey());
-                                it.remove();
-                            }
-                        }
-                        try {
-                            Thread.sleep(TimeUnit.SECONDS.toMillis(period));
-                        } catch (Exception e) {
-                        }
-                    } finally {
-                        lock.unlock();
-                    }
+                CacheKey cacheKey = cacheKeys.poll();
+                if (cacheKey == null) {
+                    return;
                 }
+
+                long currentTimeMils = System.currentTimeMillis();
+                if (cacheKey.expireAt > currentTimeMils) {
+                    //放回去
+                    cacheKeys.add(cacheKey);
+                    return;
+                }
+                // 过期的移除
+                cache.remove(cacheKey.key);
+                currentCacheSize.decrementAndGet();
+                System.out.println("remove:" + cacheKey + ",currentTimeMils:" + currentTimeMils + ",cacheSize:" + cache.size());
+
             }
-        }).start();
+        }, period, period, TimeUnit.MILLISECONDS);
+
     }
 
     /**
-     * 
+     *
      * @param key
      * @param value
-     * @param timeout 单位：秒
+     * @param timeout
+     *            单位：秒
      * @return
      */
     public boolean set(String key, Object value, int timeout) {
-        Date expireAt = timeout > -1 ? DateUtils.add(new Date(), Calendar.SECOND, timeout) : null;
-        return set(key, value, expireAt);
-    }
 
-    public boolean set(String key, Object value, Date expireAt) {
+        if (currentCacheSize.incrementAndGet() > maxSize) { throw new RuntimeException("CacheSize over the max size"); }
+
         cache.put(key, value);
-        if (expireAt != null) {
-            cacheExpire.put(key, expireAt);
+        if (timeout > 0) {
+            cacheKeys.add(new CacheKey(key, System.currentTimeMillis() + timeout * 1000));
         }
         return true;
+
     }
 
     @SuppressWarnings("unchecked")
@@ -96,8 +98,11 @@ public class MapCacheProvider {
     }
 
     public boolean remove(String key) {
-        cache.remove(key);
-        cacheExpire.remove(key);
+        Object removeObj = cache.remove(key);
+        if (removeObj != null) {
+            cacheKeys.remove(new CacheKey(key, 0));
+            currentCacheSize.decrementAndGet();
+        }
         return true;
     }
 
@@ -106,7 +111,90 @@ public class MapCacheProvider {
     }
 
     public void close() {
-        runing.set(false);
+        cleanScheduledExecutor.shutdown();
+    }
+
+    private class CacheKey implements Comparable<CacheKey> {
+        String key;
+        long   expireAt;
+
+        public CacheKey(String key, long expireAt) {
+            super();
+            this.key = key;
+            this.expireAt = expireAt;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + getOuterType().hashCode();
+            result = prime * result + ((key == null) ? 0 : key.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) { return true; }
+            if (obj == null) { return false; }
+            if (getClass() != obj.getClass()) { return false; }
+            CacheKey other = (CacheKey) obj;
+            if (!getOuterType().equals(other.getOuterType())) { return false; }
+            if (key == null) {
+                if (other.key != null) { return false; }
+            } else if (!key.equals(other.key)) { return false; }
+            return true;
+        }
+
+        private MapCacheProvider getOuterType() {
+            return MapCacheProvider.this;
+        }
+
+        @Override
+        public int compareTo(CacheKey o) {
+            return Long.compare(this.expireAt, o.expireAt);
+        }
+
+        @Override
+        public String toString() {
+            return "[key=" + key + ", expireAt=" + expireAt + "]";
+        }
+
+    }
+
+    public static void main(String[] args) {
+        final MapCacheProvider provider = new MapCacheProvider(100);
+
+        provider.set("aa", "aa", 50);
+        provider.set("bb", "bb", 30);
+        System.out.println("cache size:" + provider.cache.size() + "-" + provider.currentCacheSize.get());
+        provider.remove("aa");
+        System.out.println("cache size:" + provider.cache.size() + "-" + provider.currentCacheSize.get());
+
+        ExecutorService executorService = Executors.newFixedThreadPool(5);
+
+        for (int i = 0; i < 500; i++) {
+            int expire = RandomUtils.nextInt(1, 30);
+            final String key = "key" + i + "_" + expire;
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    provider.set(key, key, expire);
+                    try {
+                        Thread.sleep(TimeUnit.MILLISECONDS.toMillis(10));
+                    } catch (Exception e) {
+                    }
+                }
+            });
+
+        }
+
+        while (true) {
+            if (provider.cache.isEmpty()) { break; }
+        }
+
+        provider.close();
+        executorService.shutdown();
     }
 
 }

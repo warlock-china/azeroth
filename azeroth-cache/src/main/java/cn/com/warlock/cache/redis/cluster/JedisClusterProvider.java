@@ -14,17 +14,17 @@ import redis.clients.jedis.JedisPoolConfig;
  */
 public class JedisClusterProvider implements JedisProvider<JedisCluster, BinaryJedisCluster> {
 
-    public static final String MODE            = "cluster";
+    public static final String MODE = "cluster";
 
-    private Integer            maxRedirections = 3;        //重试3次
+    private Integer maxRedirections = 3;        //重试3次
 
     private JedisCluster       jedisCluster;
     private BinaryJedisCluster binaryJedisCluster;
 
-    private String             groupName;
+    private String groupName;
 
     /**
-     * 
+     *
      */
     public JedisClusterProvider(String groupName, JedisPoolConfig jedisPoolConfig, String[] servers,
                                 int timeout) {
@@ -32,7 +32,7 @@ public class JedisClusterProvider implements JedisProvider<JedisCluster, BinaryJ
         Set<HostAndPort> nodes = this.parseHostAndPort(servers);
         jedisCluster = new JedisCluster(nodes, timeout, maxRedirections, jedisPoolConfig);
         binaryJedisCluster = new BinaryJedisCluster(nodes, timeout, maxRedirections,
-            jedisPoolConfig);
+                jedisPoolConfig);
     }
 
     private Set<HostAndPort> parseHostAndPort(String[] servers) {

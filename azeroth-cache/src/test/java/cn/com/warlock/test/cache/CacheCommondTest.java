@@ -23,7 +23,7 @@ import cn.com.warlock.spring.InstanceFactory;
 import cn.com.warlock.spring.SpringInstanceProvider;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:test-cache.xml" })
+@ContextConfiguration(locations = {"classpath:test-cache.xml"})
 public class CacheCommondTest implements ApplicationContextAware {
 
     @Rule

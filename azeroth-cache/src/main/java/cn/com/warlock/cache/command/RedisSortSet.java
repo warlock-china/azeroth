@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import redis.clients.util.SafeEncoder;
+
 import static cn.com.warlock.cache.redis.JedisProviderFactory.*;
 
 public class RedisSortSet extends RedisCollection {
@@ -31,7 +32,7 @@ public class RedisSortSet extends RedisCollection {
     }
 
     /**
-     * 
+     *
      * @param key
      * @param groupName 分组名
      * @param expireTime 超时时间(秒) 小于等于0 为永久缓存
@@ -51,14 +52,13 @@ public class RedisSortSet extends RedisCollection {
             boolean result = false;
             if (isCluster(groupName)) {
                 result = getBinaryJedisClusterCommands(groupName).zadd(key, score,
-                    valueSerialize(value)) >= 1;
+                        valueSerialize(value)) >= 1;
             } else {
                 result = getBinaryJedisCommands(groupName).zadd(key, score,
-                    valueSerialize(value)) >= 1;
+                        valueSerialize(value)) >= 1;
             }
             //设置超时时间
-            if (result)
-                setExpireIfNot(expireTime);
+            if (result) { setExpireIfNot(expireTime); }
             return result;
         } finally {
             getJedisProvider(groupName).release();
@@ -75,7 +75,7 @@ public class RedisSortSet extends RedisCollection {
             boolean result = false;
             if (isCluster(groupName)) {
                 result = getBinaryJedisClusterCommands(groupName).zrem(key,
-                    valueSerialize(mem)) >= 1;
+                        valueSerialize(mem)) >= 1;
             } else {
                 result = getBinaryJedisCommands(groupName).zrem(key, valueSerialize(mem)) >= 1;
             }
@@ -131,16 +131,15 @@ public class RedisSortSet extends RedisCollection {
         }
     }
 
-    public boolean removeByScore(long min, long max) {
+    public long removeByScore(long min, long max) {
         try {
-            boolean result = false;
+            long result = 0;
             byte[] start = SafeEncoder.encode(String.valueOf(min));
             byte[] end = SafeEncoder.encode(String.valueOf(max));
             if (isCluster(groupName)) {
-                result = getBinaryJedisClusterCommands(groupName).zremrangeByScore(key, start,
-                    end) >= 1;
+                result = getBinaryJedisClusterCommands(groupName).zremrangeByScore(key, start, end);
             } else {
-                result = getBinaryJedisCommands(groupName).zremrangeByScore(key, start, end) >= 1;
+                result = getBinaryJedisCommands(groupName).zremrangeByScore(key, start, end);
             }
             return result;
         } finally {

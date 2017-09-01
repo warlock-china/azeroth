@@ -10,7 +10,7 @@ import java.util.List;
  * date: Jan 17, 2017 8:11:53 PM <br/>
  *
  * @author warlock
- * @version 
+ * @version
  * @since JDK 1.8
  */
 public abstract class RedisCollection extends RedisBase {
@@ -42,8 +42,7 @@ public abstract class RedisCollection extends RedisBase {
 
     protected <T> List<T> toObjectList(List<byte[]> datas) {
         List<T> result = new ArrayList<>();
-        if (datas == null)
-            return result;
+        if (datas == null) { return result; }
         for (byte[] data : datas) {
             result.add((T) valueDerialize(data));
         }

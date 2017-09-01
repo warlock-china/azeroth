@@ -57,16 +57,15 @@ public class RedisObject extends RedisBase {
      */
     public boolean set(Object value, long seconds) {
 
-        if (value == null)
-            return false;
+        if (value == null) { return false; }
         try {
             boolean result = false;
             if (isCluster(groupName)) {
                 result = getBinaryJedisClusterCommands(groupName).set(key, valueSerialize(value))
-                    .equals(RESP_OK);
+                        .equals(RESP_OK);
             } else {
                 result = getBinaryJedisCommands(groupName).set(key, valueSerialize(value))
-                    .equals(RESP_OK);
+                        .equals(RESP_OK);
             }
             if (result) {
                 result = setExpire(seconds);
@@ -82,22 +81,21 @@ public class RedisObject extends RedisBase {
 
     /**
      * 检查给定 key 是否存在。
-     * 
+     *
      * @param key
      * @return
      */
     public boolean set(Object value, Date expireAt) {
-        if (value == null)
-            return false;
+        if (value == null) { return false; }
         try {
             boolean result = false;
             if (isCluster(groupName)) {
                 result = getBinaryJedisClusterCommands(groupName).set(key, valueSerialize(value))
-                    .equals(RESP_OK);
+                        .equals(RESP_OK);
                 ;
             } else {
                 result = getBinaryJedisCommands(groupName).set(key, valueSerialize(value))
-                    .equals(RESP_OK);
+                        .equals(RESP_OK);
             }
             if (result) {
                 result = setExpireAt(expireAt);
@@ -114,8 +112,7 @@ public class RedisObject extends RedisBase {
         try {
             //本地缓存读取
             T value = Level1CacheSupport.getInstance().get(this.origKey);
-            if (value != null)
-                return value;
+            if (value != null) { return value; }
 
             byte[] bytes = null;
             if (isCluster(groupName)) {
@@ -137,8 +134,7 @@ public class RedisObject extends RedisBase {
     public boolean remove() {
         boolean removed = super.remove();
         //通知清除本地缓存
-        if (removed)
-            Level1CacheSupport.getInstance().publishSyncEvent(origKey);
+        if (removed) { Level1CacheSupport.getInstance().publishSyncEvent(origKey); }
         return removed;
     }
 

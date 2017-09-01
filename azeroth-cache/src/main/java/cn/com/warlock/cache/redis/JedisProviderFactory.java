@@ -25,10 +25,10 @@ import redis.clients.jedis.MultiKeyJedisClusterCommands;
  */
 public class JedisProviderFactory {
 
-    protected static final Logger             logger         = LoggerFactory
-        .getLogger(JedisProviderFactory.class);
+    protected static final Logger logger = LoggerFactory
+            .getLogger(JedisProviderFactory.class);
 
-    private static JedisProvider<?, ?>        defaultJedisProvider;
+    private static JedisProvider<?, ?> defaultJedisProvider;
 
     @SuppressWarnings("rawtypes")
     private static Map<String, JedisProvider> jedisProviders = new ConcurrentHashMap<>();
@@ -57,7 +57,7 @@ public class JedisProviderFactory {
             //阻塞，直到spring初始化完成
             InstanceFactory.waitUtilInitialized();
             Map<String, JedisProvider> interfaces = InstanceFactory.getInstanceProvider()
-                .getInterfaces(JedisProvider.class);
+                    .getInterfaces(JedisProvider.class);
             Iterator<JedisProvider> iterator = interfaces.values().iterator();
             while (iterator.hasNext()) {
                 JedisProvider jp = iterator.next();

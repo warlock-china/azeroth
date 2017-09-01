@@ -23,7 +23,7 @@ public class RedisList extends RedisCollection {
 
     /**
      * 指定组名
-     * 
+     *
      * @param key
      * @param groupName
      */
@@ -32,7 +32,7 @@ public class RedisList extends RedisCollection {
     }
 
     /**
-     * 
+     *
      * @param key
      * @param groupName 分组名
      * @param expireTime 超时时间(秒) 小于等于0 为永久缓存
@@ -51,8 +51,7 @@ public class RedisList extends RedisCollection {
                 result = getBinaryJedisCommands(groupName).lpush(key, datas) == 1;
             }
             //设置超时时间
-            if (result)
-                setExpireIfNot(expireTime);
+            if (result) { setExpireIfNot(expireTime); }
             return result;
         } finally {
             getJedisProvider(groupName).release();
@@ -69,8 +68,7 @@ public class RedisList extends RedisCollection {
                 result = getBinaryJedisCommands(groupName).rpush(key, datas) == 1;
             }
             //设置超时时间
-            if (result)
-                setExpireIfNot(expireTime);
+            if (result) { setExpireIfNot(expireTime); }
             return result;
         } finally {
             getJedisProvider(groupName).release();
@@ -108,7 +106,7 @@ public class RedisList extends RedisCollection {
 
     /**
      * 获取全部列表
-     * 
+     *
      * @return
      */
     public <T> List<T> get() {
@@ -131,7 +129,7 @@ public class RedisList extends RedisCollection {
 
     /**
      * 返回长度
-     * 
+     *
      * @return
      */
     public long length() {
@@ -148,7 +146,7 @@ public class RedisList extends RedisCollection {
 
     /**
      * 设置指定位置的值
-     * 
+     *
      * @param index
      * @param newValue
      * @return
@@ -158,10 +156,10 @@ public class RedisList extends RedisCollection {
             boolean result = false;
             if (isCluster(groupName)) {
                 result = getBinaryJedisClusterCommands(groupName)
-                    .lset(key, index, valueSerialize(newValue)).equals(RESP_OK);
+                        .lset(key, index, valueSerialize(newValue)).equals(RESP_OK);
             } else {
                 result = getBinaryJedisCommands(groupName)
-                    .lset(key, index, valueSerialize(newValue)).equals(RESP_OK);
+                        .lset(key, index, valueSerialize(newValue)).equals(RESP_OK);
             }
             return result;
         } finally {
@@ -179,7 +177,7 @@ public class RedisList extends RedisCollection {
             boolean result = false;
             if (isCluster(groupName)) {
                 result = getBinaryJedisClusterCommands(groupName).lrem(key, 0,
-                    valueSerialize(value)) >= 1;
+                        valueSerialize(value)) >= 1;
             } else {
                 result = getBinaryJedisCommands(groupName).lrem(key, 0, valueSerialize(value)) >= 1;
             }

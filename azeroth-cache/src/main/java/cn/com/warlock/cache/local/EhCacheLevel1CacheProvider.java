@@ -10,10 +10,10 @@ import net.sf.ehcache.Element;
 
 public class EhCacheLevel1CacheProvider implements Level1CacheProvider {
 
-    private CacheManager       manager;
+    private CacheManager manager;
     private Map<String, Cache> caches = new ConcurrentHashMap<String, Cache>();
 
-    private String             ehcacheName;
+    private String ehcacheName;
 
     public void setEhcacheName(String ehcacheName) {
         this.ehcacheName = ehcacheName;
@@ -21,8 +21,7 @@ public class EhCacheLevel1CacheProvider implements Level1CacheProvider {
 
     @Override
     public void start() {
-        if (ehcacheName != null)
-            manager = CacheManager.getCacheManager(ehcacheName);
+        if (ehcacheName != null) { manager = CacheManager.getCacheManager(ehcacheName); }
         if (manager == null) {
             manager = new CacheManager();
         }
@@ -42,8 +41,7 @@ public class EhCacheLevel1CacheProvider implements Level1CacheProvider {
     @Override
     public <T> T get(String cacheName, String key) {
         Element element = getCacheHolder(cacheName).get(key);
-        if (element == null)
-            return null;
+        if (element == null) { return null; }
         return (T) element.getObjectValue();
     }
 
@@ -70,11 +68,9 @@ public class EhCacheLevel1CacheProvider implements Level1CacheProvider {
 
     private Cache getAndNotexistsCreateCache(String cacheName) {
         Cache cache = caches.get(cacheName);
-        if (cache != null)
-            return cache;
+        if (cache != null) { return cache; }
         synchronized (caches) {
-            if ((cache = caches.get(cacheName)) != null)
-                return cache;
+            if ((cache = caches.get(cacheName)) != null) { return cache; }
             manager.addCache(cacheName);
             cache = manager.getCache(cacheName);
             caches.put(cacheName, cache);

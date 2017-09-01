@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="false" monitoring="autodetect" dynamicConfig="true">
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ehcache.xsd" updateCheck="false"
+         monitoring="autodetect" dynamicConfig="true">
 
-	<diskStore path="java.io.tmpdir" />
-	
-	<!--  
+    <diskStore path="java.io.tmpdir"/>
+
+    <!--
     name：Cache的唯一标识
     maxElementsInMemory：内存中最大缓存对象数
     maxElementsOnDisk：磁盘中最大缓存对象数，若是0表示无穷大
@@ -17,7 +18,9 @@
     memoryStoreEvictionPolicy：当达到maxElementsInMemory限制时，Ehcache将会根据指定的策略去清理内存。默认策略是LRU（最近最少使用）。你可以设置为FIFO（先进先出）或是LFU（较少使用）  
     -->
 
-	<defaultCache maxElementsInMemory="10000" eternal="false" timeToIdleSeconds="1200" timeToLiveSeconds="120" overflowToDisk="false" maxElementsOnDisk="10000000" diskPersistent="false" diskExpiryThreadIntervalSeconds="120" memoryStoreEvictionPolicy="LRU" />
+    <defaultCache maxElementsInMemory="10000" eternal="false" timeToIdleSeconds="1200" timeToLiveSeconds="120" overflowToDisk="false"
+                  maxElementsOnDisk="10000000" diskPersistent="false" diskExpiryThreadIntervalSeconds="120"
+                  memoryStoreEvictionPolicy="LRU"/>
 
     <cache name="level1Cache"
            maxElementsInMemory="10000"
@@ -27,6 +30,6 @@
            overflowToDisk="true"
            diskPersistent="true"
            diskExpiryThreadIntervalSeconds="600"
-           memoryStoreEvictionPolicy="LRU" />
+           memoryStoreEvictionPolicy="LRU"/>
 
 </ehcache>

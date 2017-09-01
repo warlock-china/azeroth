@@ -18,39 +18,37 @@ import redis.clients.util.SafeEncoder;
  * date: Jan 17, 2017 8:11:29 PM <br/>
  *
  * @author warlock
- * @version 
+ * @version
  * @since JDK 1.8
  */
 public class RedisBatchCommand {
 
-    protected static final Logger logger  = LoggerFactory.getLogger(RedisBatchCommand.class);
+    protected static final Logger logger = LoggerFactory.getLogger(RedisBatchCommand.class);
 
     protected static final String RESP_OK = "OK";
 
     /**
      * 指定组批量写入字符串
      * @param groupName 缓存组
-     * @param keyValueMap 
+     * @param keyValueMap
      * @return
      */
     public static boolean setStringsWithGroup(String groupName, Map<String, Object> keyValueMap) {
-        if (keyValueMap == null || keyValueMap.isEmpty())
-            return false;
+        if (keyValueMap == null || keyValueMap.isEmpty()) { return false; }
         String[] keysValues = new String[keyValueMap.size() * 2];
         int index = 0;
         for (String key : keyValueMap.keySet()) {
-            if (keyValueMap.get(key) == null)
-                continue;
+            if (keyValueMap.get(key) == null) { continue; }
             keysValues[index++] = key;
             keysValues[index++] = keyValueMap.get(key).toString();
         }
         try {
             if (JedisProviderFactory.isCluster(groupName)) {
                 return JedisProviderFactory.getMultiKeyJedisClusterCommands(groupName)
-                    .mset(keysValues).equals(RESP_OK);
+                        .mset(keysValues).equals(RESP_OK);
             } else {
                 return JedisProviderFactory.getMultiKeyCommands(groupName).mset(keysValues)
-                    .equals(RESP_OK);
+                        .equals(RESP_OK);
             }
         } finally {
             JedisProviderFactory.getJedisProvider(groupName).release();
@@ -60,7 +58,7 @@ public class RedisBatchCommand {
     /**
      * 默认组批量写入字符串
      * @param groupName 缓存组
-     * @param keyValueMap 
+     * @param keyValueMap
      * @return
      */
     public static boolean setStrings(Map<String, Object> keyValueMap) {
@@ -70,17 +68,15 @@ public class RedisBatchCommand {
     /**
      * 指定组批量写入对象
      * @param groupName 缓存组
-     * @param keyValueMap 
+     * @param keyValueMap
      * @return
      */
     public static boolean setObjectsWithGroup(String groupName, Map<String, Object> keyValueMap) {
-        if (keyValueMap == null || keyValueMap.isEmpty())
-            return false;
+        if (keyValueMap == null || keyValueMap.isEmpty()) { return false; }
         byte[][] keysValues = new byte[keyValueMap.size() * 2][];
         int index = 0;
         for (String key : keyValueMap.keySet()) {
-            if (keyValueMap.get(key) == null)
-                continue;
+            if (keyValueMap.get(key) == null) { continue; }
             keysValues[index++] = SafeEncoder.encode(key);
             keysValues[index++] = SerializeUtils.serialize(keyValueMap.get(key));
         }
@@ -88,10 +84,10 @@ public class RedisBatchCommand {
         try {
             if (JedisProviderFactory.isCluster(groupName)) {
                 return JedisProviderFactory.getMultiKeyBinaryJedisClusterCommands(groupName)
-                    .mset(keysValues).equals(RESP_OK);
+                        .mset(keysValues).equals(RESP_OK);
             } else {
                 return JedisProviderFactory.getMultiKeyBinaryCommands(groupName).mset(keysValues)
-                    .equals(RESP_OK);
+                        .equals(RESP_OK);
             }
         } finally {
             JedisProviderFactory.getJedisProvider(groupName).release();
@@ -101,7 +97,7 @@ public class RedisBatchCommand {
     /**
      * 默认组批量写入对象
      * @param groupName 缓存组
-     * @param keyValueMap 
+     * @param keyValueMap
      * @return
      */
     public static boolean setObjects(Map<String, Object> keyValueMap) {
@@ -134,7 +130,7 @@ public class RedisBatchCommand {
         try {
             if (JedisProviderFactory.isCluster(groupName)) {
                 return JedisProviderFactory.getMultiKeyJedisClusterCommands(groupName)
-                    .del(keys) == 1;
+                        .del(keys) == 1;
             } else {
                 return JedisProviderFactory.getMultiKeyCommands(groupName).del(keys) == 1;
             }
@@ -152,7 +148,7 @@ public class RedisBatchCommand {
         try {
             if (JedisProviderFactory.isCluster(groupName)) {
                 return JedisProviderFactory.getMultiKeyBinaryJedisClusterCommands(groupName)
-                    .del(byteKeys) == 1;
+                        .del(byteKeys) == 1;
             } else {
                 return JedisProviderFactory.getMultiKeyBinaryCommands(groupName).del(byteKeys) == 1;
             }
@@ -171,11 +167,11 @@ public class RedisBatchCommand {
         try {
             if (JedisProviderFactory.isCluster(groupName)) {
                 List<byte[]> bytes = JedisProviderFactory
-                    .getMultiKeyBinaryJedisClusterCommands(groupName).mget(byteKeys);
+                        .getMultiKeyBinaryJedisClusterCommands(groupName).mget(byteKeys);
                 return listDerialize(bytes);
             } else {
                 List<byte[]> bytes = JedisProviderFactory.getMultiKeyBinaryCommands(groupName)
-                    .mget(byteKeys);
+                        .mget(byteKeys);
                 return listDerialize(bytes);
             }
         } finally {
@@ -188,8 +184,7 @@ public class RedisBatchCommand {
     }
 
     private static <T> T valueDerialize(byte[] bytes) {
-        if (bytes == null)
-            return null;
+        if (bytes == null) { return null; }
         try {
             return (T) SerializeUtils.deserialize(bytes);
         } catch (Exception e) {
@@ -199,8 +194,7 @@ public class RedisBatchCommand {
 
     private static <T> List<T> listDerialize(List<byte[]> datas) {
         List<T> list = new ArrayList<>();
-        if (datas == null)
-            return list;
+        if (datas == null) { return list; }
         for (byte[] bs : datas) {
             list.add((T) valueDerialize(bs));
         }

@@ -23,32 +23,28 @@ import redis.clients.jedis.exceptions.JedisException;
  */
 public class JedisSentinelProvider implements JedisProvider<Jedis, BinaryJedis> {
 
-    private static final String      SLAVE_CHEKER_KEY = "_slave_cheker";
-    private static final String      SLAVE_CHEKER_VAL = "1";
+    private static final String SLAVE_CHEKER_KEY = "_slave_cheker";
+    private static final String SLAVE_CHEKER_VAL = "1";
 
-    protected static final Logger    logger           = LoggerFactory
-        .getLogger(JedisSentinelProvider.class);
+    protected static final Logger logger = LoggerFactory.getLogger(JedisSentinelProvider.class);
 
-    public static final String       MODE             = "sentinel";
+    public static final String MODE = "sentinel";
 
-    private ThreadLocal<Jedis>       context          = new ThreadLocal<>();
+    private ThreadLocal<Jedis> context = new ThreadLocal<>();
 
-    private JedisSentinelPool        jedisPool;
+    private JedisSentinelPool jedisPool;
 
-    private String                   groupName;
+    private String groupName;
 
     private ScheduledExecutorService failoverCheker;
 
-    public JedisSentinelProvider(final String groupName, final JedisPoolConfig jedisPoolConfig,
-                                 String[] servers, final int timeout, final String password,
-                                 final int database, final String clientName,
-                                 final String masterName) {
+    public JedisSentinelProvider(final String groupName, final JedisPoolConfig jedisPoolConfig, String[] servers, final int timeout,
+                                 final String password, final int database, final String clientName, final String masterName) {
         super();
         this.groupName = groupName;
         final Set<String> sentinels = new HashSet<String>(Arrays.asList(servers));
 
-        jedisPool = new JedisSentinelPool(masterName, sentinels, jedisPoolConfig, timeout, password,
-            database, clientName);
+        jedisPool = new JedisSentinelPool(masterName, sentinels, jedisPoolConfig, timeout, password, database, clientName);
 
         failoverCheker = Executors.newScheduledThreadPool(1);
         failoverCheker.scheduleWithFixedDelay(new Runnable() {
@@ -60,32 +56,26 @@ public class JedisSentinelProvider implements JedisProvider<Jedis, BinaryJedis> 
                     jedis.set(SLAVE_CHEKER_KEY, SLAVE_CHEKER_VAL);
                 } catch (Exception e) {
                     if (e instanceof JedisDataException && e.getMessage().contains("READONLY")) {
-                        logger.warn(
-                            "JedisDataException happend error:{} and will re-init jedisPool",
-                            e.getMessage());
+                        logger.warn("JedisDataException happend error:{} and will re-init jedisPool", e.getMessage());
                         //重新初始化jedisPool
                         synchronized (jedisPool) {
-                            //jedisPool.destroy();
-                            //jedisPool = new JedisSentinelPool(masterName, sentinels, jedisPoolConfig, timeout, password, database,clientName);
-                            logger.info("jedisPool re-init ok,currentHostMaster is:{}:{}",
-                                jedisPool.getCurrentHostMaster().getHost(),
-                                jedisPool.getCurrentHostMaster().getPort());
+                            jedisPool.destroy();
+                            jedisPool = new JedisSentinelPool(masterName, sentinels, jedisPoolConfig, timeout, password, database,
+                                    clientName);
+                            logger.info("jedisPool re-init ok,currentHostMaster is:{}:{}", jedisPool.getCurrentHostMaster().getHost(),
+                                    jedisPool.getCurrentHostMaster().getPort());
                         }
                     }
                 } finally {
-                    try {
-                        jedis.close();
-                    } catch (Exception e2) {
-                    }
+                    try {jedis.close();} catch (Exception e2) {}
                 }
             }
-        }, 5, 5, TimeUnit.SECONDS);
+        }, 1, 1, TimeUnit.MINUTES);
     }
 
     public Jedis get() throws JedisException {
         Jedis jedis = context.get();
-        if (jedis != null)
-            return jedis;
+        if (jedis != null) { return jedis; }
         try {
             jedis = jedisPool.getResource();
         } catch (JedisException e) {
@@ -96,8 +86,7 @@ public class JedisSentinelProvider implements JedisProvider<Jedis, BinaryJedis> 
         }
         context.set(jedis);
         if (logger.isTraceEnabled()) {
-            logger.trace(">>get a redis conn[{}],Host:{}", jedis.toString(),
-                jedis.getClient().getHost());
+            logger.trace(">>get a redis conn[{}],Host:{}", jedis.toString(), jedis.getClient().getHost());
         }
         return jedis;
     }
