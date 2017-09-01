@@ -22,9 +22,9 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class BeanCopyUtils {
 
-    private static Map<String, Map<String, PropertyDescriptor>> cache      = new ConcurrentHashMap<>();
+    private static Map<String, Map<String, PropertyDescriptor>> cache = new ConcurrentHashMap<>();
 
-    private static Map<String, List<String>>                    fieldCache = new HashMap<>();
+    private static Map<String, List<String>> fieldCache = new HashMap<>();
 
     /**
      * 值复制
@@ -37,22 +37,20 @@ public class BeanCopyUtils {
      */
     public static <T> T copy(Object src, T dest,
                              boolean setDefaultValForNull) throws BeanConverterException {
-        if (src == null)
-            return null;
+        if (src == null) { return null; }
 
         try {
             Class<? extends Object> destClass = dest.getClass();
             Map<String, PropertyDescriptor> srcDescriptors = getCachePropertyDescriptors(
-                src.getClass());
+                    src.getClass());
             Map<String, PropertyDescriptor> destDescriptors = getCachePropertyDescriptors(
-                destClass);
+                    destClass);
 
             Set<String> keys = destDescriptors.keySet();
             for (String key : keys) {
                 PropertyDescriptor srcDescriptor = srcDescriptors.get(key);
 
-                if (srcDescriptor == null)
-                    continue;
+                if (srcDescriptor == null) { continue; }
 
                 PropertyDescriptor destDescriptor = destDescriptors.get(key);
 
@@ -65,8 +63,8 @@ public class BeanCopyUtils {
                     String name = destDescriptor.getName();
                     try {
                         writeMethod = destClass.getMethod(
-                            "set" + name.substring(0, 1).toUpperCase() + name.substring(1),
-                            destDescriptor.getPropertyType());
+                                "set" + name.substring(0, 1).toUpperCase() + name.substring(1),
+                                destDescriptor.getPropertyType());
 
                         destDescriptor.setWriteMethod(writeMethod);
                     } catch (Exception e) {
@@ -83,10 +81,10 @@ public class BeanCopyUtils {
                     //设置默认值
                     if (value == null && setDefaultValForNull) {
                         if (destDescriptor.getPropertyType() == Long.class
-                            || destDescriptor.getPropertyType() == Integer.class
-                            || destDescriptor.getPropertyType() == Short.class
-                            || destDescriptor.getPropertyType() == Double.class
-                            || destDescriptor.getPropertyType() == Float.class) {
+                                || destDescriptor.getPropertyType() == Integer.class
+                                || destDescriptor.getPropertyType() == Short.class
+                                || destDescriptor.getPropertyType() == Double.class
+                                || destDescriptor.getPropertyType() == Float.class) {
                             value = 0;
                         } else if (destDescriptor.getPropertyType() == String.class) {
                             value = "";
@@ -112,8 +110,7 @@ public class BeanCopyUtils {
     }
 
     public static <T> List<T> copy(List<?> srcs, Class<T> destClass, boolean setDefaultValForNull) {
-        if (srcs == null)
-            return new ArrayList<T>();
+        if (srcs == null) { return new ArrayList<T>(); }
 
         List<T> dests = new ArrayList<T>();
         for (Object src : srcs) {
@@ -129,8 +126,7 @@ public class BeanCopyUtils {
 
     public static <T> T copy(Object src, Class<T> destClass,
                              boolean setDefaultValForNull) throws BeanConverterException {
-        if (src == null)
-            return null;
+        if (src == null) { return null; }
 
         try {
             T dest = destClass.newInstance();
@@ -156,38 +152,34 @@ public class BeanCopyUtils {
                                                 String... excludeFields) throws BeanConverterException {
         try {
             Map<String, PropertyDescriptor> srcDescriptors = getCachePropertyDescriptors(
-                bean.getClass());
+                    bean.getClass());
             Set<String> keys = srcDescriptors.keySet();
 
             List<String> excludeFieldsList = null;
             if (excludeFields != null && excludeFields.length > 0
-                && StringUtils.isNotBlank(excludeFields[0])) {
+                    && StringUtils.isNotBlank(excludeFields[0])) {
                 excludeFieldsList = Arrays.asList(excludeFields);
             }
 
             for (String key : keys) {
                 PropertyDescriptor srcDescriptor = srcDescriptors.get(key);
-                if (srcDescriptor == null)
-                    continue;
-                if (excludeFieldsList != null && excludeFieldsList.contains(key))
-                    continue;
+                if (srcDescriptor == null) { continue; }
+                if (excludeFieldsList != null && excludeFieldsList.contains(key)) { continue; }
                 Object value = srcDescriptor.getReadMethod().invoke(bean);
 
                 boolean isWrapType = srcDescriptor.getPropertyType() == Long.class
-                                     || srcDescriptor.getPropertyType() == Integer.class
-                                     || srcDescriptor.getPropertyType() == Short.class
-                                     || srcDescriptor.getPropertyType() == Double.class
-                                     || srcDescriptor.getPropertyType() == Float.class;
+                        || srcDescriptor.getPropertyType() == Integer.class
+                        || srcDescriptor.getPropertyType() == Short.class
+                        || srcDescriptor.getPropertyType() == Double.class
+                        || srcDescriptor.getPropertyType() == Float.class;
                 if (isWrapType && value != null && Integer.parseInt(value.toString()) == 0) {
                     value = null;
                     Method writeMethod = srcDescriptor.getWriteMethod();
-                    if (writeMethod != null)
-                        writeMethod.invoke(bean, value);
+                    if (writeMethod != null) { writeMethod.invoke(bean, value); }
                 }
 
             }
         } catch (Exception e) {
-            e.printStackTrace();
             throw new BeanConverterException(e);
         }
     }
@@ -203,7 +195,7 @@ public class BeanCopyUtils {
             value = (value == null) ? Short.valueOf("0") : Short.valueOf(value.toString());
         } else if (propertyType == int.class || propertyType == Integer.class) {
             if (srcDescriptor.getPropertyType() == boolean.class
-                || srcDescriptor.getPropertyType() == Boolean.class) {
+                    || srcDescriptor.getPropertyType() == Boolean.class) {
                 value = Boolean.parseBoolean(value.toString()) ? 1 : 0;
             } else {
                 value = (value == null) ? Integer.valueOf("0") : Integer.valueOf(value.toString());
@@ -215,19 +207,16 @@ public class BeanCopyUtils {
                 if (srcDescriptor.getPropertyType() == String.class) {
                     value = DateUtils.parseDate(value.toString());
                 } else if (srcDescriptor.getPropertyType() == Long.class
-                           || srcDescriptor.getPropertyType() == Integer.class
-                           || srcDescriptor.getPropertyType() == long.class
-                           || srcDescriptor.getPropertyType() == int.class) {
+                        || srcDescriptor.getPropertyType() == Integer.class
+                        || srcDescriptor.getPropertyType() == long.class
+                        || srcDescriptor.getPropertyType() == int.class) {
                     Long val = Long.valueOf(value.toString());
-                    if (val.longValue() != 0)
-                        value = new Date(val);
-                    else
-                        value = null;
+                    if (val.longValue() != 0) { value = new Date(val); } else { value = null; }
                 }
             }
 
         } else if (propertyType == String.class
-                   && srcDescriptor.getPropertyType() != String.class) {
+                && srcDescriptor.getPropertyType() != String.class) {
             if (value != null) {
                 if (srcDescriptor.getPropertyType() == Date.class) {
                     value = DateUtils.format((Date) value);
@@ -278,8 +267,7 @@ public class BeanCopyUtils {
                 String propertyName = descriptor.getName();
                 if (map.containsKey(propertyName)) {
                     Object object = map.get(propertyName);
-                    if (object == null)
-                        continue;
+                    if (object == null) { continue; }
                     if (object instanceof String) {
                         object = stringConvertTo(object.toString(), descriptor.getPropertyType());
                     }
@@ -296,7 +284,7 @@ public class BeanCopyUtils {
         Map<String, Object> returnMap = new HashMap<String, Object>();
         try {
             Map<String, PropertyDescriptor> descriptors = getCachePropertyDescriptors(
-                bean.getClass());
+                    bean.getClass());
             for (PropertyDescriptor descriptor : descriptors.values()) {
                 String propertyName = descriptor.getName();
                 Method readMethod = descriptor.getReadMethod();
@@ -341,8 +329,7 @@ public class BeanCopyUtils {
      */
     private synchronized static Map<String, PropertyDescriptor> doCacheClass(Class<?> clazz,
                                                                              String canonicalName) throws IntrospectionException {
-        if (cache.containsKey(canonicalName))
-            return cache.get(canonicalName);
+        if (cache.containsKey(canonicalName)) { return cache.get(canonicalName); }
 
         Map<String, PropertyDescriptor> map = new ConcurrentHashMap<>();
 
@@ -360,24 +347,26 @@ public class BeanCopyUtils {
 
             String name = descriptor.getName();
 
-            if (readMethod == null)
+            if (readMethod == null) {
                 try {
                     readMethod = clazz
-                        .getMethod("get" + name.substring(0, 1).toUpperCase() + name.substring(1));
+                            .getMethod("get" + name.substring(0, 1).toUpperCase() + name.substring(1));
 
                     descriptor.setReadMethod(readMethod);
                 } catch (NoSuchMethodException | SecurityException e) {
                 }
+            }
 
-            if (writeMethod == null)
+            if (writeMethod == null) {
                 try {
                     writeMethod = clazz.getMethod(
-                        "set" + name.substring(0, 1).toUpperCase() + name.substring(1),
-                        descriptor.getPropertyType());
+                            "set" + name.substring(0, 1).toUpperCase() + name.substring(1),
+                            descriptor.getPropertyType());
 
                     descriptor.setWriteMethod(writeMethod);
                 } catch (NoSuchMethodException | SecurityException e) {
                 }
+            }
 
             if (readMethod != null && writeMethod != null) {
                 map.put(descriptor.getName(), descriptor);

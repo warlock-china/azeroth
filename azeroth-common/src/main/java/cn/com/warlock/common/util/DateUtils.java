@@ -20,14 +20,13 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
      * 解析日期<br>
      * 支持格式：<br>
      * generate by: vakin jiang at 2012-3-1
-     * 
+     *
      * @param dateStr
      * @return
      */
     public static Date parseDate(String dateStr) {
         SimpleDateFormat format = null;
-        if (StringUtils.isBlank(dateStr))
-            return null;
+        if (StringUtils.isBlank(dateStr)) { return null; }
         String _dateStr = dateStr.trim();
         try {
             if (_dateStr.matches("\\d{1,2}[A-Z]{3}")) {
@@ -69,7 +68,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     /**
      * 解析日期字符串转化成日期格式<br>
      * generate by: vakin jiang at 2012-3-1
-     * 
+     *
      * @param dateStr
      * @param pattern
      * @return
@@ -77,8 +76,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     public static Date parseDate(String dateStr, String pattern) {
         try {
             SimpleDateFormat format = null;
-            if (StringUtils.isBlank(dateStr))
-                return null;
+            if (StringUtils.isBlank(dateStr)) { return null; }
             if (StringUtils.isNotBlank(pattern)) {
                 format = new SimpleDateFormat(pattern);
                 return format.parse(dateStr);
@@ -92,7 +90,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     /**
      * 获取一天开始时间<br>
      * generate by: vakin jiang at 2011-12-23
-     * 
+     *
      * @param date
      * @return
      */
@@ -104,7 +102,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     /**
      * 获取一天结束时间<br>
      * generate by: vakin jiang at 2011-12-23
-     * 
+     *
      * @param date
      * @return
      */
@@ -116,7 +114,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     /**
      * 时间戳格式转换为日期（年月日）格式<br>
      * generate by: vakin jiang at 2011-12-23
-     * 
+     *
      * @param date
      * @return
      */
@@ -125,24 +123,24 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     }
 
     /**
-    * 格式化日期格式为：ddMMMyy<br>
-    * generate by: vakin jiang
-    *                    at 2012-10-17
-    * @param dateStr
-    * @return
-    */
+     * 格式化日期格式为：ddMMMyy<br>
+     * generate by: vakin jiang
+     *                    at 2012-10-17
+     * @param dateStr
+     * @return
+     */
     public static String format2ddMMMyy(Date date) {
         SimpleDateFormat format = new SimpleDateFormat("ddMMMyy", Locale.ENGLISH);
         return format.format(date).toUpperCase();
     }
 
     /**
-    * 格式化日期格式为：ddMMMyy<br>
-    * generate by: vakin jiang
-    *                    at 2012-10-17
-    * @param dateStr
-    * @return
-    */
+     * 格式化日期格式为：ddMMMyy<br>
+     * generate by: vakin jiang
+     *                    at 2012-10-17
+     * @param dateStr
+     * @return
+     */
     public static String format2ddMMMyy(String dateStr) {
         SimpleDateFormat format = new SimpleDateFormat("ddMMMyy", Locale.ENGLISH);
         return format.format(DateUtils.parseDate(dateStr)).toUpperCase();
@@ -151,7 +149,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     /**
      * 格式化日期字符串<br>
      * generate by: vakin jiang at 2012-3-7
-     * 
+     *
      * @param dateStr
      * @param patterns
      * @return
@@ -167,14 +165,13 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     /**
      * 格式化日期为日期字符串<br>
      * generate by: vakin jiang at 2012-3-7
-     * 
+     *
      * @param orig
      * @param patterns
      * @return
      */
     public static String format(Date date, String... patterns) {
-        if (date == null)
-            return "";
+        if (date == null) { return ""; }
         String pattern = TIMESTAMP_PATTERN;
         if (patterns != null && patterns.length > 0 && StringUtils.isNotBlank(patterns[0])) {
             pattern = patterns[0];
@@ -189,7 +186,7 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
     /**
      * 格式化日期为指定格式<br>
      * generate by: vakin jiang at 2012-3-7
-     * 
+     *
      * @param orig
      * @param patterns
      * @return
@@ -280,13 +277,13 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         Calendar endCalendar = Calendar.getInstance();
         endCalendar.setTime(end);
         return (endCalendar.get(Calendar.YEAR) - startCalendar.get(Calendar.YEAR)) * 12
-               + endCalendar.get(Calendar.MONTH) - startCalendar.get(Calendar.MONTH);
+                + endCalendar.get(Calendar.MONTH) - startCalendar.get(Calendar.MONTH);
     }
 
     /**
      * 计算并格式化消耗时间<br>
      * generate by: vakin jiang at 2012-2-16
-     * 
+     *
      * @param startPoint
      * @return
      */
@@ -296,12 +293,9 @@ public class DateUtils extends org.apache.commons.lang3.time.DateUtils {
         int hour = (int) Math.floor(totalMilTimes / (60 * 60 * 1000));
         int mi = (int) Math.floor(totalMilTimes / (60 * 1000));
         int se = (int) Math.floor((totalMilTimes - 60000 * mi) / 1000);
-        if (hour > 0)
-            buff.append(hour).append("小时");
-        if (mi > 0)
-            buff.append(mi).append("分");
-        if (hour == 0)
-            buff.append(se).append("秒");
+        if (hour > 0) { buff.append(hour).append("小时"); }
+        if (mi > 0) { buff.append(mi).append("分"); }
+        if (hour == 0) { buff.append(se).append("秒"); }
         return buff.toString();
     }
 

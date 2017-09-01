@@ -6,25 +6,19 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * ClassName: AES <br/>
- * Function: AES. <br/>
- * Reason:  <br/>
- * date: Jan 17, 2017 8:18:20 PM <br/>
- *
  * @author warlock
- * @version 
- * @since JDK 1.8
+ * @version $Id: AES.java, v 0.1 2012-6-5 下午08:45:15 warlock Exp $
  */
 public class AES {
     /**
      * 生成密钥
-     * @throws Exception 
+     * @throws Exception
      */
     public static byte[] initKey() throws Exception {
         //密钥生成器
         KeyGenerator keyGen = KeyGenerator.getInstance("AES");
         //初始化密钥生成器
-        keyGen.init(128); //默认128，获得无政策权限后可用192或256
+        keyGen.init(128);  //默认128，获得无政策权限后可用192或256
         //生成密钥
         SecretKey secretKey = keyGen.generateKey();
         return secretKey.getEncoded();
@@ -32,9 +26,9 @@ public class AES {
 
     /**
      * 加密
-     * @throws Exception 
+     * @throws Exception
      */
-    public static byte[] encryptAES(byte[] data, byte[] key) throws Exception {
+    public static byte[] encrypt(byte[] data, byte[] key) throws Exception {
         //恢复密钥
         SecretKey secretKey = new SecretKeySpec(key, "AES");
         //Cipher完成加密
@@ -50,7 +44,7 @@ public class AES {
     /**
      * 解密
      */
-    public static byte[] decryptAES(byte[] data, byte[] key) throws Exception {
+    public static byte[] decrypt(byte[] data, byte[] key) throws Exception {
         //恢复密钥生成器
         SecretKey secretKey = new SecretKeySpec(key, "AES");
         //Cipher完成解密

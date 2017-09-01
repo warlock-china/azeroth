@@ -11,22 +11,22 @@ public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Integer           id;
+    private Integer id;
 
-    private String            name;
+    private String name;
 
-    private String            password         = DigestUtils
-        .md5(RandomStringUtils.random(8, true, true));
+    private String password = DigestUtils
+            .md5(RandomStringUtils.random(8, true, true));
 
-    private String            mobile           = "13800138000";
+    private String mobile = "13800138000";
 
-    private String            email;
+    private String email;
 
-    private Short             type             = 1;
+    private Short type = 1;
 
-    private Short             status           = 1;
+    private Short status = 1;
 
-    private Date              createdAt;
+    private Date createdAt;
 
     public User() {
     }

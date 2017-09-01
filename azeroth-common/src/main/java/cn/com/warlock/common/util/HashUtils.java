@@ -11,8 +11,7 @@ public class HashUtils {
      * 等HASH算法要快很多，而且据说这个算法的碰撞率很低. http://murmurhash.googlepages.com/
      */
     public static Long hash(String key) {
-        if (key == null)
-            return 0L;
+        if (key == null) { return 0L; }
         ByteBuffer buf = ByteBuffer.wrap(key.getBytes());
         int seed = 0x1234ABCD;
 

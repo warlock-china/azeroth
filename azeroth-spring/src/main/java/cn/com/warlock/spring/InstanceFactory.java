@@ -13,21 +13,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class InstanceFactory {
 
     private static SpringInstanceProvider instanceProvider;
-    private static Long                   timeStarting = System.currentTimeMillis();
-    private static AtomicBoolean          initialized  = new AtomicBoolean(false);
+    private static Long          timeStarting = System.currentTimeMillis();
+    private static AtomicBoolean initialized  = new AtomicBoolean(false);
 
     /**
      * 设置实例提供者。
      * @param provider 一个实例提供者的实例。
      */
     public static void setInstanceProvider(SpringInstanceProvider provider) {
+        if (instanceProvider != null) { return; }
         instanceProvider = provider;
         initialized.set(true);
     }
 
     /**
      * 获取指定类型的对象实例。如果IoC容器没配置好或者IoC容器中找不到该类型的实例则抛出异常。
-     * 
+     *
      * @param <T> 对象的类型
      * @param beanClass 对象的类
      * @return 类型为T的对象实例
@@ -38,7 +39,7 @@ public class InstanceFactory {
 
     /**
      * 获取指定类型的对象实例。如果IoC容器没配置好或者IoC容器中找不到该实例则抛出异常。
-     * 
+     *
      * @param <T> 对象的类型
      * @param beanName 实现类在容器中配置的名字
      * @param beanClass 对象的类
@@ -70,18 +71,15 @@ public class InstanceFactory {
      * 这是一个阻塞方法，直到context初始化完成
      */
     public synchronized static void waitUtilInitialized() {
-        if (initialized.get())
-            return;
+        if (initialized.get()) { return; }
         while (true) {
-            if (initialized.get())
-                break;
+            if (initialized.get()) { break; }
             try {
                 Thread.sleep(1000);
             } catch (Exception e) {
             }
             long waiting = System.currentTimeMillis() - timeStarting;
-            if (waiting > 60 * 1000)
-                throw new RuntimeException("Spring Initialize failture");
+            if (waiting > 60 * 1000) { throw new RuntimeException("Spring Initialize failture"); }
             System.out.println("Spring Initializing >>>>>" + waiting + " s");
         }
     }

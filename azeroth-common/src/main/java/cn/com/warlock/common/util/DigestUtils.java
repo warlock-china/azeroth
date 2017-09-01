@@ -11,7 +11,7 @@ public class DigestUtils {
     private static final String CARTSET_UTF_8 = "UTF-8";
     private static final String MD5_NAME      = "MD5";
     private static final char[] saltChars     = ("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./"
-        .toCharArray());
+            .toCharArray());
 
     /**
      * MD5加密

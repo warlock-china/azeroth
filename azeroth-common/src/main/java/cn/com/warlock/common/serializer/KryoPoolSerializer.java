@@ -17,10 +17,10 @@ public class KryoPoolSerializer implements Serializer {
      * Kryo 的包装
      */
     private static class KryoHolder {
-        private Kryo     kryo;
-        static final int BUFFER_SIZE = 1024;
-        private Output   output      = new Output(BUFFER_SIZE, -1); //reuse
-        private Input    input       = new Input();
+        private Kryo kryo;
+        static final int    BUFFER_SIZE = 1024;
+        private      Output output      = new Output(BUFFER_SIZE, -1); //reuse
+        private      Input  input       = new Input();
 
         KryoHolder(Kryo kryo) {
             this.kryo = kryo;
@@ -122,8 +122,7 @@ public class KryoPoolSerializer implements Serializer {
     @Override
     public byte[] serialize(Object obj) throws IOException {
         KryoHolder kryoHolder = null;
-        if (obj == null)
-            throw new RuntimeException("obj can not be null");
+        if (obj == null) { throw new RuntimeException("obj can not be null"); }
         try {
             kryoHolder = KryoPoolImpl.getInstance().get();
             kryoHolder.output.clear(); // clear Output -->每次调用的时候 重置
@@ -147,8 +146,7 @@ public class KryoPoolSerializer implements Serializer {
     @Override
     public Object deserialize(byte[] bytes) throws IOException {
         KryoHolder kryoHolder = null;
-        if (bytes == null)
-            throw new RuntimeException("bytes can not be null");
+        if (bytes == null) { throw new RuntimeException("bytes can not be null"); }
         try {
             kryoHolder = KryoPoolImpl.getInstance().get();
             kryoHolder.input.setBuffer(bytes, 0, bytes.length);//call it ,and then use input object  ,discard any array

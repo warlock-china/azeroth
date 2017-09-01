@@ -30,23 +30,20 @@ public class KryoSerializer implements Serializer {
             output.flush();
             return baos.toByteArray();
         } finally {
-            if (output != null)
-                output.close();
+            if (output != null) { output.close(); }
         }
     }
 
     @Override
     public Object deserialize(byte[] bits) throws IOException {
-        if (bits == null || bits.length == 0)
-            return null;
+        if (bits == null || bits.length == 0) { return null; }
         Input ois = null;
         try {
             ByteArrayInputStream bais = new ByteArrayInputStream(bits);
             ois = new Input(bais);
             return kryo.readClassAndObject(ois);
         } finally {
-            if (ois != null)
-                ois.close();
+            if (ois != null) { ois.close(); }
         }
     }
 

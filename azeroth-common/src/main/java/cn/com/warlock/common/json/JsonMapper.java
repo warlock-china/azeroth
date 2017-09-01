@@ -1,6 +1,8 @@
 package cn.com.warlock.common.json;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +20,7 @@ public class JsonMapper {
 
     private static JsonMapper defaultMapper;
 
-    private ObjectMapper      mapper;
+    private ObjectMapper mapper;
 
     public JsonMapper() {
         this(null);
@@ -50,11 +52,12 @@ public class JsonMapper {
 
     public JsonMapper dateAndTimestampConvert(boolean enabled) {
         if (enabled) {
-            mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
-            mapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+            mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            mapper.disable(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
+            mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
         } else {
-            mapper.disable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);
-            mapper.disable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);
+            mapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+            mapper.enable(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS);
         }
         return this;
 
@@ -94,10 +97,10 @@ public class JsonMapper {
 
     /**
      * 反序列化POJO或简单Collection如List<String>.
-     * 
+     *
      * 如果JSON字符串为Null或"null"字符串, 返回Null.
      * 如果JSON字符串为"[]", 返回空集合.
-     * 
+     *
      * 如需反序列化复杂Collection如List<MyBean>, 请使用fromJson(String,JavaType)
      * @see #fromJson(String, JavaType)
      */
@@ -118,8 +121,7 @@ public class JsonMapper {
             return null;
         }
 
-        JavaType javaType = mapper.getTypeFactory().constructParametrizedType(ArrayList.class,
-            ArrayList.class, elementType);
+        JavaType javaType = mapper.getTypeFactory().constructParametrizedType(ArrayList.class, ArrayList.class, elementType);
         return toObject(jsonString, javaType);
     }
 
@@ -167,9 +169,11 @@ public class JsonMapper {
     }
 
     public static JsonMapper getDefault() {
+        //线程不安全
         if (defaultMapper == null) {
             defaultMapper = new JsonMapper();
-            defaultMapper.dateAndTimestampConvert(false);
+            defaultMapper.enumAndStringConvert(true);
+            defaultMapper.dateAndTimestampConvert(true);
         }
         return defaultMapper;
     }

@@ -21,15 +21,15 @@ public class PackageScanner {
             clonePatterns[i] = clonePatterns[i].replace(".", "/");
         }
         return this.selectPackages(ppatterns)//
-            .scan();//
+                .scan();//
     }
 
     /**
      * Constructor
      */
     public PackageScanner() {
-        packagePatterns = new Patterns(new String[] { "com.*", "net.*", "org.*" }, new String[] {});
-        jarPatterns = new Patterns(new String[] { "*.jar" }, new String[] {});
+        packagePatterns = new Patterns(new String[] {"com.*", "net.*", "org.*"}, new String[] {});
+        jarPatterns = new Patterns(new String[] {"*.jar"}, new String[] {});
         patternFactory = new SimpleWildcardPatternFactory();
     }
 
@@ -57,7 +57,7 @@ public class PackageScanner {
 
         // Kick off the scanning
         Set<String> exports = scanner.findInPackages(new PatternTest(),
-            roots.toArray(new String[roots.size()]));
+                roots.toArray(new String[roots.size()]));
 
         return exports;
     }
@@ -68,6 +68,7 @@ public class PackageScanner {
     }
 
     // DSL methods and classes
+
     /**
      * Sets the classloader to scan
      * @param classLoader The classloader
@@ -145,8 +146,8 @@ public class PackageScanner {
      */
     public static class Patterns {
 
-        private String[]              origIncludes;
-        private String[]              origExcludes;
+        private String[] origIncludes;
+        private String[] origExcludes;
 
         private List<CompiledPattern> includes;
         private List<CompiledPattern> excludes;

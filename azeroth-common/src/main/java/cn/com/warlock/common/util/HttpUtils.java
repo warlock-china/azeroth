@@ -42,8 +42,8 @@ public abstract class HttpUtils {
     private static final String      METHOD_GET            = "GET";
     private static final String      CONTENT_ENCODING_GZIP = "gzip";
     private static final Certificate verisign;                                     // G3根证书
-    private static boolean           ignoreSSLCheck;                               // 忽略SSL检查
-    private static boolean           ignoreHostCheck;                              // 忽略HOST检查
+    private static       boolean     ignoreSSLCheck;                               // 忽略SSL检查
+    private static       boolean     ignoreHostCheck;                              // 忽略HOST检查
 
     static {
         InputStream input = null;
@@ -131,7 +131,7 @@ public abstract class HttpUtils {
 
     /**
      * 执行HTTP POST请求。
-     * 
+     *
      * @param url 请求地址
      * @param params 请求参数
      * @return 响应字符串
@@ -143,7 +143,7 @@ public abstract class HttpUtils {
 
     /**
      * 执行HTTP POST请求。
-     * 
+     *
      * @param url 请求地址
      * @param params 请求参数
      * @param charset 字符集，如UTF-8, GBK, GB2312
@@ -168,7 +168,7 @@ public abstract class HttpUtils {
 
     /**
      * 执行HTTP POST请求。
-     * 
+     *
      * @param url 请求地址
      * @param ctype 请求类型
      * @param content 请求字节数组
@@ -214,7 +214,7 @@ public abstract class HttpUtils {
 
     /**
      * 执行带文件上传的HTTP POST请求。
-     * 
+     *
      * @param url 请求地址
      * @param textParams 文本请求参数
      * @param fileParams 文件请求参数
@@ -238,7 +238,7 @@ public abstract class HttpUtils {
 
     /**
      * 执行带文件上传的HTTP POST请求。
-     * 
+     *
      * @param url 请求地址
      * @param textParams 文本请求参数
      * @param fileParams 文件请求参数
@@ -254,7 +254,7 @@ public abstract class HttpUtils {
             return doPost(url, params, charset, connectTimeout, readTimeout, headerMap);
         } else {
             return _doPostWithFile(url, params, fileParams, charset, connectTimeout, readTimeout,
-                headerMap);
+                    headerMap);
         }
     }
 
@@ -284,7 +284,7 @@ public abstract class HttpUtils {
                 Set<Entry<String, String>> textEntrySet = params.entrySet();
                 for (Entry<String, String> textEntry : textEntrySet) {
                     byte[] textBytes = getTextEntry(textEntry.getKey(), textEntry.getValue(),
-                        charset);
+                            charset);
                     out.write(entryBoundaryBytes);
                     out.write(textBytes);
                 }
@@ -297,7 +297,7 @@ public abstract class HttpUtils {
                         continue;
                     }
                     byte[] fileBytes = getFileEntry(fileEntry.getKey(), fileItem.getFileName(),
-                        fileItem.getMimeType(), charset);
+                            fileItem.getMimeType(), charset);
                     out.write(entryBoundaryBytes);
                     out.write(fileBytes);
                     out.write(fileItem.getContent());
@@ -347,7 +347,7 @@ public abstract class HttpUtils {
 
     /**
      * 执行HTTP GET请求。
-     * 
+     *
      * @param url 请求地址
      * @param params 请求参数
      * @return 响应字符串
@@ -358,7 +358,7 @@ public abstract class HttpUtils {
 
     /**
      * 执行HTTP GET请求。
-     * 
+     *
      * @param url 请求地址
      * @param params 请求参数
      * @param charset 字符集，如UTF-8, GBK, GB2312
@@ -400,8 +400,8 @@ public abstract class HttpUtils {
             if (ignoreSSLCheck) {
                 try {
                     SSLContext ctx = SSLContext.getInstance("TLS");
-                    ctx.init(null, new TrustManager[] { new TrustAllTrustManager() },
-                        new SecureRandom());
+                    ctx.init(null, new TrustManager[] {new TrustAllTrustManager()},
+                            new SecureRandom());
                     connHttps.setSSLSocketFactory(ctx.getSocketFactory());
                     connHttps.setHostnameVerifier(new HostnameVerifier() {
                         public boolean verify(String hostname, SSLSession session) {
@@ -414,8 +414,8 @@ public abstract class HttpUtils {
             } else {
                 try {
                     SSLContext ctx = SSLContext.getInstance("TLS");
-                    ctx.init(null, new TrustManager[] { new VerisignTrustManager() },
-                        new SecureRandom());
+                    ctx.init(null, new TrustManager[] {new VerisignTrustManager()},
+                            new SecureRandom());
                     connHttps.setSSLSocketFactory(ctx.getSocketFactory());
                     if (ignoreHostCheck) {
                         connHttps.setHostnameVerifier(new HostnameVerifier() {
@@ -558,7 +558,7 @@ public abstract class HttpUtils {
 
     /**
      * 使用默认的UTF-8字符集反编码请求参数值。
-     * 
+     *
      * @param value 参数值
      * @return 反编码后的参数值
      */
@@ -568,7 +568,7 @@ public abstract class HttpUtils {
 
     /**
      * 使用默认的UTF-8字符集编码请求参数值。
-     * 
+     *
      * @param value 参数值
      * @return 编码后的参数值
      */
@@ -578,7 +578,7 @@ public abstract class HttpUtils {
 
     /**
      * 使用指定的字符集反编码请求参数值。
-     * 
+     *
      * @param value 参数值
      * @param charset 字符集
      * @return 反编码后的参数值
@@ -597,7 +597,7 @@ public abstract class HttpUtils {
 
     /**
      * 使用指定的字符集编码请求参数值。
-     * 
+     *
      * @param value 参数值
      * @param charset 字符集
      * @return 编码后的参数值
@@ -616,7 +616,7 @@ public abstract class HttpUtils {
 
     /**
      * 从URL中提取所有的参数。
-     * 
+     *
      * @param query URL地址
      * @return 参数映射
      */
@@ -648,7 +648,7 @@ public abstract class HttpUtils {
 
         /**
          * 基于本地文件的构造器。
-         * 
+         *
          * @param file 本地文件
          */
         public FileItem(File file) {
@@ -657,7 +657,7 @@ public abstract class HttpUtils {
 
         /**
          * 基于文件绝对路径的构造器。
-         * 
+         *
          * @param filePath 文件绝对路径
          */
         public FileItem(String filePath) {
@@ -666,7 +666,7 @@ public abstract class HttpUtils {
 
         /**
          * 基于文件名和字节流的构造器。
-         * 
+         *
          * @param fileName 文件名
          * @param content 文件字节流
          */
@@ -677,7 +677,7 @@ public abstract class HttpUtils {
 
         /**
          * 基于文件名、字节流和媒体类型的构造器。
-         * 
+         *
          * @param fileName 文件名
          * @param content 文件字节流
          * @param mimeType 媒体类型
@@ -728,7 +728,7 @@ public abstract class HttpUtils {
 
         /**
          * 获取文件的真实媒体类型。目前只支持JPG, GIF, PNG, BMP四种图片文件。
-         * 
+         *
          * @param bytes 文件字节流
          * @return 媒体类型(MEME-TYPE)
          */
@@ -753,7 +753,7 @@ public abstract class HttpUtils {
 
         /**
          * 获取文件的真实后缀名。目前只支持JPG, GIF, PNG, BMP四种图片文件。
-         * 
+         *
          * @param bytes 文件字节流
          * @return JPG, GIF, PNG or null
          */

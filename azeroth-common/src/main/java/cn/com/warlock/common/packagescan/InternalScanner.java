@@ -23,13 +23,13 @@ import org.slf4j.LoggerFactory;
  */
 class InternalScanner {
     /**
-     * 
+     *
      */
-    private static final String      SUFFIX_CLASS    = ".class";
-    private final Logger             log             = LoggerFactory
-        .getLogger(InternalScanner.class);
-    private Map<String, Set<String>> jarContentCache = new HashMap<String, Set<String>>();
-    private ClassLoader              classloader;
+    private static final String                   SUFFIX_CLASS    = ".class";
+    private final        Logger                   log             = LoggerFactory
+            .getLogger(InternalScanner.class);
+    private              Map<String, Set<String>> jarContentCache = new HashMap<String, Set<String>>();
+    private ClassLoader classloader;
 
     static interface Test {
         boolean matchesPackage(String pkg);
@@ -101,10 +101,9 @@ class InternalScanner {
                 try {
                     URL fileURL = new URL(urlPath);
                     // only scan elements in the classpath that are local files
-                    if ("file".equals(fileURL.getProtocol().toLowerCase()))
-                        file = new File(fileURL.toURI());
-                    else
+                    if ("file".equals(fileURL.getProtocol().toLowerCase())) { file = new File(fileURL.toURI()); } else {
                         log.info("Skipping non file classpath element [ " + urlPath + " ]");
+                    }
                 } catch (URISyntaxException e) {
                     //Yugh, this is necessary as the URL might not be convertible to a URI, so resolve it by the file path
                     file = new File(urlPath.substring("file:".length()));
@@ -112,7 +111,7 @@ class InternalScanner {
 
                 if (file != null && file.isDirectory()) {
                     localClsssOrPkgs
-                        .addAll(loadImplementationsInDirectory(test, packageName, file));
+                            .addAll(loadImplementationsInDirectory(test, packageName, file));
                 } else if (file != null) {
                     if (test.matchesJar(file.getName())) {
                         localClsssOrPkgs.addAll(loadImplementationsInJar(test, file));
@@ -140,7 +139,7 @@ class InternalScanner {
      */
     List<String> loadImplementationsInDirectory(Test test, String parent, File location) {
         log.debug(
-            "Scanning directory " + location.getAbsolutePath() + " parent: '" + parent + "'.");
+                "Scanning directory " + location.getAbsolutePath() + " parent: '" + parent + "'.");
         File[] files = location.listFiles();
         List<String> localClsssOrPkgs = new ArrayList<String>();
 
@@ -157,12 +156,11 @@ class InternalScanner {
 
                 // If the parent is empty, then assume the directory's jars should be searched
             } else if ("".equals(parent) && file.getName().endsWith(".jar")
-                       && test.matchesJar(file.getName())) {
+                    && test.matchesJar(file.getName())) {
                 localClsssOrPkgs.addAll(loadImplementationsInJar(test, file));
             } else {
                 String pkg = packageOrClass;
-                if (pkg.endsWith(SUFFIX_CLASS))
-                    localClsssOrPkgs.add(pkg);
+                if (pkg.endsWith(SUFFIX_CLASS)) { localClsssOrPkgs.add(pkg); }
             }
         }
         return localClsssOrPkgs;
@@ -186,7 +184,7 @@ class InternalScanner {
             try {
                 JarFile jarFile = new JarFile(file);
 
-                for (Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
+                for (Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements(); ) {
                     JarEntry entry = e.nextElement();
                     String name = entry.getName();
                     if (!entry.isDirectory()) {
@@ -197,7 +195,7 @@ class InternalScanner {
                 }
             } catch (IOException ioe) {
                 log.error("Could not search jar file '" + file + "' for classes matching criteria: "
-                          + test + " due to an IOException" + ioe);
+                        + test + " due to an IOException" + ioe);
                 return Collections.emptyList();
             } finally {
                 jarContentCache.put(file.getPath(), packages);
